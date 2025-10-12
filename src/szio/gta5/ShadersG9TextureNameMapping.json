@@ -1,0 +1,338 @@
+{
+  "backward": {
+    "<common>": {
+      "ComboHeightTextureFur01": "ComboHeightSamplerFur01",
+      "ComboHeightTextureFur23": "ComboHeightSamplerFur23",
+      "ComboHeightTextureFur45": "ComboHeightSamplerFur45",
+      "ComboHeightTextureFur67": "ComboHeightSamplerFur67",
+      "DensityTexture": "DensitySampler",
+      "DepthMapTexture": "DepthMapTexSampler",
+      "DepthTexture": "DepthSampler",
+      "DetailDensity2Texture": "DetailDensity2Sampler",
+      "DetailDensityTexture": "DetailDensitySampler",
+      "DetailNormal2Texture": "DetailNormal2Sampler",
+      "DetailNormalTexture": "DetailNormalSampler",
+      "DetailTexture": "DetailSampler",
+      "DiffuseExtraSampler": "DiffuseExtraSampler",
+      "DiffuseHfTex": "DiffuseHfSampler",
+      "DiffuseRampTexture": "DiffuseRampTextureSampler",
+      "DiffuseTex": "DiffuseSampler",
+      "DistanceMap": "distanceMapSampler",
+      "FlowTexture": "FlowSampler",
+      "FoamTexture": "FoamSampler",
+      "FogTexture": "FogSampler",
+      "FontNormalMap": "FontNormalSampler",
+      "FontTexture": "FontSampler",
+      "FurMaskTex": "FurMaskSampler",
+      "MirrorCrackTexture": "gMirrorCrackSampler",
+      "NormalTexture": "NormalSampler",
+      "PlateBgBumpTex": "PlateBgBumpSampler",
+      "PlateBgTex": "PlateBgSampler",
+      "SfxWindTexture3D": "SfxWindSampler3D",
+      "SpecularRampTexture": "SpecularRampTextureSampler",
+      "StippleTexture": "StippleSampler",
+      "TintPaletteTex": "TintPaletteSampler",
+      "VolumeTex": "VolumeSampler",
+      "anisoNoiseSpecTexture": "AnisoNoiseSpecSampler",
+      "bumpTexture": "BumpSampler",
+      "bumpTexture2": "BumpSampler2",
+      "bumpTexture_layer0": "BumpSampler_layer0",
+      "bumpTexture_layer1": "BumpSampler_layer1",
+      "bumpTexture_layer2": "BumpSampler_layer2",
+      "bumpTexture_layer3": "BumpSampler_layer3",
+      "damagetexture": "DamageSampler",
+      "diffuseTexture3": "DiffuseSampler3",
+      "diffuseTexturePal": "TextureSamplerDiffPal",
+      "diffuseTexture_layer0": "TextureSampler_layer0",
+      "diffuseTexture_layer1": "TextureSampler_layer1",
+      "diffuseTexture_layer2": "TextureSampler_layer2",
+      "diffuseTexture_layer3": "TextureSampler_layer3",
+      "dirtBumpTexture": "DirtBumpSampler",
+      "dirtTexture": "DirtSampler",
+      "ditherTex": "ditherSampler",
+      "grassTexture0": "TextureGrassSampler",
+      "heightMapTextureLayer0": "heightMapSamplerLayer0",
+      "heightMapTextureLayer1": "heightMapSamplerLayer1",
+      "heightMapTextureLayer2": "heightMapSamplerLayer2",
+      "heightMapTextureLayer3": "heightMapSamplerLayer3",
+      "heightTexture": "heightSampler",
+      "highDetailNoiseTex": "highDetailSampler",
+      "lookupTexture": "lookupSampler",
+      "moonTex": "moonSampler",
+      "noiseTexture": "NoiseSampler",
+      "perlinNoiseRT": "perlinSampler",
+      "snowTexture": "SnowSampler",
+      "snowTexture0": "SnowSampler0",
+      "snowTexture1": "SnowSampler1",
+      "specTexture": "SpecSampler",
+      "starFieldTex": "starFieldSampler",
+      "textureCable": "textureSamp",
+      "wrinkleMaskTexture_0": "WrinkleMaskSampler_0",
+      "wrinkleMaskTexture_1": "WrinkleMaskSampler_1",
+      "wrinkleMaskTexture_2": "WrinkleMaskSampler_2",
+      "wrinkleMaskTexture_3": "WrinkleMaskSampler_3",
+      "wrinkleMaskTexture_4": "WrinkleMaskSampler_4",
+      "wrinkleMaskTexture_5": "WrinkleMaskSampler_5",
+      "wrinkleTexture_A": "WrinkleSampler_A",
+      "wrinkleTexture_B": "WrinkleSampler_B"
+    },
+    "glass": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "glass_displacement": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "glass_emissive": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "glass_emissivenight": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "glass_normal_spec_reflect": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "glass_reflect": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "normal_cubemap_reflect": {
+      "EnvironmentTex": "EnvironmentSampler"
+    },
+    "normal_reflect": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "normal_reflect_decal": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "normal_spec_cubemap_reflect": {
+      "EnvironmentTex": "EnvironmentSampler"
+    },
+    "normal_spec_detail_dpm_vertdecal_tnt": {
+      "DiffuseTex2": "DiffuseSampler2"
+    },
+    "normal_spec_reflect": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "normal_spec_reflect_decal": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "reflect": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "reflect_decal": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "spec_reflect": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "spec_reflect_decal": {
+      "EnvironmentTex2D": "EnvironmentSampler"
+    },
+    "vehicle_cloth2": {
+      "diffuseTexture2": "DiffuseSampler2"
+    },
+    "vehicle_paint3": {
+      "diffuseTexture2": "DiffuseSampler2"
+    },
+    "vehicle_paint3_enveff": {
+      "diffuseTexture2": "DiffuseSampler2"
+    },
+    "vehicle_paint4": {
+      "diffuseTexture2": "DiffuseSampler2"
+    },
+    "vehicle_paint4_emissive": {
+      "diffuseTexture2": "DiffuseSampler2"
+    },
+    "vehicle_paint4_enveff": {
+      "diffuseTexture2": "DiffuseSampler2"
+    },
+    "vehicle_paint5_enveff": {
+      "diffuseTexture2": "DiffuseSampler2"
+    },
+    "vehicle_paint6": {
+      "diffuseTexture2": "DiffuseSampler2"
+    },
+    "vehicle_paint6_enveff": {
+      "diffuseTexture2": "DiffuseSampler2"
+    },
+    "vehicle_paint7": {
+      "diffuseTexture2": "DiffuseSampler2"
+    },
+    "vehicle_paint7_enveff": {
+      "diffuseTexture2": "DiffuseSampler2"
+    },
+    "vehicle_paint8": {
+      "diffuseTexture2": "DiffuseSampler2"
+    },
+    "vehicle_paint9": {
+      "diffuseTexture2": "DiffuseSampler2"
+    }
+  },
+  "forward": {
+    "<common>": {
+      "AnisoNoiseSpecSampler": "anisoNoiseSpecTexture",
+      "BumpSampler": "bumpTexture",
+      "BumpSampler2": "bumpTexture2",
+      "BumpSampler_layer0": "bumpTexture_layer0",
+      "BumpSampler_layer1": "bumpTexture_layer1",
+      "BumpSampler_layer2": "bumpTexture_layer2",
+      "BumpSampler_layer3": "bumpTexture_layer3",
+      "ComboHeightSamplerFur01": "ComboHeightTextureFur01",
+      "ComboHeightSamplerFur23": "ComboHeightTextureFur23",
+      "ComboHeightSamplerFur45": "ComboHeightTextureFur45",
+      "ComboHeightSamplerFur67": "ComboHeightTextureFur67",
+      "DamageSampler": "damagetexture",
+      "DensitySampler": "DensityTexture",
+      "DepthMapTexSampler": "DepthMapTexture",
+      "DepthSampler": "DepthTexture",
+      "DetailDensity2Sampler": "DetailDensity2Texture",
+      "DetailDensitySampler": "DetailDensityTexture",
+      "DetailNormal2Sampler": "DetailNormal2Texture",
+      "DetailNormalSampler": "DetailNormalTexture",
+      "DetailSampler": "DetailTexture",
+      "DiffuseExtraSampler": "DiffuseExtraSampler",
+      "DiffuseHfSampler": "DiffuseHfTex",
+      "DiffuseRampTextureSampler": "DiffuseRampTexture",
+      "DiffuseSampler": "DiffuseTex",
+      "DiffuseSampler3": "diffuseTexture3",
+      "DirtBumpSampler": "dirtBumpTexture",
+      "DirtSampler": "dirtTexture",
+      "FlowSampler": "FlowTexture",
+      "FoamSampler": "FoamTexture",
+      "FogSampler": "FogTexture",
+      "FontNormalSampler": "FontNormalMap",
+      "FontSampler": "FontTexture",
+      "FurMaskSampler": "FurMaskTex",
+      "NoiseSampler": "noiseTexture",
+      "NormalSampler": "NormalTexture",
+      "PlateBgBumpSampler": "PlateBgBumpTex",
+      "PlateBgSampler": "PlateBgTex",
+      "SfxWindSampler3D": "SfxWindTexture3D",
+      "SnowSampler": "snowTexture",
+      "SnowSampler0": "snowTexture0",
+      "SnowSampler1": "snowTexture1",
+      "SpecSampler": "specTexture",
+      "SpecularRampTextureSampler": "SpecularRampTexture",
+      "StippleSampler": "StippleTexture",
+      "TextureGrassSampler": "grassTexture0",
+      "TextureSamplerDiffPal": "diffuseTexturePal",
+      "TextureSampler_layer0": "diffuseTexture_layer0",
+      "TextureSampler_layer1": "diffuseTexture_layer1",
+      "TextureSampler_layer2": "diffuseTexture_layer2",
+      "TextureSampler_layer3": "diffuseTexture_layer3",
+      "TintPaletteSampler": "TintPaletteTex",
+      "VolumeSampler": "VolumeTex",
+      "WrinkleMaskSampler_0": "wrinkleMaskTexture_0",
+      "WrinkleMaskSampler_1": "wrinkleMaskTexture_1",
+      "WrinkleMaskSampler_2": "wrinkleMaskTexture_2",
+      "WrinkleMaskSampler_3": "wrinkleMaskTexture_3",
+      "WrinkleMaskSampler_4": "wrinkleMaskTexture_4",
+      "WrinkleMaskSampler_5": "wrinkleMaskTexture_5",
+      "WrinkleSampler_A": "wrinkleTexture_A",
+      "WrinkleSampler_B": "wrinkleTexture_B",
+      "distanceMapSampler": "DistanceMap",
+      "ditherSampler": "ditherTex",
+      "gMirrorCrackSampler": "MirrorCrackTexture",
+      "heightMapSamplerLayer0": "heightMapTextureLayer0",
+      "heightMapSamplerLayer1": "heightMapTextureLayer1",
+      "heightMapSamplerLayer2": "heightMapTextureLayer2",
+      "heightMapSamplerLayer3": "heightMapTextureLayer3",
+      "heightSampler": "heightTexture",
+      "highDetailSampler": "highDetailNoiseTex",
+      "lookupSampler": "lookupTexture",
+      "moonSampler": "moonTex",
+      "perlinSampler": "perlinNoiseRT",
+      "starFieldSampler": "starFieldTex",
+      "textureSamp": "textureCable"
+    },
+    "glass": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "glass_displacement": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "glass_emissive": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "glass_emissivenight": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "glass_normal_spec_reflect": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "glass_reflect": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "normal_cubemap_reflect": {
+      "EnvironmentSampler": "EnvironmentTex"
+    },
+    "normal_reflect": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "normal_reflect_decal": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "normal_spec_cubemap_reflect": {
+      "EnvironmentSampler": "EnvironmentTex"
+    },
+    "normal_spec_detail_dpm_vertdecal_tnt": {
+      "DiffuseSampler2": "DiffuseTex2"
+    },
+    "normal_spec_reflect": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "normal_spec_reflect_decal": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "reflect": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "reflect_decal": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "spec_reflect": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "spec_reflect_decal": {
+      "EnvironmentSampler": "EnvironmentTex2D"
+    },
+    "vehicle_cloth2": {
+      "DiffuseSampler2": "diffuseTexture2"
+    },
+    "vehicle_paint3": {
+      "DiffuseSampler2": "diffuseTexture2"
+    },
+    "vehicle_paint3_enveff": {
+      "DiffuseSampler2": "diffuseTexture2"
+    },
+    "vehicle_paint4": {
+      "DiffuseSampler2": "diffuseTexture2"
+    },
+    "vehicle_paint4_emissive": {
+      "DiffuseSampler2": "diffuseTexture2"
+    },
+    "vehicle_paint4_enveff": {
+      "DiffuseSampler2": "diffuseTexture2"
+    },
+    "vehicle_paint5_enveff": {
+      "DiffuseSampler2": "diffuseTexture2"
+    },
+    "vehicle_paint6": {
+      "DiffuseSampler2": "diffuseTexture2"
+    },
+    "vehicle_paint6_enveff": {
+      "DiffuseSampler2": "diffuseTexture2"
+    },
+    "vehicle_paint7": {
+      "DiffuseSampler2": "diffuseTexture2"
+    },
+    "vehicle_paint7_enveff": {
+      "DiffuseSampler2": "diffuseTexture2"
+    },
+    "vehicle_paint8": {
+      "DiffuseSampler2": "diffuseTexture2"
+    },
+    "vehicle_paint9": {
+      "DiffuseSampler2": "diffuseTexture2"
+    }
+  }
+}

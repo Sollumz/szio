@@ -1,0 +1,393 @@
+{
+  "clouds_altitude": {
+    "genvmapalphascale": [0.75, 0.0, 0.0, 0.0]
+  },
+  "clouds_anim": {
+    "genvmapalphascale": [0.75, 0.0, 0.0, 0.0]
+  },
+  "clouds_animsoft": {
+    "genvmapalphascale": [0.75, 0.0, 0.0, 0.0]
+  },
+  "clouds_fast": {
+    "ganimblendweights": [1.0, 0.0, 0.0, 0.0],
+    "ganimcombine": [1.0, 1.0, 1.0, 0.0],
+    "ganimsculpt": [0.0, 0.0, 0.0, 0.0],
+    "genvmapalphascale": [0.75, 0.0, 0.0, 0.0],
+    "gnearfarqmult": [0.0, 0.0, 0.0, 0.0],
+    "gsoftparticlerange": [175.0, 0.0, 0.0, 0.0]
+  },
+  "clouds_fog": {
+    "ganimblendweights": [1.0, 0.0, 0.0, 0.0],
+    "ganimcombine": [1.0, 1.0, 1.0, 0.0],
+    "ganimsculpt": [0.0, 0.0, 0.0, 0.0],
+    "genvmapalphascale": [0.75, 0.0, 0.0, 0.0],
+    "gscatterg_gsquared_phasemult_scale": [-0.75, 0.5625, 2.1, 1.0]
+  },
+  "clouds_soft": {
+    "ganimblendweights": [1.0, 0.0, 0.0, 0.0],
+    "ganimcombine": [1.0, 1.0, 1.0, 0.0],
+    "ganimsculpt": [0.0, 0.0, 0.0, 0.0],
+    "genvmapalphascale": [0.75, 0.0, 0.0, 0.0]
+  },
+  "emissive_additive_alpha": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "emissive_additive_uv_alpha": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "glass": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "glass_breakable": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "glass_displacement": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "glass_emissive": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "glass_emissivenight": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "glass_env": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "glass_normal_spec_reflect": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "glass_pv": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0],
+    "specmapintmask": [1.0, 0.0, 0.0, 0.0]
+  },
+  "glass_pv_env": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0],
+    "specmapintmask": [1.0, 0.0, 0.0, 0.0]
+  },
+  "glass_reflect": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "glass_spec": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "grass_batch": {
+    "bdebugswitches": [0.0, 0.0, 0.0, 0.0],
+    "gindirectcountperlod": [0.0, 0.0, 0.0, 0.0],
+    "glodfadeinstrange": [0.0, 0.0, 1.0, 0.0]
+  },
+  "grass_fur": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "grass_fur_mask": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "mirror_crack": {
+    "gmirrordebugparams": [0.0, 0.0, 0.0, 0.0],
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0],
+    "reflectivepower": [0.45, 0.0, 0.0, 0.0],
+    "specularfalloffmult": [100.0, 0.0, 0.0, 0.0],
+    "specularfresnel": [0.97, 0.0, 0.0, 0.0]
+  },
+  "mirror_decal": {
+    "gmirrordebugparams": [0.0, 0.0, 0.0, 0.0],
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "mirror_default": {
+    "gmirrordebugparams": [0.0, 0.0, 0.0, 0.0],
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0],
+    "reflectivepower": [0.45, 0.0, 0.0, 0.0],
+    "specularfalloffmult": [100.0, 0.0, 0.0, 0.0],
+    "specularfresnel": [0.97, 0.0, 0.0, 0.0]
+  },
+  "normal_diffspec": {
+    "specularfalloffmult": [100.0, 0.0, 0.0, 0.0]
+  },
+  "normal_diffspec_detail": {
+    "specularfalloffmult": [100.0, 0.0, 0.0, 0.0]
+  },
+  "normal_diffspec_detail_dpm": {
+    "specularfalloffmult": [100.0, 0.0, 0.0, 0.0]
+  },
+  "normal_diffspec_detail_dpm_tnt": {
+    "specularfalloffmult": [100.0, 0.0, 0.0, 0.0]
+  },
+  "normal_diffspec_detail_tnt": {
+    "specularfalloffmult": [100.0, 0.0, 0.0, 0.0]
+  },
+  "normal_diffspec_tnt": {
+    "specularfalloffmult": [100.0, 0.0, 0.0, 0.0]
+  },
+  "normal_spec_batch": {
+    "gindirectcountperlod": [0.0, 0.0, 0.0, 0.0],
+    "glodfadeinstrange": [0.0, 0.0, 1.0, 0.0]
+  },
+  "normal_um_tnt": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "parallax": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "parallax_specmap": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "ped": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_cloth": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_cloth_enveff": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_decal": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_decal_decoration": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_decal_exp": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_default_mp": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_emissive": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_enveff": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_nopeddamagedecals": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_palette": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_wrinkle": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_wrinkle_cloth": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_wrinkle_cloth_enveff": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_wrinkle_cs": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ped_wrinkle_enveff": {
+    "bloodzoneadjust": [0.4, 0.0, 1.0, 1.0, 0.2, 0.4, 1.0, 1.0, 0.1, 0.6, -1.0, 1.0, 0.1, 0.7, 1.0, -1.0, 0.1, 0.8, 1.0, 1.0, 0.1, 0.9, 1.0, 1.0]
+  },
+  "ptfx_model": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "reflect": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "trees": {
+    "alphaclampnormal": [1.0, 0.0, 0.0, 0.0],
+    "alphascalenormal": [1.0, 0.0, 0.0, 0.0]
+  },
+  "trees_lod": {
+    "alphaclampnormal": [1.0, 0.0, 0.0, 0.0],
+    "alphascalenormal": [1.0, 0.0, 0.0, 0.0],
+    "umglobalparams": [0.025, 0.02, 1.0, 0.5]
+  },
+  "trees_lod2": {
+    "alphaclampnormal": [1.0, 0.0, 0.0, 0.0],
+    "alphascalenormal": [1.0, 0.0, 0.0, 0.0],
+    "selfshadowing": [0.8, 0.0, 0.0, 0.0],
+    "umglobalparams": [0.025, 0.02, 1.0, 0.5]
+  },
+  "trees_lod_tnt": {
+    "alphaclampnormal": [1.0, 0.0, 0.0, 0.0],
+    "alphascalenormal": [1.0, 0.0, 0.0, 0.0],
+    "umglobalparams": [0.025, 0.02, 1.0, 0.5]
+  },
+  "trees_normal": {
+    "alphaclampnormal": [1.0, 0.0, 0.0, 0.0],
+    "alphascalenormal": [1.0, 0.0, 0.0, 0.0]
+  },
+  "trees_normal_diffspec": {
+    "alphaclampnormal": [1.0, 0.0, 0.0, 0.0],
+    "alphascalenormal": [1.0, 0.0, 0.0, 0.0]
+  },
+  "trees_normal_diffspec_tnt": {
+    "alphaclampnormal": [1.0, 0.0, 0.0, 0.0],
+    "alphascalenormal": [1.0, 0.0, 0.0, 0.0]
+  },
+  "trees_normal_spec": {
+    "alphaclampnormal": [1.0, 0.0, 0.0, 0.0],
+    "alphascalenormal": [1.0, 0.0, 0.0, 0.0]
+  },
+  "trees_normal_spec_tnt": {
+    "alphaclampnormal": [1.0, 0.0, 0.0, 0.0],
+    "alphascalenormal": [1.0, 0.0, 0.0, 0.0]
+  },
+  "trees_shadow_proxy": {
+    "alphaclampnormal": [1.0, 0.0, 0.0, 0.0],
+    "alphascalenormal": [1.0, 0.0, 0.0, 0.0]
+  },
+  "trees_tnt": {
+    "alphaclampnormal": [1.0, 0.0, 0.0, 0.0],
+    "alphascalenormal": [1.0, 0.0, 0.0, 0.0]
+  },
+  "vehicle_badges": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0],
+    "matdiffusespecularrampenabled": [-1.0, 0.0, 0.0, 0.0]
+  },
+  "vehicle_basic": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_blurredrotor": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_blurredrotor_emissive": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_cloth": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_cutout": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_dash_emissive": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_dash_emissive_opaque": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_decal": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_decal2": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_detail": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_detail2": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_emissive_alpha": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_emissive_opaque": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_generic": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_interior": {
+    "dirtlevelmod": [1.0, 1.0, 1.0, 1.0],
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_interior2": {
+    "dirtlevelmod": [1.0, 1.0, 1.0, 1.0],
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_licenseplate": {
+    "fontoutlinecolor": [0.0, 0.0, 0.0, 0.0],
+    "fontoutlineminmaxdepthenabled": [0.475, 0.5, 0.0, 0.0],
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_lightsemissive": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_lightsemissive_siren": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_mesh": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_mesh2_enveff": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_mesh_enveff": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_paint1": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_paint1_enveff": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_paint2": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_paint2_enveff": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_shuts": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_tire": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0],
+    "matwheelprevworldviewproj": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  },
+  "vehicle_tire_emissive": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0],
+    "matwheelprevworldviewproj": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  },
+  "vehicle_track": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_track2": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_track2_emissive": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_track_ammo": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_track_emissive": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_track_siren": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_vehglass": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "vehicle_vehglass_inner": {
+    "matdiffusecolor2": [1.0, 1.0, 1.0, 1.0]
+  },
+  "water_fountain": {
+    "parallaxintensity": [0.3, 0.0, 0.0, 0.0],
+    "ripplespeed": [0.0, 0.0, 0.0, 0.0]
+  },
+  "water_poolenv": {
+    "parallaxintensity": [0.3, 0.0, 0.0, 0.0],
+    "ripplespeed": [0.0, 0.0, 0.0, 0.0]
+  },
+  "water_river": {
+    "parallaxintensity": [0.3, 0.0, 0.0, 0.0]
+  },
+  "water_riverfoam": {
+    "parallaxintensity": [0.3, 0.0, 0.0, 0.0],
+    "ripplebumpiness": [0.356, 0.0, 0.0, 0.0],
+    "ripplescale": [0.04, 0.0, 0.0, 0.0],
+    "specularfalloff": [1118.0, 0.0, 0.0, 0.0],
+    "specularintensity": [1.0, 0.0, 0.0, 0.0]
+  },
+  "water_riverlod": {
+    "parallaxintensity": [0.3, 0.0, 0.0, 0.0]
+  },
+  "water_riverocean": {
+    "parallaxintensity": [0.3, 0.0, 0.0, 0.0],
+    "ripplespeed": [0.0, 0.0, 0.0, 0.0]
+  },
+  "water_rivershallow": {
+    "parallaxintensity": [0.3, 0.0, 0.0, 0.0]
+  },
+  "water_shallow": {
+    "parallaxintensity": [0.3, 0.0, 0.0, 0.0]
+  },
+  "weapon_emissivestrong_alpha": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  },
+  "weapon_normal_spec_alpha": {
+    "hardalphablend": [1.0, 0.0, 0.0, 0.0]
+  }
+}
