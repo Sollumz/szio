@@ -276,7 +276,7 @@ class ExtensionSpawnPoint(Extension):
         self.ped_type = TextProperty("pedType")
         self.group = TextProperty("group")
         self.interior = TextProperty("interior")
-        self.required_imap = TextProperty("required_imap")
+        self.required_imap = TextProperty("requiredImap")
         # CSpawnPoint__AvailabilityMpSp
         self.available_in_mp_sp = TextProperty("availableInMpSp")
         self.probability = ValueProperty("probability")
