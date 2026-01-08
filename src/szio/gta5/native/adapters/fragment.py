@@ -206,9 +206,9 @@ class NativeFragment:
                 damaged_inertia=Vector(lod.undamaged_ang_inertia[idx]),
             )
 
-        def _map_group(g: pm.FragmentTypeGroup) -> PhysGroup:
+        def _map_group(g: pm.FragmentTypeGroup, name: str) -> PhysGroup:
             return PhysGroup(
-                name=g.name,
+                name=name or g.name,
                 parent_group_index=g.parent_group_pointer_index,
                 flags=g.flags,
                 total_mass=g.total_undamaged_mass,
@@ -245,7 +245,7 @@ class NativeFragment:
                 archetype=_map_archetype(lod.phys_damp_undamaged),
                 damaged_archetype=_map_archetype(lod.phys_damp_damaged),
                 children=[_map_child(c, i, lod) for i, c in enumerate(lod.children)],
-                groups=[_map_group(g) for g in lod.groups],
+                groups=[_map_group(g, gname) for g, gname in zip(lod.groups, lod.group_names)],
                 smallest_ang_inertia=lod.smallest_ang_inertia,
                 largest_ang_inertia=lod.largest_ang_inertia,
                 min_move_force=lod.min_move_force,
