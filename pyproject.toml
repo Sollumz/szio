@@ -14,7 +14,6 @@ dependencies = ["numpy >= 1.23.0"]
 
 
 [project.optional-dependencies]
-native = ["pymateria"]
 test = ["pytest >= 8.4.0"]
 
 [project.urls]
