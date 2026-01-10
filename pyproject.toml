@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "szio"
-version = "1.0.0"
+version = "1.1.0.dev0"
 authors = [{name="alexguirre", email="alexguirre.aa@gmail.com"}]
 readme = "README.md"
 license = "MIT"
