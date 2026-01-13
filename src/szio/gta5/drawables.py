@@ -7,7 +7,7 @@ from typing import NamedTuple, Protocol, runtime_checkable
 import numpy as np
 from numpy.typing import NDArray
 
-from ..types import Matrix, Quaternion, Vector
+from ..types import DataSource, Matrix, Quaternion, Vector
 from .assets import Asset, AssetType
 from .bounds import AssetBound
 
@@ -108,8 +108,7 @@ class EmbeddedTexture(NamedTuple):
     name: str
     width: int
     height: int
-
-    source_filepath: Path | None  # just needed for export
+    data: DataSource | None
 
 
 @dataclass(slots=True)

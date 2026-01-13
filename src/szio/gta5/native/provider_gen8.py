@@ -37,18 +37,14 @@ class NativeProviderG8(NativeProvider):
             case ".ydr":
                 drawable = pmg8.Drawable.import_rsc(path).result
                 textures_dir = path.parent / path.stem
-                self._extract_textures(drawable, textures_dir)
                 return NativeDrawable(drawable)
             case ".ydd":
                 dwd = pmg8.DrawableDictionary.import_rsc(path).result
                 textures_dir = path.parent / path.stem
-                for drawable in dwd.drawables.values():
-                    self._extract_textures(drawable, textures_dir)
                 return NativeDrawableDictionary(dwd)
             case ".yft":
                 fragment = pmg8.Fragment.import_rsc(path).result
                 textures_dir = path.parent / path.stem
-                self._extract_textures(fragment.drawable, textures_dir)
                 return NativeFragment(fragment)
             case _:
                 return super().load_file(path)

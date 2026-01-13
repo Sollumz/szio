@@ -5,7 +5,7 @@ import numpy as np
 import pymateria.gta5 as pm
 import pymateria.gta5.gen8 as pmg8
 
-from ....types import Matrix, Quaternion, Vector
+from ....types import DataSource, Matrix, Quaternion, Vector
 from ... import jenkhash
 from ...assets import (
     AssetFormat,
@@ -33,6 +33,7 @@ from ...drawables import (
     VertexDataType,
 )
 from ._utils import (
+    _h2s,
     apply_target,
     from_native_mat34,
     make_checkerboard_texture_data,
@@ -41,7 +42,6 @@ from ._utils import (
     to_native_rgb,
     to_native_vec3,
     to_native_vec4,
-    _h2s,
 )
 from .bound import (
     NativeBound,
@@ -298,6 +298,27 @@ class NativeDrawable:
     def bounds(self, v: NativeBound | None):
         self._inner.bound = canonical_asset(v, NativeBound, self)._inner if v else None
 
+    def _extract_embedded_texture_dds(self, tex: pmg8.Texture) -> bytes:
+        import io
+        import math
+
+        # Try to fix mips if needed, some vanilla textures have too many
+        # mips and export_dds will raise an exception
+        mips = tex.mips
+        w = tex.width
+        h = tex.height
+        max_mips_w = math.ceil(math.log2(w / 2))
+        max_mips_h = math.ceil(math.log2(h / 2))
+        max_mips = min(max_mips_w, max_mips_h)
+        if len(mips) > max_mips:
+            num_mips_to_remove = len(mips) - max_mips
+            for _ in range(num_mips_to_remove):
+                mips.pop()
+
+        tex_dds = io.BytesIO()
+        tex.export_dds(tex_dds)
+        return tex_dds.getvalue()
+
     @property
     def shader_group(self) -> ShaderGroup | None:
         if self._inner.shader_group is None:
@@ -332,11 +353,16 @@ class NativeDrawable:
                 parameters=[_map_parameter(p) for p in shader.parameters],
             )
 
+        def _map_embedded_texture(tex: pmg8.Texture) -> EmbeddedTexture:
+            tex_data_bytes = self._extract_embedded_texture_dds(tex)
+            tex_data = DataSource.create(tex_data_bytes, f"{tex.name}.dds")
+            return EmbeddedTexture(tex.name, tex.width, tex.height, tex_data)
+
         def _map_embedded_textures(txd: pmg8.TextureDictionary | None) -> dict[str, EmbeddedTexture]:
             if txd is None:
                 return {}
 
-            return {t.name: EmbeddedTexture(t.name, t.width, t.height, None) for t in txd.textures.values()}
+            return {t.name: _map_embedded_texture(t) for t in txd.textures.values()}
 
         sg = self._inner.shader_group
         return ShaderGroup([_map_shader(s) for s in sg.shaders], _map_embedded_textures(sg.texture_dictionary))
@@ -355,11 +381,11 @@ class NativeDrawable:
                 tex = pmg8.Texture()
                 tex.name = embedded_tex.name
                 embedded_textures[tex.name] = tex
-                path = embedded_tex.source_filepath
-                if path and path.suffix == ".dds" and path.is_file():
-                    tex.import_dds(path)
+                if data := embedded_tex.data:
+                    with data.open() as data_stream:
+                        tex.import_dds(data_stream)
                 else:
-                    # Texture missing or not a .dds, create magenta/black checkerboard texture
+                    # Texture data missing, create magenta/black checkerboard texture
                     texture_data = make_checkerboard_texture_data()
                     h, w, _ = texture_data.shape
                     mip = pm.TextureMip()
@@ -370,11 +396,6 @@ class NativeDrawable:
                     tex.height = h
                     tex.depth = 1
                     tex.layer_count = 1
-
-                    logging.getLogger(__name__).warning(
-                        f"Embedded texture '{path}' is not in DDS format. Cannot be embedded in binary resource and a "
-                        f"placeholder texture will be used instead. Please, convert '{path.name}' to a DDS file."
-                    )
 
                 txd.textures[pm.HashString(tex.name)] = tex
 

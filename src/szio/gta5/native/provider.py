@@ -48,30 +48,6 @@ class NativeProvider(ABC):
             case _:
                 raise ValueError(f"Unsupported file extension '{file_ext}'")
 
-    def _extract_textures(self, drawable, dest_dir: Path):
-        txd = drawable.shader_group.texture_dictionary
-        if txd is None:
-            return
-
-        dest_dir.mkdir(exist_ok=True)
-        for tex in txd.textures.values():
-            tex_file = dest_dir / f"{tex.name}.dds"
-            if not tex_file.exists():
-                # Try to fix mips if needed, some vanilla textures have too many
-                # mips and export_dds will raise an exception
-                mips = tex.mips
-                w = tex.width
-                h = tex.height
-                max_mips_w = math.ceil(math.log2(w / 2))
-                max_mips_h = math.ceil(math.log2(h / 2))
-                max_mips = min(max_mips_w, max_mips_h)
-                if len(mips) > max_mips:
-                    num_mips_to_remove = len(mips) - max_mips
-                    for _ in range(num_mips_to_remove):
-                        mips.pop()
-
-                tex.export_dds(tex_file)
-
     def load_file(self, path: Path) -> Asset:
         match path.suffix.lower():
             case ".ybn":

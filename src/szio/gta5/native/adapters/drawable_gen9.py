@@ -6,7 +6,7 @@ import numpy as np
 import pymateria.gta5 as pm
 import pymateria.gta5.gen9 as pmg9
 
-from ....types import Matrix, Vector
+from ....types import DataSource, Matrix, Vector
 from ... import jenkhash
 from ...assets import (
     AssetFormat,
@@ -153,11 +153,16 @@ class NativeDrawableG9(NativeDrawable):
                 parameters=_map_parameters(shader),
             )
 
+        def _map_embedded_texture(tex: pmg9.Texture) -> EmbeddedTexture:
+            tex_data_bytes = self._extract_embedded_texture_dds(tex)
+            tex_data = DataSource.create(tex_data_bytes, f"{tex.name}.dds")
+            return EmbeddedTexture(tex.name, tex.width, tex.height, tex_data)
+
         def _map_embedded_textures(txd: pmg9.TextureDictionary | None) -> dict[str, EmbeddedTexture]:
             if txd is None:
                 return {}
 
-            return {t.name: EmbeddedTexture(t.name, t.width, t.height, None) for t in txd.textures.values()}
+            return {t.name: _map_embedded_texture(t) for t in txd.textures.values()}
 
         sg = self._inner.shader_group
         return ShaderGroup([_map_shader(s) for s in sg.shaders], _map_embedded_textures(sg.texture_dictionary))
@@ -175,11 +180,11 @@ class NativeDrawableG9(NativeDrawable):
                 tex = pmg9.Texture()
                 tex.name = embedded_tex.name
                 tex.dimension = pmg9.ImageDimension.DIM_2D
-                path = embedded_tex.source_filepath
-                if path and path.suffix == ".dds" and path.is_file():
-                    tex.import_dds(path)
+                if data := embedded_tex.data:
+                    with data.open() as data_stream:
+                        tex.import_dds(data_stream)
                 else:
-                    # Texture missing or not a .dds, create magent/black checkerboard texture
+                    # Texture data missing, create magenta/black checkerboard texture
                     texture_data = make_checkerboard_texture_data()
                     h, w, _ = texture_data.shape
                     mip = pm.TextureMip()
@@ -189,11 +194,6 @@ class NativeDrawableG9(NativeDrawable):
                     tex.width = w
                     tex.height = h
                     tex.depth = 1
-
-                    logging.getLogger(__name__).warning(
-                        f"Embedded texture '{path}' is not in DDS format. Cannot be embedded in binary resource and a "
-                        f"placeholder texture will be used instead. Please, convert '{path.name}' to a DDS file."
-                    )
 
                 txd.textures[pm.HashString(tex.name)] = tex
 
