@@ -1,4 +1,7 @@
-from typing import TYPE_CHECKING, Sequence, TypeAlias
+import io
+import os
+from pathlib import Path
+from typing import IO, TYPE_CHECKING, Sequence, TypeAlias
 
 import numpy as np
 
@@ -7,6 +10,7 @@ __all__ = [
     "Quaternion",
     "Matrix",
     "use_math_types",
+    "DataSource",
 ]
 
 
@@ -120,6 +124,59 @@ def use_math_types(vector_cls: type, quaternion_cls: type, matrix_cls: type):
     _vector_hook = vector_cls
     _quaternion_hook = quaternion_cls
     _matrix_hook = matrix_cls
+
+
+class DataSource:
+    __slots__ = ("name",)
+
+    name: str
+
+    def open(self) -> IO[bytes]:
+        """Open the data source and return a file-like object."""
+        raise NotImplementedError("DataSource.open() must be implemented by subclasses")
+
+    @staticmethod
+    def create(source: str | os.PathLike | bytes, name: str | None = None) -> "DataSource":
+        """Factory method to create appropriate DataSource from various input types.
+
+        Args:
+            source: File path (str or PathLike) or bytes data.
+            name: Optional name for the data source.
+
+        Returns:
+            DataSource instance appropriate for the input type
+
+        Raises:
+            TypeError: If source type is not supported
+        """
+        if isinstance(source, (str, os.PathLike)):
+            return _DataSourceFile(name, source)
+        elif isinstance(source, bytes):
+            return _DataSourceBytes(name or "bytes_data", source)
+        else:
+            raise TypeError(f"Unsupported source type: {type(source).__name__}. Expected str, os.PathLike, or bytes")
+
+
+class _DataSourceFile(DataSource):
+    __slots__ = ("filepath",)
+
+    def __init__(self, name: str | None, filepath: str | os.PathLike):
+        self.filepath = Path(filepath)
+        self.name = self.filepath.name if name is None else name
+
+    def open(self) -> IO[bytes]:
+        return open(self.filepath, "rb")
+
+
+class _DataSourceBytes(DataSource):
+    __slots__ = ("data",)
+
+    def __init__(self, name: str, data: bytes):
+        self.name = name
+        self.data = data
+
+    def open(self) -> IO[bytes]:
+        return io.BytesIO(self.data)
 
 
 def __getattr__(name: str):
