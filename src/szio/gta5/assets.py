@@ -111,7 +111,6 @@ class MultiAssetProxy:
             raise ValueError("All assets must be of the same type!")
 
         self._assets = assets
-        print(f"{self._assets=}")
         # self._attr_with_asset = MultiAssetProxy._ATTR_WITH_ASSET.get(asset_type, {})
         self._attr_with_asset_list = MultiAssetProxy._ATTR_WITH_ASSET_LIST.get(asset_type, {})
 
