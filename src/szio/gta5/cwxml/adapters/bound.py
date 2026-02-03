@@ -318,6 +318,16 @@ class CWBound:
         self._inner.sphere_radius = v
 
     @property
+    def plane_normal(self) -> Vector:
+        assert self._inner.type == "Cloth"
+        return Vector(self._inner.normal)
+
+    @plane_normal.setter
+    def plane_normal(self, v: Vector):
+        assert self._inner.type == "Cloth"
+        self._inner.normal = Vector(v)
+
+    @property
     def geometry_primitives(self) -> list[BoundPrimitive]:
         assert self._inner.type == "Geometry" or self._inner.type == "GeometryBVH"
         materials = [

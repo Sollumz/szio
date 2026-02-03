@@ -262,6 +262,16 @@ class NativeBound:
         self._inner.radius = v - self._inner.margin
 
     @property
+    def plane_normal(self) -> Vector:
+        assert self._inner.type == pm.BoundType.PLANE
+        return Vector(self._inner.normal)
+
+    @plane_normal.setter
+    def plane_normal(self, v: Vector):
+        assert self._inner.type == pm.BoundType.PLANE
+        self._inner.normal = to_native_vec3(v)
+
+    @property
     def geometry_primitives(self) -> list[BoundPrimitive]:
         assert self._inner.type == pm.BoundType.GEOMETRY or self._inner.type == pm.BoundType.BVH
 
