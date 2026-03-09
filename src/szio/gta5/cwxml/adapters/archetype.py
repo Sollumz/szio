@@ -499,7 +499,7 @@ class CWMapTypes:
                 case ExtensionAudioEmitter():
                     e = cwm.ExtensionAudioEmitter()
                     e.offset_rotation = extension.offset_rotation
-                    e.effect_hash = extension.effect_hash
+                    e.effect_hash = str(jenkhash.name_to_hash(extension.effect_hash))
                 case ExtensionExplosionEffect():
                     e = cwm.ExtensionExplosionEffect()
                     e.offset_rotation = extension.offset_rotation
