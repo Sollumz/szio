@@ -295,7 +295,7 @@ class Fragment(ElementTree, AbstractClass):
     @classmethod
     def from_xml(cls, element: ET.Element) -> "Fragment":
         new: Fragment = super().from_xml(element)
-        if not element.find("Drawable"):
+        if element.find("Drawable") is None:
             # If there is no drawable in the xml, remove the default one
             new.drawable = None
         return new

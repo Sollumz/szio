@@ -241,7 +241,7 @@ class VerletCloth(ElementTree):
     @classmethod
     def from_xml(cls, element: ET.Element) -> "VerletCloth":
         new: VerletCloth = super().from_xml(element)
-        if not element.find(BoundComposite.tag_name):
+        if element.find(BoundComposite.tag_name) is None:
             # If there is no bounds in the xml, remove the default one
             new.bounds = None
         return new
@@ -345,7 +345,7 @@ class EnvironmentCloth(ElementTree):
     @classmethod
     def from_xml(cls, element: ET.Element) -> "EnvironmentCloth":
         new: EnvironmentCloth = super().from_xml(element)
-        if not element.find(ClothInstanceTuning.tag_name):
+        if element.find(ClothInstanceTuning.tag_name) is None:
             # If there is no tuning in the xml, remove the default one
             new.tuning = None
         return new
