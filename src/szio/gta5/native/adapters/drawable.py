@@ -298,22 +298,36 @@ class NativeDrawable:
     def bounds(self, v: NativeBound | None):
         self._inner.bound = canonical_asset(v, NativeBound, self)._inner if v else None
 
+    def _is_texture_compressed(self, tex: pmg8.Texture) -> bool:
+        match tex.format:
+            case (
+                pmg8.TextureFormat.DXT1 | pmg8.TextureFormat.DXT2 | pmg8.TextureFormat.DXT3 |
+                pmg8.TextureFormat.DXT4 | pmg8.TextureFormat.DXT5 | pmg8.TextureFormat.CTX1 |
+                pmg8.TextureFormat.DXT3A | pmg8.TextureFormat.DXT3A_1111 | pmg8.TextureFormat.DXT5A |
+                pmg8.TextureFormat.DXN | pmg8.TextureFormat.BC6 | pmg8.TextureFormat.BC7
+            ):
+                return True
+
+            case _:
+                return False
+
     def _extract_embedded_texture_dds(self, tex: pmg8.Texture) -> bytes:
         import io
         import math
 
-        # Try to fix mips if needed, some vanilla textures have too many
-        # mips and export_dds will raise an exception
-        mips = tex.mips
-        w = tex.width
-        h = tex.height
-        max_mips_w = math.ceil(math.log2(w / 2))
-        max_mips_h = math.ceil(math.log2(h / 2))
-        max_mips = min(max_mips_w, max_mips_h)
-        if len(mips) > max_mips:
-            num_mips_to_remove = len(mips) - max_mips
-            for _ in range(num_mips_to_remove):
-                mips.pop()
+        if self._is_texture_compressed(tex):
+            # Try to fix mips if needed, some vanilla textures have too many
+            # mips and export_dds will raise an exception
+            mips = tex.mips
+            w = tex.width
+            h = tex.height
+            max_mips_w = math.ceil(math.log2(w / 2))
+            max_mips_h = math.ceil(math.log2(h / 2))
+            max_mips = min(max_mips_w, max_mips_h)
+            if len(mips) > max_mips:
+                num_mips_to_remove = len(mips) - max_mips
+                for _ in range(num_mips_to_remove):
+                    mips.pop()
 
         tex_dds = io.BytesIO()
         tex.export_dds(tex_dds)
@@ -367,6 +381,50 @@ class NativeDrawable:
         sg = self._inner.shader_group
         return ShaderGroup([_map_shader(s) for s in sg.shaders], _map_embedded_textures(sg.texture_dictionary))
 
+    def _import_dds(self, tex: pmg8.Texture, data: DataSource | None) -> bool:
+        if not data:
+            return False
+
+        try:
+            with data.open() as data_stream:
+                tex.import_dds(data_stream)
+            return True
+        except RuntimeError:
+            import io
+            import math
+            from ...._dds import DdsFile
+
+            data_bytes = bytearray(data.read_bytes())
+            try:
+                dds = DdsFile.from_buffer(data_bytes)
+            except ValueError as e:
+                # Failed even some basic DDS header parsing
+                err_msg = str(e)
+                logging.getLogger(__name__).warning(f"Failed to embed texture '{tex.name}'. {err_msg}")
+                return False
+
+            if dds.is_compressed:
+                # BC formats require a minimum 4x4 pixel block, so mip levels smaller than 4x4 are invalid.
+                # Some DDS files incorrectly report more mip levels than the base width/height allow, so clamp
+                # mip-map count to the largest value where the mip width and height are still >= 4 pixels.
+                max_mips_w = math.ceil(math.log2(dds.header.dwWidth / 2))
+                max_mips_h = math.ceil(math.log2(dds.header.dwHeight / 2))
+                max_mips = max(1, min(max_mips_w, max_mips_h))
+                if dds.header.dwMipMapCount > max_mips:
+                    dds.header.dwMipMapCount = max_mips
+                    try:
+                        with io.BytesIO(data_bytes) as data_stream:
+                            tex.import_dds(data_stream)
+                        return True
+                    except RuntimeError:
+                        pass
+
+            # Could not fix the DDS
+            logging.getLogger(__name__).warning(
+                f"Failed to embed texture '{tex.name}'. DDS image data may be corrupted."
+            )
+            return False
+
     @shader_group.setter
     def shader_group(self, shader_group: ShaderGroup | None):
         if shader_group is None:
@@ -381,11 +439,8 @@ class NativeDrawable:
                 tex = pmg8.Texture()
                 tex.name = embedded_tex.name
                 embedded_textures[tex.name] = tex
-                if data := embedded_tex.data:
-                    with data.open() as data_stream:
-                        tex.import_dds(data_stream)
-                else:
-                    # Texture data missing, create magenta/black checkerboard texture
+                if not self._import_dds(tex, embedded_tex.data):
+                    # Texture data missing or failed to import, create magenta/black checkerboard texture
                     texture_data = make_checkerboard_texture_data()
                     h, w, _ = texture_data.shape
                     mip = pm.TextureMip()

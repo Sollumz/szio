@@ -84,6 +84,10 @@ class NativeDrawableG9(NativeDrawable):
         self._inner = d
         self._drawable_with_shader_group = drawable_with_shader_group
 
+    def _is_texture_compressed(self, tex: pmg9.Texture) -> bool:
+        f = tex.format.value
+        return 70 <= f <= 84 or 94 <= f <= 99  # BC1 through BC7
+
     @property
     def shader_group(self) -> ShaderGroup | None:
         if self._inner.shader_group is None:
@@ -180,10 +184,7 @@ class NativeDrawableG9(NativeDrawable):
                 tex = pmg9.Texture()
                 tex.name = embedded_tex.name
                 tex.dimension = pmg9.ImageDimension.DIM_2D
-                if data := embedded_tex.data:
-                    with data.open() as data_stream:
-                        tex.import_dds(data_stream)
-                else:
+                if not self._import_dds(tex, embedded_tex.data):
                     # Texture data missing, create magenta/black checkerboard texture
                     texture_data = make_checkerboard_texture_data()
                     h, w, _ = texture_data.shape

@@ -2,6 +2,7 @@ import io
 import os
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Sequence, TypeAlias
+import ctypes
 
 import numpy as np
 
@@ -135,6 +136,10 @@ class DataSource:
         """Open the data source and return a file-like object."""
         raise NotImplementedError("DataSource.open() must be implemented by subclasses")
 
+    def read_bytes(self) -> bytes:
+        """Return the data source contents as a bytes object."""
+        raise NotImplementedError("DataSource.read_bytes() must be implemented by subclasses")
+
     @staticmethod
     def create(source: str | os.PathLike | bytes, name: str | None = None) -> "DataSource":
         """Factory method to create appropriate DataSource from various input types.
@@ -167,6 +172,9 @@ class _DataSourceFile(DataSource):
     def open(self) -> IO[bytes]:
         return open(self.filepath, "rb")
 
+    def read_bytes(self) -> bytes:
+        return self.filepath.read_bytes()
+
 
 class _DataSourceBytes(DataSource):
     __slots__ = ("data",)
@@ -177,6 +185,9 @@ class _DataSourceBytes(DataSource):
 
     def open(self) -> IO[bytes]:
         return io.BytesIO(self.data)
+
+    def read_bytes(self) -> bytes:
+        return self.data
 
 
 def __getattr__(name: str):

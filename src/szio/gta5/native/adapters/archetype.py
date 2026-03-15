@@ -100,7 +100,6 @@ class NativeMapTypes:
             }
             match extension:
                 case pm.ExtensionDoor():
-                    print(f"{extension.name}   {extension.door_target_ratio=}")
                     enable_limit_angle = extension.limit_angle is not None
                     return ExtensionDoor(
                         enable_limit_angle=enable_limit_angle,
