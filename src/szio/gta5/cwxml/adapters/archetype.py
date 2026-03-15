@@ -96,18 +96,9 @@ class CWMapTypes:
         def _text_list_to_color(tl):
             return [int(v) for v in tl]
 
-        def _map_light_type(light_type: str) -> LightType:
-            match light_type:
-                case "Point":
-                    return LightType.POINT
-                case "Spot":
-                    return LightType.SPOT
-                case "Capsule":
-                    return LightType.CAPSULE
-
         def _map_light(light: cwm.LightInstance) -> Light:
             return Light(
-                light_type=_map_light_type(light.light_type),
+                light_type=LightType(light.light_type),
                 position=_text_list_to_vec(light.position),
                 direction=_text_list_to_vec(light.direction),
                 tangent=_text_list_to_vec(light.tangent),
