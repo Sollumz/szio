@@ -34,6 +34,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install .[test]
 
+    - name: Install native backend dependencies
+      if: runner.os == 'Windows'
+      run: |
+        pip install -r ./requirements-native.txt
+
     - name: Run tests
       run: |
         python -m pytest tests/ -v
