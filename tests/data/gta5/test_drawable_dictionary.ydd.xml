@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DrawableDictionary>
+ <Item>
+  <Name>test_object_a_lod</Name>
+  <BoundingSphereCenter x="0" y="0" z="0.5" />
+  <BoundingSphereRadius value="1.5" />
+  <BoundingBoxMin x="-1" y="-1" z="-0.5" />
+  <BoundingBoxMax x="1" y="1" z="1.5" />
+  <LodDistHigh value="9998" />
+  <LodDistMed value="9998" />
+  <LodDistLow value="9998" />
+  <LodDistVlow value="9998" />
+  <FlagsHigh value="8" />
+  <FlagsMed value="0" />
+  <FlagsLow value="0" />
+  <FlagsVlow value="0" />
+  <ShaderGroup>
+   <Shaders>
+    <Item>
+     <Name>trees_lod2</Name>
+     <FileName>trees_lod2.sps</FileName>
+     <RenderBucket value="3" />
+     <Parameters>
+      <Item name="DiffuseSampler" type="Texture">
+       <Name>test_lod_texture_a</Name>
+      </Item>
+      <Item name="ShadowFalloff" type="Vector" x="1" y="0" z="0" w="0" />
+      <Item name="AlphaTest" type="Vector" x="0" y="0" z="0" w="0" />
+      <Item name="AlphaScale" type="Vector" x="1" y="0" z="0" w="0" />
+      <Item name="UseTreeNormals" type="Vector" x="0" y="0" z="0" w="0" />
+      <Item name="treeLod2Normal" type="Vector" x="0" y="0" z="1" w="0" />
+      <Item name="treeLod2Params" type="Vector" x="2" y="1.5" z="0" w="0" />
+     </Parameters>
+    </Item>
+   </Shaders>
+  </ShaderGroup>
+  <DrawableModelsHigh>
+   <Item>
+    <RenderMask value="255" />
+    <Flags value="0" />
+    <HasSkin value="0" />
+    <BoneIndex value="0" />
+    <Unknown1 value="0" />
+    <Geometries>
+     <Item>
+      <ShaderIndex value="0" />
+      <BoundingBoxMin x="-1" y="-1" z="-0.5" w="3.40282347E+38" />
+      <BoundingBoxMax x="1" y="1" z="1.5" w="-3.40282347E+38" />
+      <VertexBuffer>
+       <Flags value="0" />
+       <Layout type="GTAV1">
+        <Position />
+        <Normal />
+        <Colour0 />
+        <Colour1 />
+        <TexCoord0 />
+        <TexCoord1 />
+        <TexCoord2 />
+        <TexCoord3 />
+       </Layout>
+       <Data>
+        0 0 0.5   0 -1 0   255 29 255 255   255 255 255 255   0 1   0 1   1 1   0 1
+        0 0 0.5   0 -1 0   255 29 255 255   255 255 255 255   1 1   1 1   1 1   0 1
+        0 0 0.5   0 -1 0   255 29 255 255   255 255 255 255   1 0   1 0   1 1   0 1
+        0 0 0.5   0 -1 0   255 29 255 255   255 255 255 255   0 0   0 0   1 1   0 1
+       </Data>
+      </VertexBuffer>
+      <IndexBuffer>
+       <Data>0 1 2 2 3 0</Data>
+      </IndexBuffer>
+     </Item>
+    </Geometries>
+   </Item>
+  </DrawableModelsHigh>
+  <Lights />
+ </Item>
+ <Item>
+  <Name>test_object_b_lod</Name>
+  <BoundingSphereCenter x="0" y="0" z="0.3" />
+  <BoundingSphereRadius value="1.2" />
+  <BoundingBoxMin x="-0.8" y="-0.8" z="-0.3" />
+  <BoundingBoxMax x="0.8" y="0.8" z="0.9" />
+  <LodDistHigh value="9998" />
+  <LodDistMed value="9998" />
+  <LodDistLow value="9998" />
+  <LodDistVlow value="9998" />
+  <FlagsHigh value="8" />
+  <FlagsMed value="0" />
+  <FlagsLow value="0" />
+  <FlagsVlow value="0" />
+  <ShaderGroup>
+   <Shaders>
+    <Item>
+     <Name>trees_lod2</Name>
+     <FileName>trees_lod2.sps</FileName>
+     <RenderBucket value="3" />
+     <Parameters>
+      <Item name="DiffuseSampler" type="Texture">
+       <Name>test_lod_texture_b</Name>
+      </Item>
+      <Item name="ShadowFalloff" type="Vector" x="1" y="0" z="0" w="0" />
+      <Item name="AlphaTest" type="Vector" x="0" y="0" z="0" w="0" />
+      <Item name="AlphaScale" type="Vector" x="1" y="0" z="0" w="0" />
+      <Item name="UseTreeNormals" type="Vector" x="0" y="0" z="0" w="0" />
+      <Item name="treeLod2Normal" type="Vector" x="0" y="0" z="1" w="0" />
+      <Item name="treeLod2Params" type="Vector" x="1.5" y="1" z="0" w="0" />
+     </Parameters>
+    </Item>
+   </Shaders>
+  </ShaderGroup>
+  <DrawableModelsHigh>
+   <Item>
+    <RenderMask value="255" />
+    <Flags value="0" />
+    <HasSkin value="0" />
+    <BoneIndex value="0" />
+    <Unknown1 value="0" />
+    <Geometries>
+     <Item>
+      <ShaderIndex value="0" />
+      <BoundingBoxMin x="-0.8" y="-0.8" z="-0.3" w="3.40282347E+38" />
+      <BoundingBoxMax x="0.8" y="0.8" z="0.9" w="-3.40282347E+38" />
+      <VertexBuffer>
+       <Flags value="0" />
+       <Layout type="GTAV1">
+        <Position />
+        <Normal />
+        <Colour0 />
+        <Colour1 />
+        <TexCoord0 />
+        <TexCoord1 />
+        <TexCoord2 />
+        <TexCoord3 />
+       </Layout>
+       <Data>
+        0 0 0.3   0 -1 0   255 29 255 255   255 255 255 255   1 1   0 1   1 1   0 1
+        0 0 0.3   0 -1 0   255 29 255 255   255 255 255 255   0 1   1 1   1 1   0 1
+        0 0 0.3   0 -1 0   255 29 255 255   255 255 255 255   0 0   1 0   1 1   0 1
+        0 0 0.3   0 -1 0   255 29 255 255   255 255 255 255   1 0   0 0   1 1   0 1
+       </Data>
+      </VertexBuffer>
+      <IndexBuffer>
+       <Data>0 1 2 2 3 0</Data>
+      </IndexBuffer>
+     </Item>
+    </Geometries>
+   </Item>
+  </DrawableModelsHigh>
+  <Lights />
+ </Item>
+</DrawableDictionary>

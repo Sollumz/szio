@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BoundsFile>
+ <Bounds type="Composite">
+  <BoxMin x="-1" y="-1" z="-1" />
+  <BoxMax x="1" y="1" z="1" />
+  <BoxCenter x="0" y="0" z="0" />
+  <SphereCenter x="0" y="0" z="0" />
+  <SphereRadius value="1.732" />
+  <Margin value="0" />
+  <Volume value="1" />
+  <Inertia x="1" y="1" z="1" />
+  <MaterialIndex value="0" />
+  <MaterialColourIndex value="0" />
+  <ProceduralID value="0" />
+  <RoomID value="0" />
+  <PedDensity value="0" />
+  <UnkFlags value="0" />
+  <PolyFlags value="0" />
+  <UnkType value="1" />
+  <Children>
+   <Item type="GeometryBVH">
+    <BoxMin x="-1" y="-1" z="-1" />
+    <BoxMax x="1" y="1" z="1" />
+    <BoxCenter x="0" y="0" z="0" />
+    <SphereCenter x="0" y="0" z="0" />
+    <SphereRadius value="1.5" />
+    <Margin value="0.005" />
+    <Volume value="1" />
+    <Inertia x="1" y="1" z="1" />
+    <MaterialIndex value="0" />
+    <MaterialColourIndex value="0" />
+    <ProceduralID value="0" />
+    <RoomID value="0" />
+    <PedDensity value="0" />
+    <UnkFlags value="0" />
+    <PolyFlags value="0" />
+    <UnkType value="1" />
+    <CompositeTransform>
+     1 0 0 0
+     0 1 0 0
+     0 0 1 0
+     0 0 0 1
+    </CompositeTransform>
+    <CompositeFlags1>MAP_DYNAMIC, MAP_ANIMAL, MAP_COVER, MAP_VEHICLE</CompositeFlags1>
+    <CompositeFlags2>VEHICLE_NOT_BVH, VEHICLE_BVH, PED, RAGDOLL, ANIMAL, ANIMAL_RAGDOLL, OBJECT, PLANT, PROJECTILE, EXPLOSION, FORKLIFT_FORKS, TEST_WEAPON, TEST_CAMERA, TEST_AI, TEST_SCRIPT, TEST_VEHICLE_WHEEL, GLASS</CompositeFlags2>
+    <GeometryCenter x="0" y="0" z="0" />
+    <UnkFloat1 value="0" />
+    <UnkFloat2 value="0.0025" />
+    <Materials>
+     <Item>
+      <Type value="0" />
+      <ProceduralID value="0" />
+      <RoomID value="0" />
+      <PedDensity value="0" />
+      <Flags>FLAG_NOT_COVER</Flags>
+      <MaterialColourIndex value="0" />
+      <Unk value="0" />
+     </Item>
+    </Materials>
+    <Vertices>
+     0, 0, 0.5
+     0, 0, -0.5
+    </Vertices>
+    <Polygons>
+     <Capsule m="0" v1="0" v2="1" radius="0.25" />
+    </Polygons>
+   </Item>
+  </Children>
+ </Bounds>
+</BoundsFile>

@@ -648,14 +648,6 @@ class NativeDrawable:
     def lights(self, lights: list[Light]):
         self._inner.lights = [_map_light_to_native(li) for li in lights]
 
-    @property
-    def frag_bound_matrix(self) -> Matrix:
-        raise AssertionError("Cannot get frag_bound_matrix of regular drawable")
-
-    @frag_bound_matrix.setter
-    def frag_bound_matrix(self, v: Matrix):
-        raise AssertionError("Cannot set frag_bound_matrix of regular drawable")
-
 
 class NativeFragDrawable(NativeDrawable):
     def __init__(self, d: pmg8.FragmentDrawable, drawable_with_shader_group: pmg8.FragmentDrawable | None = None):

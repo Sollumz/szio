@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from functools import cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Protocol, TypeVar, runtime_checkable
+from typing import TYPE_CHECKING, Any, Callable, Literal, NamedTuple, Protocol, TypeVar, overload, runtime_checkable
 
 from ..assets import AssetGame
 
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from .archetypes import AssetMapTypes
     from .bounds import AssetBound, BoundType
     from .cloths import AssetClothDictionary
-    from .drawables import AssetDrawable, AssetDrawableDictionary
+    from .drawables import AssetDrawable, AssetDrawableDictionary, AssetFragDrawable
     from .fragments import AssetFragment
 
 
@@ -80,6 +80,16 @@ class AssetProvider(Protocol):
     def load_file(self, path: Path) -> Asset: ...
 
     def create_asset_bound(self, bound_type: "BoundType") -> "AssetBound": ...
+
+    @overload
+    def create_asset_drawable(
+        self, is_frag: Literal[True], parent_drawable: "AssetDrawable | None" = None
+    ) -> "AssetFragDrawable": ...
+
+    @overload
+    def create_asset_drawable(
+        self, is_frag: bool = ..., parent_drawable: "AssetDrawable | None" = None
+    ) -> "AssetDrawable": ...
 
     def create_asset_drawable(
         self, is_frag: bool = False, parent_drawable: "AssetDrawable | None" = None
@@ -253,6 +263,18 @@ def _create_asset(targets: Sequence[AssetTarget], create_callback: Callable[[Ass
 
 def create_asset_bound(targets: Sequence[AssetTarget], bound_type: "BoundType") -> "AssetBound":
     return _create_asset(targets, lambda provider: provider.create_asset_bound(bound_type))
+
+
+@overload
+def create_asset_drawable(
+    targets: Sequence[AssetTarget], is_frag: Literal[True], parent_drawable: "AssetDrawable | None" = None
+) -> "AssetFragDrawable": ...
+
+
+@overload
+def create_asset_drawable(
+    targets: Sequence[AssetTarget], is_frag: bool = ..., parent_drawable: "AssetDrawable | None" = None
+) -> "AssetDrawable": ...
 
 
 def create_asset_drawable(

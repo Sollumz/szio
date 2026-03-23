@@ -78,6 +78,7 @@ from .drawables import (
     STANDARD_VERTEX_ATTR_DTYPES,
     AssetDrawable,
     AssetDrawableDictionary,
+    AssetFragDrawable,
     EmbeddedTexture,
     Geometry,
     Light,
