@@ -24,12 +24,13 @@ def save_asset(
     name: str,
     tool_metadata: tuple[str, str] | None = None,
     options=None,
+    targets=None,
 ):
     """Save a RAGE asset file, dispatching to the correct game module based on the asset's game."""
     from . import gta5
 
     match asset.ASSET_GAME:
         case AssetGame.GTA5:
-            gta5.save_asset(asset, directory, name, tool_metadata, options)
+            gta5.save_asset(asset, directory, name, tool_metadata, options, targets=targets)
         case _:
             raise ValueError(f"Unknown asset game '{asset.ASSET_GAME}'")

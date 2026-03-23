@@ -1,11 +1,10 @@
 import sys
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum, IntFlag, auto
-from typing import Protocol, runtime_checkable
 
 from ..types import Matrix, Vector
-from .assets import Asset, AssetType
+from .assets import AssetGame, AssetType
 
 
 class BoundType(Enum):
@@ -198,142 +197,56 @@ class BoundVertex:
     color: tuple[int, int, int, int] | None
 
 
-@runtime_checkable
-class AssetBound(Asset, Protocol):
-    ASSET_TYPE = AssetType.BOUND
+@dataclass(slots=True)
+class AssetBound:
+    ASSET_GAME: AssetGame = AssetGame.GTA5
+    ASSET_TYPE: AssetType = AssetType.BOUND
 
-    @property
-    def bound_type(self) -> BoundType: ...
+    bound_type: BoundType = BoundType.COMPOSITE
+    material: CollisionMaterial = None
+    centroid: Vector = field(default_factory=Vector)
+    radius_around_centroid: float = 0.0
+    cg: Vector = field(default_factory=Vector)
+    margin: float = 0.0
+    volume: float = 0.0
+    inertia: Vector = field(default_factory=Vector)
+    bb_min: Vector = field(default_factory=Vector)
+    bb_max: Vector = field(default_factory=Vector)
 
-    @property
-    def material(self) -> CollisionMaterial: ...
+    # Composite-specific
+    children: list["AssetBound | None"] = None
 
-    @material.setter
-    def material(self, v: CollisionMaterial): ...
+    # Shape-specific dimensions
+    sphere_radius: float = 0.0
+    capsule_radius_length: tuple[float, float] = (0.0, 0.0)
+    cylinder_radius_length: tuple[float, float] = (0.0, 0.0)
+    disc_radius: float = 0.0
+    plane_normal: Vector = field(default_factory=Vector)
 
-    @property
-    def centroid(self) -> Vector: ...
+    # Geometry/BVH-specific
+    geometry_primitives: list[BoundPrimitive] = None
+    geometry_vertices: list[BoundVertex] = None
+    geometry_center: Vector = field(default_factory=Vector)
 
-    @centroid.setter
-    def centroid(self, v: Vector): ...
+    # Composite child properties (set by parent composite)
+    composite_transform: Matrix = None
+    composite_collision_type_flags: CollisionFlags = field(default_factory=lambda: CollisionFlags(0))
+    composite_collision_include_flags: CollisionFlags = field(default_factory=lambda: CollisionFlags(0))
 
-    @property
-    def radius_around_centroid(self) -> float: ...
-
-    @radius_around_centroid.setter
-    def radius_around_centroid(self, v: float): ...
-
-    @property
-    def cg(self) -> Vector: ...
-
-    @cg.setter
-    def cg(self, v: Vector): ...
-
-    @property
-    def children(self) -> list["AssetBound | None"]: ...
-
-    @children.setter
-    def children(self, bounds: Sequence["AssetBound | None"]): ...
-
-    @property
-    def margin(self) -> float: ...
-
-    @margin.setter
-    def margin(self, v: float): ...
-
-    @property
-    def volume(self) -> float: ...
-
-    @volume.setter
-    def volume(self, v: float): ...
-
-    @property
-    def inertia(self) -> Vector: ...
-
-    @inertia.setter
-    def inertia(self, v: Vector): ...
+    def __post_init__(self):
+        if self.children is None and self.bound_type == BoundType.COMPOSITE:
+            self.children = []
+        if self.geometry_primitives is None and self.bound_type in (BoundType.GEOMETRY, BoundType.BVH):
+            self.geometry_primitives = []
+        if self.geometry_vertices is None and self.bound_type in (BoundType.GEOMETRY, BoundType.BVH):
+            self.geometry_vertices = []
 
     @property
     def extent(self) -> tuple[Vector, Vector]:
         """Gets the bounding box (tuple of minimum and maximum corner vectors) that contains this bound."""
-        ...
+        return self.bb_min, self.bb_max
 
     @extent.setter
     def extent(self, v: tuple[Vector, Vector]):
         """Sets the dimensions of this bound from a bounding box (tuple of minimum and maximum corner vectors)."""
-        ...
-
-    @property
-    def bb_min(self) -> Vector: ...
-
-    @bb_min.setter
-    def bb_min(self, v: Vector): ...
-
-    @property
-    def bb_max(self) -> Vector: ...
-
-    @bb_max.setter
-    def bb_max(self, v: Vector): ...
-
-    @property
-    def sphere_radius(self) -> float: ...
-
-    @sphere_radius.setter
-    def sphere_radius(self, v: float): ...
-
-    @property
-    def capsule_radius_length(self) -> tuple[float, float]: ...
-
-    @capsule_radius_length.setter
-    def capsule_radius_length(self, v: tuple[float, float]): ...
-
-    @property
-    def cylinder_radius_length(self) -> tuple[float, float]: ...
-
-    @cylinder_radius_length.setter
-    def cylinder_radius_length(self, v: tuple[float, float]): ...
-
-    @property
-    def disc_radius(self) -> float: ...
-
-    @disc_radius.setter
-    def disc_radius(self, v: float): ...
-
-    @property
-    def plane_normal(self) -> Vector: ...
-
-    @plane_normal.setter
-    def plane_normal(self, v: Vector): ...
-
-    @property
-    def geometry_primitives(self) -> list[BoundPrimitive]: ...
-
-    @geometry_primitives.setter
-    def geometry_primitives(self, v: Sequence[BoundPrimitive]): ...
-
-    @property
-    def geometry_vertices(self) -> list[BoundVertex]: ...
-
-    @geometry_vertices.setter
-    def geometry_vertices(self, v: Sequence[BoundVertex]): ...
-
-    @property
-    def geometry_center(self) -> Vector: ...
-
-    @property
-    def composite_transform(self) -> Matrix: ...
-
-    @composite_transform.setter
-    def composite_transform(self, v: Matrix): ...
-
-    @property
-    def composite_collision_type_flags(self) -> CollisionFlags: ...
-
-    @composite_collision_type_flags.setter
-    def composite_collision_type_flags(self, v: CollisionFlags): ...
-
-    @property
-    def composite_collision_include_flags(self) -> CollisionFlags: ...
-
-    @composite_collision_include_flags.setter
-    def composite_collision_include_flags(self, v: CollisionFlags): ...
+        self.bb_min, self.bb_max = v

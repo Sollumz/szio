@@ -1,14 +1,15 @@
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum, IntEnum, IntFlag
 from pathlib import Path
-from typing import NamedTuple, Protocol, runtime_checkable
+from typing import NamedTuple
 
 import numpy as np
 from numpy.typing import NDArray
 
+from ..assets import AssetGame
 from ..types import DataSource, Matrix, Quaternion, Vector
-from .assets import Asset, AssetType
+from .assets import AssetType
 from .bounds import AssetBound
 
 
@@ -237,71 +238,29 @@ class Light(NamedTuple):
     cone_outer_angle: float
 
 
-@runtime_checkable
-class AssetDrawable(Asset, Protocol):
-    ASSET_TYPE = AssetType.DRAWABLE
+@dataclass(slots=True)
+class AssetDrawable:
+    ASSET_GAME: AssetGame = AssetGame.GTA5
+    ASSET_TYPE: AssetType = AssetType.DRAWABLE
 
-    @property
-    def name(self) -> str: ...
-
-    @name.setter
-    def name(self, v: str): ...
-
-    @property
-    def bounds(self) -> AssetBound | None: ...
-
-    @bounds.setter
-    def bounds(self, v: AssetBound | None): ...
-
-    @property
-    def skeleton(self) -> Skeleton | None: ...
-
-    @skeleton.setter
-    def skeleton(self, v: Skeleton | None): ...
-
-    @property
-    def shader_group(self) -> ShaderGroup | None: ...
-
-    @shader_group.setter
-    def shader_group(self, v: ShaderGroup | None): ...
-
-    @property
-    def models(self) -> dict[LodLevel, list[Model]]: ...
-
-    @models.setter
-    def models(self, v: dict[LodLevel, list[Model]]): ...
-
-    @property
-    def lod_thresholds(self) -> dict[LodLevel, float]: ...
-
-    @lod_thresholds.setter
-    def lod_thresholds(self, v: dict[LodLevel, float]): ...
-
-    @property
-    def lights(self) -> list[Light]: ...
-
-    @lights.setter
-    def lights(self, v: list[Light]): ...
-
-    @property
-    def frag_bound_matrix(self) -> Matrix: ...
-
-    @frag_bound_matrix.setter
-    def frag_bound_matrix(self, v: Matrix): ...
-
-    @property
-    def frag_extra_bound_matrices(self) -> list[Matrix]: ...
-
-    @frag_extra_bound_matrices.setter
-    def frag_extra_bound_matrices(self, v: list[Matrix]): ...
+    name: str = ""
+    bounds: AssetBound | None = None
+    skeleton: Skeleton | None = None
+    shader_group: ShaderGroup | None = None
+    models: dict[LodLevel, list[Model]] = field(default_factory=dict)
+    lod_thresholds: dict[LodLevel, float] = field(default_factory=dict)
+    lights: list[Light] = field(default_factory=list)
 
 
-@runtime_checkable
-class AssetDrawableDictionary(Asset, Protocol):
-    ASSET_TYPE = AssetType.DRAWABLE_DICTIONARY
+@dataclass(slots=True)
+class AssetFragDrawable(AssetDrawable):
+    frag_bound_matrix: Matrix = None
+    frag_extra_bound_matrices: list[Matrix] = field(default_factory=list)
 
-    @property
-    def drawables(self) -> dict[str, AssetDrawable]: ...
 
-    @drawables.setter
-    def drawables(self, v: dict[str, AssetDrawable]): ...
+@dataclass(slots=True)
+class AssetDrawableDictionary:
+    ASSET_GAME: AssetGame = AssetGame.GTA5
+    ASSET_TYPE: AssetType = AssetType.DRAWABLE_DICTIONARY
+
+    drawables: dict[str, AssetDrawable] = field(default_factory=dict)

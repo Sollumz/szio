@@ -1,10 +1,10 @@
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum, Flag
-from typing import Protocol, runtime_checkable
 
+from ..assets import AssetGame
 from ..types import Quaternion, Vector
-from .assets import Asset, AssetType
+from .assets import AssetType
 from .drawables import Light, LightFlashiness
 
 
@@ -332,18 +332,10 @@ class Archetype:
     timecycle_modifiers: list[MloTimeCycleModifier] | None = None
 
 
-@runtime_checkable
-class AssetMapTypes(Asset, Protocol):
-    ASSET_TYPE = AssetType.MAP_TYPES
+@dataclass(slots=True)
+class AssetMapTypes:
+    ASSET_GAME: AssetGame = AssetGame.GTA5
+    ASSET_TYPE: AssetType = AssetType.MAP_TYPES
 
-    @property
-    def name(self) -> str: ...
-
-    @name.setter
-    def name(self, v: str): ...
-
-    @property
-    def archetypes(self) -> list[Archetype]: ...
-
-    @archetypes.setter
-    def archetypes(self, v: Sequence[Archetype]): ...
+    name: str = ""
+    archetypes: list[Archetype] = field(default_factory=list)

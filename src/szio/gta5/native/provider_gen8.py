@@ -4,15 +4,18 @@ import pymateria as pma
 import pymateria.gta5.gen8 as pmg8
 
 from ..archetypes import AssetMapTypes
-from ..assets import Asset, AssetFormat, AssetVersion, canonical_asset
-from ..drawables import AssetDrawable, AssetDrawableDictionary
+from ..assets import Asset, AssetFormat, AssetVersion
+from ..drawables import AssetDrawable, AssetDrawableDictionary, AssetFragDrawable
 from ..fragments import AssetFragment
-from .adapters import (
-    NativeDrawable,
-    NativeDrawableDictionary,
-    NativeFragDrawable,
-    NativeFragment,
-    NativeMapTypes,
+from .adapters.drawable import (
+    load_drawable,
+    load_drawable_dictionary,
+    save_drawable_dictionary_to_native,
+    save_drawable_to_native,
+)
+from .adapters.fragment import (
+    load_fragment,
+    save_fragment_to_native,
 )
 from .provider import NativeProvider
 
@@ -36,16 +39,13 @@ class NativeProviderG8(NativeProvider):
         match path.suffix.lower():
             case ".ydr":
                 drawable = pmg8.Drawable.import_rsc(path).result
-                textures_dir = path.parent / path.stem
-                return NativeDrawable(drawable)
+                return load_drawable(drawable)
             case ".ydd":
                 dwd = pmg8.DrawableDictionary.import_rsc(path).result
-                textures_dir = path.parent / path.stem
-                return NativeDrawableDictionary(dwd)
+                return load_drawable_dictionary(dwd)
             case ".yft":
                 fragment = pmg8.Fragment.import_rsc(path).result
-                textures_dir = path.parent / path.stem
-                return NativeFragment(fragment)
+                return load_fragment(fragment)
             case _:
                 return super().load_file(path)
 
@@ -53,42 +53,30 @@ class NativeProviderG8(NativeProvider):
         self, is_frag: bool = False, parent_drawable: AssetDrawable | None = None
     ) -> AssetDrawable:
         if is_frag:
-            parent_drawable = parent_drawable and canonical_asset(parent_drawable, NativeFragDrawable, self)._inner
-            d = pmg8.FragmentDrawable()
-            d.bound_matrix = pma.Matrix34(
-                pma.Vector4f(1.0, 0.0, 0.0, 0.0),
-                pma.Vector4f(0.0, 1.0, 0.0, 0.0),
-                pma.Vector4f(0.0, 0.0, 1.0, 0.0),
-                pma.Vector4f(0.0, 0.0, 0.0, 1.0),
-            )
-            return self._assert_target(NativeFragDrawable(d, parent_drawable))
+            return AssetFragDrawable()
         else:
-            parent_drawable = parent_drawable and canonical_asset(parent_drawable, NativeDrawable, self)._inner
-            return self._assert_target(NativeDrawable(pmg8.Drawable(), parent_drawable))
+            return AssetDrawable()
 
     def create_asset_drawable_dictionary(self) -> AssetDrawableDictionary:
-        return self._assert_target(NativeDrawableDictionary(pmg8.DrawableDictionary()))
+        return AssetDrawableDictionary()
 
     def create_asset_fragment(self) -> AssetFragment:
-        f = pmg8.Fragment()
-        f.damaged_object_index = -1
-        return self._assert_target(NativeFragment(f))
+        return AssetFragment()
 
     def create_asset_map_types(self) -> AssetMapTypes:
-        return self._assert_target(NativeMapTypes(pmg8.MapTypes()))
+        return AssetMapTypes()
 
     def save_asset(self, asset: Asset, directory: Path, name: str, tool_metadata: tuple[str, str] | None = None):
-        if isinstance(asset, NativeDrawable):
-            path = directory / f"{name}.ydr"
-            pmg8.Drawable.export_rsc(asset._inner, path, self._export_settings(tool_metadata))
-        elif isinstance(asset, NativeDrawableDictionary):
+        if isinstance(asset, AssetDrawableDictionary):
             path = directory / f"{name}.ydd"
-            pmg8.DrawableDictionary.export_rsc(asset._inner, path, self._export_settings(tool_metadata))
-        elif isinstance(asset, NativeFragment):
+            pmg8.DrawableDictionary.export_rsc(
+                save_drawable_dictionary_to_native(asset), path, self._export_settings(tool_metadata)
+            )
+        elif isinstance(asset, AssetDrawable) and not isinstance(asset, AssetFragDrawable):
+            path = directory / f"{name}.ydr"
+            pmg8.Drawable.export_rsc(save_drawable_to_native(asset), path, self._export_settings(tool_metadata))
+        elif isinstance(asset, AssetFragment):
             path = directory / f"{name}.yft"
-            pmg8.Fragment.export_rsc(asset._inner, path, self._export_settings(tool_metadata))
-        elif isinstance(asset, NativeMapTypes):
-            path = directory / f"{name}.ytyp"
-            pmg8.MapTypes.export_rsc(asset._inner, path, self._export_settings(tool_metadata))
+            pmg8.Fragment.export_rsc(save_fragment_to_native(asset), path, self._export_settings(tool_metadata))
         else:
             super().save_asset(asset, directory, name, tool_metadata)

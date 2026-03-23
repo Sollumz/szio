@@ -1,11 +1,10 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import Protocol, runtime_checkable
 
 import numpy as np
 
 from ..types import Matrix, Vector
-from .assets import Asset, AssetType
+from .assets import AssetGame, AssetType
 from .bounds import AssetBound
 from .cloths import ClothController
 from .drawables import AssetDrawable, Light
@@ -163,99 +162,34 @@ class MatrixSet:
     matrices: list[Matrix]
 
 
-@runtime_checkable
-class AssetFragment(Asset, Protocol):
-    ASSET_TYPE = AssetType.FRAGMENT
+@dataclass(slots=True)
+class AssetFragment:
+    ASSET_GAME: AssetGame = AssetGame.GTA5
+    ASSET_TYPE: AssetType = AssetType.FRAGMENT
 
-    @property
-    def name(self) -> str: ...
-
-    @name.setter
-    def name(self, v: str): ...
-
-    @property
-    def flags(self) -> int: ...
-
-    @flags.setter
-    def flags(self, v: int): ...
-
-    @property
-    def drawable(self) -> AssetDrawable | None: ...
-
-    @drawable.setter
-    def drawable(self, v: AssetDrawable | None): ...
-
-    @property
-    def extra_drawables(self) -> list[AssetDrawable]: ...
-
-    @extra_drawables.setter
-    def extra_drawables(self, v: list[AssetDrawable]): ...
-
-    @property
-    def matrix_set(self) -> MatrixSet | None: ...
-
-    @matrix_set.setter
-    def matrix_set(self, v: MatrixSet | None): ...
-
-    @property
-    def physics(self) -> PhysLodGroup | None: ...
-
-    @physics.setter
-    def physics(self, v: PhysLodGroup | None): ...
-
-    @property
-    def template_asset(self) -> FragmentTemplateAsset: ...
-
-    @template_asset.setter
-    def template_asset(self, v: FragmentTemplateAsset): ...
-
-    @property
-    def unbroken_elasticity(self) -> float: ...
-
-    @unbroken_elasticity.setter
-    def unbroken_elasticity(self, v: float): ...
-
-    @property
-    def gravity_factor(self) -> float: ...
-
-    @gravity_factor.setter
-    def gravity_factor(self, v: float): ...
-
-    @property
-    def buoyancy_factor(self) -> float: ...
-
-    @buoyancy_factor.setter
-    def buoyancy_factor(self, v: float): ...
-
-    @property
-    def glass_windows(self) -> list[FragGlassWindow]: ...
-
-    @glass_windows.setter
-    def glass_windows(self, v: list[FragGlassWindow]): ...
-
-    @property
-    def vehicle_windows(self) -> list[FragVehicleWindow]: ...
-
-    @vehicle_windows.setter
-    def vehicle_windows(self, v: list[FragVehicleWindow]): ...
-
-    @property
-    def cloths(self) -> list[EnvCloth]: ...
-
-    @cloths.setter
-    def cloths(self, v: list[EnvCloth]): ...
-
-    @property
-    def lights(self) -> list[Light]: ...
-
-    @lights.setter
-    def lights(self, v: list[Light]): ...
+    name: str = ""
+    flags: int = 0
+    drawable: AssetDrawable | None = None
+    extra_drawables: list[AssetDrawable] = field(default_factory=list)
+    matrix_set: MatrixSet | None = None
+    physics: PhysLodGroup | None = None
+    template_asset: FragmentTemplateAsset = FragmentTemplateAsset.NONE
+    unbroken_elasticity: float = 0.0
+    gravity_factor: float = 1.0
+    buoyancy_factor: float = 1.0
+    glass_windows: list[FragGlassWindow] = field(default_factory=list)
+    vehicle_windows: list[FragVehicleWindow] = field(default_factory=list)
+    cloths: list[EnvCloth] = field(default_factory=list)
+    lights: list[Light] = field(default_factory=list)
 
     @property
     def base_drawable(self) -> AssetDrawable:
         """Get the drawable containing the shader group and skeleton of this fragment. This is only different from the
         main ``AssetFragment.drawable`` on fragments that only have a environment cloth drawable, and no main drawable.
         """
-        ...
-
-    def generate_vehicle_windows(self) -> list[FragVehicleWindow]: ...
+        if self.drawable is not None:
+            return self.drawable
+        for cloth in self.cloths:
+            if cloth.drawable is not None:
+                return cloth.drawable
+        return None

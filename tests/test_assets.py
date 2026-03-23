@@ -6,6 +6,7 @@ import pytest
 
 import szio
 from szio.assets import AssetGame
+from szio.gta5 import AssetFormat, AssetTarget, AssetVersion
 
 # Minimal XML stubs for each game/format combination.
 # Only the root element tag matters for detection.
@@ -106,7 +107,8 @@ class TestSaveAsset:
 
         out_dir = tmp_path / "out"
         out_dir.mkdir()
-        szio.save_asset(asset, out_dir, "roundtrip")
+        targets = [AssetTarget(AssetFormat.CWXML, AssetVersion.GEN8)]
+        szio.save_asset(asset, out_dir, "roundtrip", targets=targets)
 
         reloaded = szio.try_load_asset(out_dir / f"roundtrip{ext}.xml")
         assert reloaded is not None

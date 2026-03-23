@@ -59,7 +59,8 @@ def test_drawables_embed_texture_with_mipmaps(tex_file: Path, target_version: As
             },
         )
 
-        save_asset(drw, tmp_path, "test")
+        target = AssetTarget(AssetFormat.NATIVE, target_version)
+        save_asset(drw, tmp_path, "test", targets=[target])
 
         # Basic sanity check that it correctly embedded the texture
         loaded_drw = try_load_asset(tmp_path / "test.ydr")

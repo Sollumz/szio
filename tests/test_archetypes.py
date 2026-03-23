@@ -47,7 +47,7 @@ def test_archetypes_extension_audio_emitter_effect_hash_is_saved_correctly(tmp_p
         extensions=[audio_emitter],
     )
     typ.archetypes = [arch]
-    save_asset(typ, tmp_path, "test")
+    save_asset(typ, tmp_path, "test", targets=(AssetTarget(AssetFormat.CWXML, AssetVersion.GEN8),))
 
     root = ET.parse(tmp_path / "test.ytyp.xml")
     elem = root.find("./archetypes/Item/extensions/Item/effectHash")

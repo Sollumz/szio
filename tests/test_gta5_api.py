@@ -9,6 +9,9 @@ from szio.gta5 import (
     AssetBound,
     AssetDrawable,
     AssetDrawableDictionary,
+    AssetFormat,
+    AssetTarget,
+    AssetVersion,
     BoundPrimitiveType,
     BoundType,
     CollisionFlags,
@@ -102,6 +105,7 @@ class TestDrawableGen8(DrawableTests):
         assert asset is not None
         return asset
 
+
     def test_shader_parameters(self, drawable: AssetDrawable):
         params = drawable.shader_group.shaders[0].parameters
         # gen8 uses lowercase parameter names
@@ -117,6 +121,7 @@ class TestDrawableGen9(DrawableTests):
         asset = try_load_asset(DATA_DIR / "gen9" / "test_drawable.ydr")
         assert asset is not None
         return asset
+
 
     def test_shader_name(self, drawable: AssetDrawable):
         assert drawable.shader_group.shaders[0].name == "emissive"
@@ -253,6 +258,7 @@ class TestDrawableDictionaryGen8(DrawableDictionaryTests):
         return asset
 
 
+
 @requires_native
 class TestDrawableDictionaryGen9(DrawableDictionaryTests):
     @pytest.fixture()
@@ -262,11 +268,14 @@ class TestDrawableDictionaryGen9(DrawableDictionaryTests):
         return asset
 
 
+
 # ---------------------------------------------------------------------------
 # Roundtrip tests
 # ---------------------------------------------------------------------------
 
 class TestRoundtripCWXML:
+    TARGETS = [AssetTarget(AssetFormat.CWXML, AssetVersion.GEN8)]
+
     @pytest.mark.parametrize("filename", [
         "test_drawable.ydr.xml",
         "test_bounds.ybn.xml",
@@ -278,7 +287,7 @@ class TestRoundtripCWXML:
 
         name = filename.split(".")[0]
         ext = "." + filename.split(".")[1]
-        save_asset(asset, tmp_path, name)
+        save_asset(asset, tmp_path, name, targets=self.TARGETS)
 
         reloaded = try_load_asset(tmp_path / f"{name}{ext}.xml")
         assert reloaded is not None
@@ -286,7 +295,7 @@ class TestRoundtripCWXML:
 
     def test_drawable_roundtrip_preserves_data(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "test_drawable.ydr.xml")
-        save_asset(original, tmp_path, "rt")
+        save_asset(original, tmp_path, "rt", targets=self.TARGETS)
         reloaded = try_load_asset(tmp_path / "rt.ydr.xml")
 
         assert reloaded.name == original.name
@@ -300,7 +309,7 @@ class TestRoundtripCWXML:
 
     def test_bounds_roundtrip_preserves_data(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "test_bounds.ybn.xml")
-        save_asset(original, tmp_path, "rt")
+        save_asset(original, tmp_path, "rt", targets=self.TARGETS)
         reloaded = try_load_asset(tmp_path / "rt.ybn.xml")
 
         assert reloaded.bound_type == original.bound_type
@@ -314,7 +323,7 @@ class TestRoundtripCWXML:
 
     def test_drawable_dictionary_roundtrip_preserves_data(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "test_drawable_dictionary.ydd.xml")
-        save_asset(original, tmp_path, "rt")
+        save_asset(original, tmp_path, "rt", targets=self.TARGETS)
         reloaded = try_load_asset(tmp_path / "rt.ydd.xml")
 
         assert set(reloaded.drawables.keys()) == set(original.drawables.keys())
@@ -327,10 +336,13 @@ class TestRoundtripCWXML:
 class TestRoundtripNative:
     """Load native binary assets, save as binary, reload and verify."""
 
+    GEN8_TARGETS = [AssetTarget(AssetFormat.NATIVE, AssetVersion.GEN8)]
+    GEN9_TARGETS = [AssetTarget(AssetFormat.NATIVE, AssetVersion.GEN9)]
+
     def test_drawable_gen8_roundtrip(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "gen8" / "test_drawable.ydr")
         assert original is not None
-        save_asset(original, tmp_path, "rt")
+        save_asset(original, tmp_path, "rt", targets=self.GEN8_TARGETS)
         reloaded = try_load_asset(tmp_path / "rt.ydr")
         assert reloaded is not None
 
@@ -344,7 +356,7 @@ class TestRoundtripNative:
         original = try_load_asset(DATA_DIR / "gen9" / "test_drawable.ydr")
         assert original is not None
         orig_geom = original.models[LodLevel.HIGH][0].geometries[0] # note: pymateria FVF dtype breaks after export so get geometry here
-        save_asset(original, tmp_path, "rt")
+        save_asset(original, tmp_path, "rt", targets=self.GEN9_TARGETS)
         reloaded = try_load_asset(tmp_path / "rt.ydr")
         assert reloaded is not None
 
@@ -356,7 +368,7 @@ class TestRoundtripNative:
     def test_bounds_native_roundtrip(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "test_bounds.ybn")
         assert original is not None
-        save_asset(original, tmp_path, "rt")
+        save_asset(original, tmp_path, "rt", targets=self.GEN8_TARGETS)
         reloaded = try_load_asset(tmp_path / "rt.ybn")
         assert reloaded is not None
 
@@ -367,7 +379,7 @@ class TestRoundtripNative:
     def test_drawable_dictionary_gen8_roundtrip(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "gen8" / "test_drawable_dictionary.ydd")
         assert original is not None
-        save_asset(original, tmp_path, "rt")
+        save_asset(original, tmp_path, "rt", targets=self.GEN8_TARGETS)
         reloaded = try_load_asset(tmp_path / "rt.ydd")
         assert reloaded is not None
 
@@ -376,7 +388,7 @@ class TestRoundtripNative:
     def test_drawable_dictionary_gen9_roundtrip(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "gen9" / "test_drawable_dictionary.ydd")
         assert original is not None
-        save_asset(original, tmp_path, "rt")
+        save_asset(original, tmp_path, "rt", targets=self.GEN9_TARGETS)
         reloaded = try_load_asset(tmp_path / "rt.ydd")
         assert reloaded is not None
 

@@ -12,7 +12,18 @@ from ..bounds import AssetBound, BoundType
 from ..cloths import AssetClothDictionary
 from ..drawables import AssetDrawable, AssetDrawableDictionary
 from ..fragments import AssetFragment
-from .adapters import NativeBound, NativeClothDictionary, NativeMapTypes
+from .adapters.archetype import (
+    load_map_types,
+    save_map_types_to_native,
+)
+from .adapters.bound import (
+    load_bound,
+    save_bound_to_native,
+)
+from .adapters.cloth import (
+    load_cloth_dictionary,
+    save_cloth_dictionary_to_native,
+)
 
 
 class NativeProvider(ABC):
@@ -52,42 +63,18 @@ class NativeProvider(ABC):
     def load_file(self, path: Path) -> Asset:
         match path.suffix.lower():
             case ".ybn":
-                return NativeBound(pm.Bound.import_rsc(path).result)
+                return load_bound(pm.Bound.import_rsc(path).result)
             case ".yld":
-                return NativeClothDictionary(pm.ClothDictionary.import_rsc(path).result)
+                return load_cloth_dictionary(pm.ClothDictionary.import_rsc(path).result)
             case ".ytyp":
                 # gen9 map types has some minimal differences (made some padding explicit fields, doesn't really affect anything)
                 # gen8 import can read both
-                return NativeMapTypes(pm.gen8.MapTypes.import_rsc(path).result)
+                return load_map_types(pm.gen8.MapTypes.import_rsc(path).result)
             case _:
                 raise ValueError(f"Unsupported file '{str(path)}'")
 
     def create_asset_bound(self, bound_type: BoundType) -> AssetBound:
-        match bound_type:
-            case BoundType.COMPOSITE:
-                b = NativeBound(pm.BoundComposite())
-            case BoundType.SPHERE:
-                b = NativeBound(pm.BoundSphere())
-            case BoundType.BOX:
-                b = NativeBound(pm.BoundBox())
-            case BoundType.CAPSULE:
-                b = NativeBound(pm.BoundCapsule())
-            case BoundType.CYLINDER:
-                b = NativeBound(pm.BoundCylinder())
-            case BoundType.DISC:
-                b = NativeBound(pm.BoundDisc())
-            case BoundType.GEOMETRY:
-                b = NativeBound(pm.BoundGeometry())
-            case BoundType.BVH:
-                bvh = pm.BoundGeometry()
-                bvh.generate_bvh = True
-                b = NativeBound(bvh)
-            case BoundType.PLANE:
-                b = NativeBound(pm.BoundPlane())
-            case _:
-                raise ValueError(f"Unsupported bound type '{bound_type.name}'")
-
-        return self._apply_target(b)
+        return AssetBound(bound_type=bound_type)
 
     @abstractmethod
     def create_asset_drawable(
@@ -101,21 +88,23 @@ class NativeProvider(ABC):
     def create_asset_fragment(self) -> AssetFragment: ...
 
     def create_asset_cloth_dictionary(self) -> AssetClothDictionary:
-        return self._apply_target(NativeClothDictionary(pm.ClothDictionary()))
+        return AssetClothDictionary()
 
     @abstractmethod
     def create_asset_map_types(self) -> AssetMapTypes: ...
 
     def save_asset(self, asset: Asset, directory: Path, name: str, tool_metadata: tuple[str, str] | None = None):
-        if isinstance(asset, NativeBound):
+        if isinstance(asset, AssetBound):
             path = directory / f"{name}.ybn"
-            pm.Bound.export_rsc(asset._inner, path, self._export_settings(tool_metadata))
-        elif isinstance(asset, NativeClothDictionary):
+            pm.Bound.export_rsc(save_bound_to_native(asset), path, self._export_settings(tool_metadata))
+        elif isinstance(asset, AssetClothDictionary):
             path = directory / f"{name}.yld"
-            pm.ClothDictionary.export_rsc(asset._inner, path, self._export_settings(tool_metadata))
-        elif isinstance(asset, NativeMapTypes):
+            pm.ClothDictionary.export_rsc(
+                save_cloth_dictionary_to_native(asset), path, self._export_settings(tool_metadata)
+            )
+        elif isinstance(asset, AssetMapTypes):
             path = directory / f"{name}.ytyp"
-            pm.gen8.MapTypes.export_rsc(asset._inner, path, self._export_settings(tool_metadata))
+            pm.gen8.MapTypes.export_rsc(save_map_types_to_native(asset), path, self._export_settings(tool_metadata))
         else:
             raise ValueError(f"Unsupported asset '{asset}' (name: '{name}', directory: '{str(directory)}')")
 
@@ -125,14 +114,3 @@ class NativeProvider(ABC):
             name, version = tool_metadata
             s.metadata = pma.UserMetadata(name, version)
         return s
-
-    def _apply_target(self, asset):
-        asset.ASSET_GAME = self.ASSET_GAME
-        asset.ASSET_FORMAT = self.ASSET_FORMAT
-        asset.ASSET_VERSION = self.ASSET_VERSION
-        return asset
-
-    def _assert_target(self, asset):
-        assert asset.ASSET_FORMAT == self.ASSET_FORMAT
-        assert asset.ASSET_VERSION == self.ASSET_VERSION
-        return asset

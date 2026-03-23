@@ -8,13 +8,12 @@ import pymateria.gta5.gen8 as pmg8
 from ....types import DataSource, Matrix, Quaternion, Vector
 from ... import jenkhash
 from ...assets import (
-    AssetFormat,
-    AssetGame,
-    AssetType,
     AssetVersion,
-    canonical_asset,
 )
 from ...drawables import (
+    AssetDrawable,
+    AssetDrawableDictionary,
+    AssetFragDrawable,
     EmbeddedTexture,
     Geometry,
     Light,
@@ -35,7 +34,6 @@ from ...drawables import (
 )
 from ._utils import (
     _h2s,
-    apply_target,
     from_native_mat34,
     make_checkerboard_texture_data,
     to_native_mat34,
@@ -45,7 +43,8 @@ from ._utils import (
     to_native_vec4,
 )
 from .bound import (
-    NativeBound,
+    load_bound,
+    save_bound_to_native,
 )
 
 _DEFAULT_LOD_THRESHOLDS = {
@@ -160,562 +159,534 @@ def _map_light_to_native(light: Light, definition: bool = False) -> pm.Light:
     return li
 
 
-class NativeDrawable:
-    ASSET_GAME = AssetGame.GTA5
-    ASSET_FORMAT = AssetFormat.NATIVE
-    ASSET_VERSION = AssetVersion.GEN8
-    ASSET_TYPE = AssetType.DRAWABLE
+def _is_texture_compressed_g8(tex: pmg8.Texture) -> bool:
+    match tex.format:
+        case (
+            pmg8.TextureFormat.DXT1
+            | pmg8.TextureFormat.DXT2
+            | pmg8.TextureFormat.DXT3
+            | pmg8.TextureFormat.DXT4
+            | pmg8.TextureFormat.DXT5
+            | pmg8.TextureFormat.CTX1
+            | pmg8.TextureFormat.DXT3A
+            | pmg8.TextureFormat.DXT3A_1111
+            | pmg8.TextureFormat.DXT5A
+            | pmg8.TextureFormat.DXN
+            | pmg8.TextureFormat.BC6
+            | pmg8.TextureFormat.BC7
+        ):
+            return True
+        case _:
+            return False
 
-    def __init__(self, d: pmg8.Drawable, drawable_with_shader_group: pmg8.Drawable | None = None):
-        self._inner = d
-        self._drawable_with_shader_group = drawable_with_shader_group
 
-        self._temp_lod_thresholds: dict[LodLevel, float] | None = None
+def _extract_embedded_texture_dds_g8(tex: pmg8.Texture) -> bytes:
+    import io
+    import math
 
-    @property
-    def name(self) -> str:
-        return self._inner.name
+    if _is_texture_compressed_g8(tex):
+        mips = tex.mips
+        w = tex.width
+        h = tex.height
+        max_mips_w = math.ceil(math.log2(w / 2))
+        max_mips_h = math.ceil(math.log2(h / 2))
+        max_mips = min(max_mips_w, max_mips_h)
+        if len(mips) > max_mips:
+            num_mips_to_remove = len(mips) - max_mips
+            for _ in range(num_mips_to_remove):
+                mips.pop()
 
-    @name.setter
-    def name(self, v: str):
-        self._inner.name = v
+    tex_dds = io.BytesIO()
+    tex.export_dds(tex_dds)
+    return tex_dds.getvalue()
 
-    @property
-    def skeleton(self) -> Skeleton | None:
-        bones = []
 
-        def _map_translation_limit(limit: pm.BoneTranslationLimit | None) -> SkelBoneTranslationLimit | None:
-            if limit is None:
-                return None
+def _import_dds_g8(tex: pmg8.Texture, data: DataSource | None) -> bool:
+    if not data:
+        return False
 
-            return SkelBoneTranslationLimit(Vector(limit.min), Vector(limit.max))
-
-        def _map_rotation_limit(limit: pm.BoneRotationLimit | None) -> SkelBoneRotationLimit | None:
-            if limit is None:
-                return None
-
-            # Checks for parity with CW backend.
-            # All rotation limits are in "euler angles" mode where the control points actually contain the min and max
-            # rotation angles, not swing&twist. This is the only mode we support.
-            assert limit.num_control_points == 1
-            assert limit.degrees_of_freedom == pm.BoneJointDofs.JOINT_3_DOF
-            assert limit.use_euler_angles
-
-            p0, p1 = limit.control_points[:2]
-            min_rot = Vector((p0.max_swing, p0.min_twist, p0.max_twist))
-            max_rot = Vector((p1.max_swing, p1.min_twist, p1.max_twist))
-            return SkelBoneRotationLimit(min_rot, max_rot)
-
-        def _add_bone(b: pm.Bone, parent_index: int):
-            bone_index = len(bones)
-            px, py, pz, _ = b.default_translation
-            rx, ry, rz, rw = b.default_rotation
-            sx, sy, sz, _ = b.default_scale
-            bones.append(
-                SkelBone(
-                    name=b.name,
-                    tag=b.id,
-                    flags=SkelBoneFlags(b.degrees_of_freedom),
-                    position=Vector((px, py, pz)),
-                    rotation=Quaternion((rw, rx, ry, rz)),
-                    scale=Vector((sx, sy, sz)),
-                    parent_index=parent_index,
-                    translation_limit=_map_translation_limit(b.translation_limit),
-                    rotation_limit=_map_rotation_limit(b.rotation_limit),
-                )
-            )
-            for c in b.children:
-                _add_bone(c, bone_index)
-
-        if self._inner.skeleton is not None:
-            _add_bone(self._inner.skeleton.root_bone, -1)
-
-        return Skeleton(bones) if bones else None
-
-    @skeleton.setter
-    def skeleton(self, skel: Skeleton | None):
-        if skel is None:
-            self._inner.skeleton = None
-            self._inner.include_joint_data = False
-            return
-
-        has_any_limits = False
-
-        def _convert_bone(bone: SkelBone) -> pm.Bone:
-            nonlocal has_any_limits
-            b = pm.Bone()
-            b.name = bone.name
-            b.id = bone.tag
-            b.degrees_of_freedom = bone.flags.value
-            b.default_translation = to_native_vec4(bone.position.to_4d())
-            b.default_rotation = to_native_quat(bone.rotation)
-            b.default_scale = to_native_vec4(bone.scale.to_4d())
-            if bone.translation_limit:
-                limit = pm.BoneTranslationLimit()
-                limit.bone_id = bone.tag
-                limit.min = to_native_vec3(bone.translation_limit.min)
-                limit.max = to_native_vec3(bone.translation_limit.max)
-                b.translation_limit = limit
-                has_any_limits = True
-            if bone.rotation_limit:
-                limit = pm.BoneRotationLimit()
-                limit.bone_id = bone.tag
-                limit.degrees_of_freedom = pm.BoneJointDofs.JOINT_3_DOF
-                limit.use_euler_angles = True
-                # yes, it is one even though it uses 2, they are not actually control points just re-used for the euler angles
-                limit.num_control_points = 1
-                p0 = pm.BoneJointControlPoint(*bone.rotation_limit.min)
-                p1 = pm.BoneJointControlPoint(*bone.rotation_limit.max)
-                limit.control_points = (p0, p1) + limit.control_points[2:]
-                b.rotation_limit = limit
-                has_any_limits = True
-            return b
-
-        bones_by_parent = defaultdict(list)
-        index_by_bone = {}
-
-        for i, bone in enumerate(skel.bones):
-            bones_by_parent[bone.parent_index].append(bone)
-            index_by_bone[id(bone)] = i
-
-        def _build_hierarchy(bone: SkelBone) -> pm.Bone:
-            native_bone = _convert_bone(bone)
-            for child_bone in bones_by_parent[index_by_bone[id(bone)]]:
-                child_native_bone = _build_hierarchy(child_bone)
-                native_bone.children.append(child_native_bone)
-            return native_bone
-
-        assert len(bones_by_parent[-1]) == 1
-
-        s = pm.Skeleton()
-        s.root_bone = _build_hierarchy(bones_by_parent[-1][0])
-        self._inner.skeleton = s
-        self._inner.include_joint_data = has_any_limits
-
-    @property
-    def bounds(self) -> NativeBound | None:
-        return apply_target(self, NativeBound(self._inner.bound)) if self._inner.bound else None
-
-    @bounds.setter
-    def bounds(self, v: NativeBound | None):
-        self._inner.bound = canonical_asset(v, NativeBound, self)._inner if v else None
-
-    def _is_texture_compressed(self, tex: pmg8.Texture) -> bool:
-        match tex.format:
-            case (
-                pmg8.TextureFormat.DXT1 | pmg8.TextureFormat.DXT2 | pmg8.TextureFormat.DXT3 |
-                pmg8.TextureFormat.DXT4 | pmg8.TextureFormat.DXT5 | pmg8.TextureFormat.CTX1 |
-                pmg8.TextureFormat.DXT3A | pmg8.TextureFormat.DXT3A_1111 | pmg8.TextureFormat.DXT5A |
-                pmg8.TextureFormat.DXN | pmg8.TextureFormat.BC6 | pmg8.TextureFormat.BC7
-            ):
-                return True
-
-            case _:
-                return False
-
-    def _extract_embedded_texture_dds(self, tex: pmg8.Texture) -> bytes:
+    try:
+        with data.open() as data_stream:
+            tex.import_dds(data_stream)
+        return True
+    except RuntimeError:
         import io
         import math
 
-        if self._is_texture_compressed(tex):
-            # Try to fix mips if needed, some vanilla textures have too many
-            # mips and export_dds will raise an exception
-            mips = tex.mips
-            w = tex.width
-            h = tex.height
-            max_mips_w = math.ceil(math.log2(w / 2))
-            max_mips_h = math.ceil(math.log2(h / 2))
-            max_mips = min(max_mips_w, max_mips_h)
-            if len(mips) > max_mips:
-                num_mips_to_remove = len(mips) - max_mips
-                for _ in range(num_mips_to_remove):
-                    mips.pop()
+        from ...._dds import DdsFile
 
-        tex_dds = io.BytesIO()
-        tex.export_dds(tex_dds)
-        return tex_dds.getvalue()
-
-    @property
-    def shader_group(self) -> ShaderGroup | None:
-        if self._inner.shader_group is None:
-            return None
-
-        def _map_parameter(param: pmg8.ShaderParameter) -> ShaderParameter:
-            data = param.data
-            match data:
-                case None:
-                    param_value = None
-                case pmg8.TextureBase():
-                    param_value = data.name
-                case [value]:
-                    param_value = Vector(value)
-                case [*values]:
-                    param_value = [Vector(v) for v in values]
-                case _:
-                    assert False, f"Unsupported shader parameter data: {data}"
-
-            return ShaderParameter(
-                name=_h2s(param.name),
-                value=param_value,
-            )
-
-        def _map_shader(shader: pmg8.Shader) -> ShaderInst:
-            basis_shader = shader.basis_shader
-            basis_material = shader.basis_material
-            return ShaderInst(
-                name=_h2s(basis_shader),
-                preset_filename=_h2s(basis_material) if not basis_material.is_empty else None,
-                render_bucket=RenderBucket(shader.draw_bucket.value),
-                parameters=[_map_parameter(p) for p in shader.parameters],
-            )
-
-        def _map_embedded_texture(tex: pmg8.Texture) -> EmbeddedTexture:
-            tex_data_bytes = self._extract_embedded_texture_dds(tex)
-            tex_data = DataSource.create(tex_data_bytes, f"{tex.name}.dds")
-            return EmbeddedTexture(tex.name, tex.width, tex.height, tex_data)
-
-        def _map_embedded_textures(txd: pmg8.TextureDictionary | None) -> dict[str, EmbeddedTexture]:
-            if txd is None:
-                return {}
-
-            return {t.name: _map_embedded_texture(t) for t in txd.textures.values()}
-
-        sg = self._inner.shader_group
-        return ShaderGroup([_map_shader(s) for s in sg.shaders], _map_embedded_textures(sg.texture_dictionary))
-
-    def _import_dds(self, tex: pmg8.Texture, data: DataSource | None) -> bool:
-        if not data:
-            return False
-
+        data_bytes = bytearray(data.read_bytes())
         try:
-            with data.open() as data_stream:
-                tex.import_dds(data_stream)
-            return True
-        except RuntimeError:
-            import io
-            import math
-            from ...._dds import DdsFile
-
-            data_bytes = bytearray(data.read_bytes())
-            try:
-                dds = DdsFile.from_buffer(data_bytes)
-            except ValueError as e:
-                # Failed even some basic DDS header parsing
-                err_msg = str(e)
-                logging.getLogger(__name__).warning(f"Failed to embed texture '{tex.name}'. {err_msg}")
-                return False
-
-            if dds.is_compressed:
-                # BC formats require a minimum 4x4 pixel block, so mip levels smaller than 4x4 are invalid.
-                # Some DDS files incorrectly report more mip levels than the base width/height allow, so clamp
-                # mip-map count to the largest value where the mip width and height are still >= 4 pixels.
-                max_mips_w = math.ceil(math.log2(dds.header.dwWidth / 2))
-                max_mips_h = math.ceil(math.log2(dds.header.dwHeight / 2))
-                max_mips = max(1, min(max_mips_w, max_mips_h))
-                if dds.header.dwMipMapCount > max_mips:
-                    dds.header.dwMipMapCount = max_mips
-                    try:
-                        with io.BytesIO(data_bytes) as data_stream:
-                            tex.import_dds(data_stream)
-                        return True
-                    except RuntimeError:
-                        pass
-
-            # Could not fix the DDS
-            logging.getLogger(__name__).warning(
-                f"Failed to embed texture '{tex.name}'. DDS image data may be corrupted."
-            )
+            dds = DdsFile.from_buffer(data_bytes)
+        except ValueError as e:
+            err_msg = str(e)
+            logging.getLogger(__name__).warning(f"Failed to embed texture '{tex.name}'. {err_msg}")
             return False
 
-    @shader_group.setter
-    def shader_group(self, shader_group: ShaderGroup | None):
-        if shader_group is None:
-            self._inner.shader_group = None
-            return
+        if dds.is_compressed:
+            max_mips_w = math.ceil(math.log2(dds.header.dwWidth / 2))
+            max_mips_h = math.ceil(math.log2(dds.header.dwHeight / 2))
+            max_mips = max(1, min(max_mips_w, max_mips_h))
+            if dds.header.dwMipMapCount > max_mips:
+                dds.header.dwMipMapCount = max_mips
+                try:
+                    with io.BytesIO(data_bytes) as data_stream:
+                        tex.import_dds(data_stream)
+                    return True
+                except RuntimeError:
+                    pass
 
-        sg = pmg8.ShaderGroup()
-        embedded_textures = {}
-        if shader_group.embedded_textures:
-            txd = pmg8.TextureDictionary()
-            for embedded_tex in shader_group.embedded_textures.values():
-                tex = pmg8.Texture()
-                tex.name = embedded_tex.name
-                embedded_textures[tex.name] = tex
-                if not self._import_dds(tex, embedded_tex.data):
-                    # Texture data missing or failed to import, create magenta/black checkerboard texture
-                    texture_data = make_checkerboard_texture_data()
-                    h, w, _ = texture_data.shape
-                    mip = pm.TextureMip()
-                    mip.layers.append(texture_data)
-                    tex.mips.append(mip)
-                    tex.format = pmg8.TextureFormat.A8B8G8R8
-                    tex.width = w
-                    tex.height = h
-                    tex.depth = 1
-                    tex.layer_count = 1
+        logging.getLogger(__name__).warning(f"Failed to embed texture '{tex.name}'. DDS image data may be corrupted.")
+        return False
 
-                txd.textures[pm.HashString(tex.name)] = tex
 
-            sg.texture_dictionary = txd
+def _load_skeleton_native(d: pmg8.Drawable) -> Skeleton | None:
+    def _map_translation_limit(limit: pm.BoneTranslationLimit | None) -> SkelBoneTranslationLimit | None:
+        if limit is None:
+            return None
+        return SkelBoneTranslationLimit(Vector(limit.min), Vector(limit.max))
 
-        for shader in shader_group.shaders:
-            assert shader.preset_filename is not None
-            s = pmg8.Shader()
-            s.basis_shader = shader.name
-            s.basis_material = shader.preset_filename
-            s.draw_bucket = pm.ShaderDrawBucket(shader.render_bucket.value)
-            s.draw_bucket_mask = 0xFF00 | (1 << shader.render_bucket.value)
-            for param in shader.parameters:
-                p = pmg8.ShaderParameter()
-                p.name = param.name
-                match param.value:
-                    case None:
-                        p.data = None
-                    case str():
-                        tex = embedded_textures.get(param.value, None)
-                        if tex is None:
-                            tex = pmg8.TextureReference()
-                            tex.name = param.value
-                        p.data = tex
-                    case Vector():
-                        p.data = [to_native_vec4(param.value)]
-                    case _:  # vector list
-                        p.data = [to_native_vec4(v) for v in param.value]
-                s.parameters.append(p)
+    def _map_rotation_limit(limit: pm.BoneRotationLimit | None) -> SkelBoneRotationLimit | None:
+        if limit is None:
+            return None
+        assert limit.num_control_points == 1
+        assert limit.degrees_of_freedom == pm.BoneJointDofs.JOINT_3_DOF
+        assert limit.use_euler_angles
+        p0, p1 = limit.control_points[:2]
+        min_rot = Vector((p0.max_swing, p0.min_twist, p0.max_twist))
+        max_rot = Vector((p1.max_swing, p1.min_twist, p1.max_twist))
+        return SkelBoneRotationLimit(min_rot, max_rot)
 
-            sg.shaders.append(s)
+    bones = []
 
-        self._inner.shader_group = sg
-
-    @property
-    def models(self) -> dict[LodLevel, list[Model]]:
-        sg = (
-            self._drawable_with_shader_group.shader_group
-            if self._drawable_with_shader_group
-            else self._inner.shader_group
-        )
-        shader_mapping = {s: i for i, s in enumerate(sg.shaders)}
-
-        def _find_shader_index(shader: pmg8.Shader) -> int:
-            idx = shader_mapping.get(shader, None)
-            if idx is None:
-                raise ValueError(f"Shader {shader} not found in shader group!")
-
-            return idx
-
-        def _map_geometry(geom: pmg8.Geometry) -> Geometry:
-            fvf = geom.vb.fvf
-            vb = geom.vb.buffer
-            vb.dtype.names = [_VB_CHANNEL_NAMES_MAP[n] for n in vb.dtype.names]
-
-            # Cloth drawables have packed normals, unpack them
-            if (
-                fvf.is_channel_active(pmg8.FvfChannel.NORMAL)
-                and fvf.get_channel_size_type(pmg8.FvfChannel.NORMAL) == pmg8.FvfDataType.PACKED_NORMAL
-            ):
-                packed_normals = vb["Normal"]
-                x = (packed_normals & 0xFF).astype(dtype=np.int8) / 127
-                y = ((packed_normals >> 8) & 0xFF).astype(dtype=np.int8) / 127
-                z = ((packed_normals >> 16) & 0xFF).astype(dtype=np.int8) / 127
-
-                new_dtype = [(n, (np.float32, 3) if n == "Normal" else vb.dtype.fields[n][0]) for n in vb.dtype.names]
-                new_vb = np.empty_like(vb, dtype=new_dtype)
-                for n in vb.dtype.names:
-                    if n == "Normal":
-                        normals = new_vb[n]
-                        normals[:, 0] = x
-                        normals[:, 1] = y
-                        normals[:, 2] = z
-                    else:
-                        new_vb[n] = vb[n]
-
-                vb = new_vb
-
-            return Geometry(
-                vertex_data_type=VertexDataType(fvf.size_signature),
-                vertex_buffer=vb,
-                index_buffer=geom.ib.indices,
-                bone_ids=np.array(geom.matrix_palette),
-                shader_index=_find_shader_index(geom.shader),
+    def _add_bone(b: pm.Bone, parent_index: int):
+        bone_index = len(bones)
+        px, py, pz, _ = b.default_translation
+        rx, ry, rz, rw = b.default_rotation
+        sx, sy, sz, _ = b.default_scale
+        bones.append(
+            SkelBone(
+                name=b.name,
+                tag=b.id,
+                flags=SkelBoneFlags(b.degrees_of_freedom),
+                position=Vector((px, py, pz)),
+                rotation=Quaternion((rw, rx, ry, rz)),
+                scale=Vector((sx, sy, sz)),
+                parent_index=parent_index,
+                translation_limit=_map_translation_limit(b.translation_limit),
+                rotation_limit=_map_rotation_limit(b.rotation_limit),
             )
-
-        def _map_model(model: pmg8.Model) -> Model:
-            return Model(
-                bone_index=model.matrix_index,
-                geometries=[_map_geometry(g) for g in model.geometries],
-                render_bucket_mask=model.render_bucket_mask,
-                has_skin=model.has_skin,
-                matrix_count=model.matrix_count,
-                flags=model.flags,
-            )
-
-        return {
-            LodLevel(lod_level.value): [_map_model(m) for m in lod.models]
-            for lod_level, lod in self._inner.lods.items()
-        }
-
-    @models.setter
-    def models(self, v: dict[LodLevel, list[Model]]):
-        parent_sg = self._drawable_with_shader_group and self._drawable_with_shader_group.shader_group
-        sg = self._inner.shader_group or parent_sg
-        assert sg and sg.shaders, (
-            "Need to assign the shader group or have a parent drawable with shaders before the models"
         )
+        for c in b.children:
+            _add_bone(c, bone_index)
 
-        def _map_geometry(geom: Geometry) -> pmg8.Geometry:
-            g = pmg8.Geometry()
-            g.shader = sg.shaders[geom.shader_index]
-            g.primitive_type = pm.PrimitiveType.TRIS
-            g.matrix_palette = geom.bone_ids
+    if d.skeleton is not None:
+        _add_bone(d.skeleton.root_bone, -1)
 
-            channels = {pmg8.FvfChannel[_VB_CHANNEL_NAMES_INVERSE_MAP[n]] for n in geom.vertex_buffer.dtype.names}
-            fvf = pmg8.Fvf(channels, size_signature=geom.vertex_data_type.value)
-            g.vb.fvf = fvf
-            g.vb.resize(len(geom.vertex_buffer))
-            for channel in geom.vertex_buffer.dtype.names:
-                if (
-                    channel == "Normal"
-                    and fvf.is_channel_active(pmg8.FvfChannel.NORMAL)
-                    and fvf.get_channel_size_type(pmg8.FvfChannel.NORMAL) == pmg8.FvfDataType.PACKED_NORMAL
-                ):
-                    # Pack normals
-                    normals = geom.vertex_buffer["Normal"]
-                    x = normals[:, 0]
-                    y = normals[:, 1]
-                    z = normals[:, 2]
-                    packed_normals = (
-                        (x * 127.0).astype(dtype=np.uint8).astype(dtype=np.uint32)
-                        | ((y * 127.0).astype(dtype=np.uint8).astype(dtype=np.uint32) << 8)
-                        | ((z * 127.0).astype(dtype=np.uint8).astype(dtype=np.uint32) << 16)
-                    )
-                    channel_data = packed_normals
-                else:
-                    channel_data = geom.vertex_buffer[channel]
-
-                g.vb.buffer[_VB_CHANNEL_NAMES_INVERSE_MAP[channel]] = channel_data
-
-            g.ib.indices = geom.index_buffer
-            return g
-
-        def _map_model(model: Model) -> pmg8.Model:
-            m = pmg8.Model()
-            m.geometries = [_map_geometry(g) for g in model.geometries]
-            m.render_bucket_mask = model.render_bucket_mask
-            m.flags = pm.ModelFlags(model.flags)
-            m.has_skin = model.has_skin
-            m.matrix_index = model.bone_index
-            m.matrix_count = model.matrix_count
-            return m
-
-        lod_thresholds = self.lod_thresholds
-        for lod_level, models in v.items():
-            if not models:
-                continue
-
-            lod = pmg8.Lod()
-            lod.models = [_map_model(m) for m in models]
-            lod.lod_threshold = lod_thresholds.get(lod_level, 9998.0)
-
-            self._inner.lods[pm.LodType(lod_level.value)] = lod
-
-        self._temp_lod_thresholds = None
-
-    @property
-    def lod_thresholds(self) -> dict[LodLevel, float]:
-        if self._temp_lod_thresholds:
-            return self._temp_lod_thresholds
-
-        return (
-            _DEFAULT_LOD_THRESHOLDS
-            | {LodLevel(lod_level.value): lod.lod_threshold for lod_level, lod in self._inner.lods.items()}
-            if self._inner.lods
-            else {}
-        )
-
-    @lod_thresholds.setter
-    def lod_thresholds(self, v: dict[LodLevel, float]):
-        self._temp_lod_thresholds = _DEFAULT_LOD_THRESHOLDS | v
-
-        if self._inner.lods:
-            for lod_level, lod in self._inner.lods.items():
-                lod.lod_threshold = self._temp_lod_thresholds.get(LodLevel(lod_level.value), 9998.0)
-
-    @property
-    def lights(self) -> list[Light]:
-        return [_map_light_from_native(light) for light in self._inner.lights]
-
-    @lights.setter
-    def lights(self, lights: list[Light]):
-        self._inner.lights = [_map_light_to_native(li) for li in lights]
+    return Skeleton(bones) if bones else None
 
 
-class NativeFragDrawable(NativeDrawable):
-    def __init__(self, d: pmg8.FragmentDrawable, drawable_with_shader_group: pmg8.FragmentDrawable | None = None):
-        super().__init__(d, drawable_with_shader_group)
-        self._inner = d
-        self._drawable_with_shader_group = drawable_with_shader_group
-
-    @property
-    def name(self) -> str:
-        return self._inner.name
-
-    @name.setter
-    def name(self, v: str):
-        self._inner.name = v
-        self._inner.skeleton_type = pm.SkeletonType.SKEL if v == "skel" else pm.SkeletonType.NONE
-
-    @property
-    def bounds(self) -> NativeBound | None:
+def _load_shader_group_g8(d: pmg8.Drawable) -> ShaderGroup | None:
+    if d.shader_group is None:
         return None
 
-    @bounds.setter
-    def bounds(self, v: NativeBound | None):
-        raise AssertionError("Cannot set bounds of FragDrawable")
+    def _map_parameter(param: pmg8.ShaderParameter) -> ShaderParameter:
+        data = param.data
+        match data:
+            case None:
+                param_value = None
+            case pmg8.TextureBase():
+                param_value = data.name
+            case [value]:
+                param_value = Vector(value)
+            case [*values]:
+                param_value = [Vector(v) for v in values]
+            case _:
+                assert False, f"Unsupported shader parameter data: {data}"
 
-    @property
-    def lights(self) -> list[Light]:
-        return []
+        return ShaderParameter(name=_h2s(param.name), value=param_value)
 
-    @lights.setter
-    def lights(self, lights: list[Light]):
-        raise AssertionError("Cannot set lights of FragDrawable")
+    def _map_shader(shader: pmg8.Shader) -> ShaderInst:
+        basis_shader = shader.basis_shader
+        basis_material = shader.basis_material
+        return ShaderInst(
+            name=_h2s(basis_shader),
+            preset_filename=_h2s(basis_material) if not basis_material.is_empty else None,
+            render_bucket=RenderBucket(shader.draw_bucket.value),
+            parameters=[_map_parameter(p) for p in shader.parameters],
+        )
 
-    @property
-    def frag_bound_matrix(self) -> Matrix:
-        return from_native_mat34(self._inner.bound_matrix)
+    def _map_embedded_texture(tex: pmg8.Texture) -> EmbeddedTexture:
+        tex_data_bytes = _extract_embedded_texture_dds_g8(tex)
+        tex_data = DataSource.create(tex_data_bytes, f"{tex.name}.dds")
+        return EmbeddedTexture(tex.name, tex.width, tex.height, tex_data)
 
-    @frag_bound_matrix.setter
-    def frag_bound_matrix(self, v: Matrix):
-        self._inner.bound_matrix = to_native_mat34(v)
+    def _map_embedded_textures(txd: pmg8.TextureDictionary | None) -> dict[str, EmbeddedTexture]:
+        if txd is None:
+            return {}
+        return {t.name: _map_embedded_texture(t) for t in txd.textures.values()}
 
-    @property
-    def frag_extra_bound_matrices(self) -> list[Matrix]:
-        return [from_native_mat34(e.matrix) for e in self._inner.extra_bounds]
-
-    @frag_extra_bound_matrices.setter
-    def frag_extra_bound_matrices(self, v: list[Matrix]):
-        self._inner.extra_bounds = [pm.ExtraBound(matrix=to_native_mat34(m)) for m in v]
+    sg = d.shader_group
+    return ShaderGroup([_map_shader(s) for s in sg.shaders], _map_embedded_textures(sg.texture_dictionary))
 
 
-class NativeDrawableDictionary:
-    ASSET_GAME = AssetGame.GTA5
-    ASSET_FORMAT = AssetFormat.NATIVE
-    ASSET_VERSION = AssetVersion.GEN8
-    ASSET_TYPE = AssetType.DRAWABLE_DICTIONARY
+def _load_models_g8(
+    d: pmg8.Drawable,
+    shader_group: pmg8.ShaderGroup | None = None,
+) -> dict[LodLevel, list[Model]]:
+    sg = shader_group or d.shader_group
+    shader_mapping = {s: i for i, s in enumerate(sg.shaders)}
 
-    def __init__(self, d: pmg8.DrawableDictionary):
-        self._inner = d
+    def _find_shader_index(shader: pmg8.Shader) -> int:
+        idx = shader_mapping.get(shader, None)
+        if idx is None:
+            raise ValueError(f"Shader {shader} not found in shader group!")
+        return idx
 
-    @property
-    def drawables(self) -> dict[str, NativeDrawable]:
-        dwd = self._inner
-        return {jenkhash.hash_to_name(key.hash): NativeDrawable(drawable) for key, drawable in dwd.drawables.items()}
+    def _map_geometry(geom: pmg8.Geometry) -> Geometry:
+        fvf = geom.vb.fvf
+        vb = geom.vb.buffer
+        vb.dtype.names = [_VB_CHANNEL_NAMES_MAP[n] for n in vb.dtype.names]
 
-    @drawables.setter
-    def drawables(self, d: dict[str, NativeDrawable]):
-        dwd = self._inner
-        dwd.drawables.clear()
-        for name, drawable in d.items():
-            dwd.drawables[pm.HashString(jenkhash.name_to_hash(name))] = canonical_asset(
-                drawable, NativeDrawable, self
-            )._inner
+        if (
+            fvf.is_channel_active(pmg8.FvfChannel.NORMAL)
+            and fvf.get_channel_size_type(pmg8.FvfChannel.NORMAL) == pmg8.FvfDataType.PACKED_NORMAL
+        ):
+            packed_normals = vb["Normal"]
+            x = (packed_normals & 0xFF).astype(dtype=np.int8) / 127
+            y = ((packed_normals >> 8) & 0xFF).astype(dtype=np.int8) / 127
+            z = ((packed_normals >> 16) & 0xFF).astype(dtype=np.int8) / 127
+
+            new_dtype = [(n, (np.float32, 3) if n == "Normal" else vb.dtype.fields[n][0]) for n in vb.dtype.names]
+            new_vb = np.empty_like(vb, dtype=new_dtype)
+            for n in vb.dtype.names:
+                if n == "Normal":
+                    normals = new_vb[n]
+                    normals[:, 0] = x
+                    normals[:, 1] = y
+                    normals[:, 2] = z
+                else:
+                    new_vb[n] = vb[n]
+
+            vb = new_vb
+
+        return Geometry(
+            vertex_data_type=VertexDataType(fvf.size_signature),
+            vertex_buffer=vb,
+            index_buffer=geom.ib.indices,
+            bone_ids=np.array(geom.matrix_palette),
+            shader_index=_find_shader_index(geom.shader),
+        )
+
+    def _map_model(model: pmg8.Model) -> Model:
+        return Model(
+            bone_index=model.matrix_index,
+            geometries=[_map_geometry(g) for g in model.geometries],
+            render_bucket_mask=model.render_bucket_mask,
+            has_skin=model.has_skin,
+            matrix_count=model.matrix_count,
+            flags=model.flags,
+        )
+
+    return {LodLevel(lod_level.value): [_map_model(m) for m in lod.models] for lod_level, lod in d.lods.items()}
+
+
+def _load_lod_thresholds_native(d: pmg8.Drawable) -> dict[LodLevel, float]:
+    return (
+        _DEFAULT_LOD_THRESHOLDS | {LodLevel(lod_level.value): lod.lod_threshold for lod_level, lod in d.lods.items()}
+        if d.lods
+        else {}
+    )
+
+
+def _load_lights_native(d: pmg8.Drawable) -> list[Light]:
+    return [_map_light_from_native(light) for light in d.lights]
+
+
+def _load_bounds_native(d: pmg8.Drawable):
+    return load_bound(d.bound) if d.bound else None
+
+
+def load_drawable(d: pmg8.Drawable) -> AssetDrawable:
+    """Convert a native gen8 Drawable to an AssetDrawable dataclass."""
+    return AssetDrawable(
+        name=d.name,
+        bounds=_load_bounds_native(d),
+        skeleton=_load_skeleton_native(d),
+        shader_group=_load_shader_group_g8(d),
+        models=_load_models_g8(d),
+        lod_thresholds=_load_lod_thresholds_native(d),
+        lights=_load_lights_native(d),
+    )
+
+
+def load_frag_drawable(d: pmg8.FragmentDrawable) -> AssetFragDrawable:
+    """Convert a native gen8 FragmentDrawable to an AssetFragDrawable dataclass."""
+    return AssetFragDrawable(
+        name=d.name,
+        bounds=None,
+        skeleton=_load_skeleton_native(d),
+        shader_group=_load_shader_group_g8(d),
+        models=_load_models_g8(d),
+        lod_thresholds=_load_lod_thresholds_native(d),
+        lights=[],
+        frag_bound_matrix=from_native_mat34(d.bound_matrix),
+        frag_extra_bound_matrices=[from_native_mat34(e.matrix) for e in d.extra_bounds],
+    )
+
+
+def load_drawable_dictionary(d: pmg8.DrawableDictionary) -> AssetDrawableDictionary:
+    """Convert a native gen8 DrawableDictionary to an AssetDrawableDictionary dataclass."""
+    return AssetDrawableDictionary(
+        drawables={jenkhash.hash_to_name(key.hash): load_drawable(drawable) for key, drawable in d.drawables.items()}
+    )
+
+
+# --- Save functions ---
+
+
+def _save_skeleton_native(skel: Skeleton | None, d: pmg8.Drawable):
+    if skel is None:
+        d.skeleton = None
+        d.include_joint_data = False
+        return
+
+    has_any_limits = False
+
+    def _convert_bone(bone: SkelBone) -> pm.Bone:
+        nonlocal has_any_limits
+        b = pm.Bone()
+        b.name = bone.name
+        b.id = bone.tag
+        b.degrees_of_freedom = bone.flags.value
+        pos = bone.position
+        b.default_translation = pm.Vector4f(pos[0], pos[1], pos[2], 0.0)
+        b.default_rotation = to_native_quat(bone.rotation)
+        sc = bone.scale
+        b.default_scale = pm.Vector4f(sc[0], sc[1], sc[2], 0.0)
+        if bone.translation_limit:
+            limit = pm.BoneTranslationLimit()
+            limit.bone_id = bone.tag
+            limit.min = to_native_vec3(bone.translation_limit.min)
+            limit.max = to_native_vec3(bone.translation_limit.max)
+            b.translation_limit = limit
+            has_any_limits = True
+        if bone.rotation_limit:
+            limit = pm.BoneRotationLimit()
+            limit.bone_id = bone.tag
+            limit.degrees_of_freedom = pm.BoneJointDofs.JOINT_3_DOF
+            limit.use_euler_angles = True
+            limit.num_control_points = 1
+            p0 = pm.BoneJointControlPoint(
+                float(bone.rotation_limit.min[0]), float(bone.rotation_limit.min[1]), float(bone.rotation_limit.min[2])
+            )
+            p1 = pm.BoneJointControlPoint(
+                float(bone.rotation_limit.max[0]), float(bone.rotation_limit.max[1]), float(bone.rotation_limit.max[2])
+            )
+            limit.control_points = (p0, p1) + limit.control_points[2:]
+            b.rotation_limit = limit
+            has_any_limits = True
+        return b
+
+    bones_by_parent = defaultdict(list)
+    index_by_bone = {}
+
+    for i, bone in enumerate(skel.bones):
+        bones_by_parent[bone.parent_index].append(bone)
+        index_by_bone[id(bone)] = i
+
+    def _build_hierarchy(bone: SkelBone) -> pm.Bone:
+        native_bone = _convert_bone(bone)
+        for child_bone in bones_by_parent[index_by_bone[id(bone)]]:
+            child_native_bone = _build_hierarchy(child_bone)
+            native_bone.children.append(child_native_bone)
+        return native_bone
+
+    assert len(bones_by_parent[-1]) == 1
+
+    s = pm.Skeleton()
+    s.root_bone = _build_hierarchy(bones_by_parent[-1][0])
+    d.skeleton = s
+    d.include_joint_data = has_any_limits
+
+
+def _save_shader_group_g8(shader_group: ShaderGroup | None, d: pmg8.Drawable):
+    if shader_group is None:
+        d.shader_group = None
+        return
+
+    sg = pmg8.ShaderGroup()
+    embedded_textures = {}
+    if shader_group.embedded_textures:
+        txd = pmg8.TextureDictionary()
+        for embedded_tex in shader_group.embedded_textures.values():
+            tex = pmg8.Texture()
+            tex.name = embedded_tex.name
+            embedded_textures[tex.name] = tex
+            if not _import_dds_g8(tex, embedded_tex.data):
+                texture_data = make_checkerboard_texture_data()
+                h, w, _ = texture_data.shape
+                mip = pm.TextureMip()
+                mip.layers.append(texture_data)
+                tex.mips.append(mip)
+                tex.format = pmg8.TextureFormat.A8B8G8R8
+                tex.width = w
+                tex.height = h
+                tex.depth = 1
+                tex.layer_count = 1
+
+            txd.textures[pm.HashString(tex.name)] = tex
+
+        sg.texture_dictionary = txd
+
+    for shader in shader_group.shaders:
+        assert shader.preset_filename is not None
+        s = pmg8.Shader()
+        s.basis_shader = shader.name
+        s.basis_material = shader.preset_filename
+        s.draw_bucket = pm.ShaderDrawBucket(shader.render_bucket.value)
+        s.draw_bucket_mask = 0xFF00 | (1 << shader.render_bucket.value)
+        for param in shader.parameters:
+            p = pmg8.ShaderParameter()
+            p.name = param.name
+            match param.value:
+                case None:
+                    p.data = None
+                case str():
+                    tex = embedded_textures.get(param.value, None)
+                    if tex is None:
+                        tex = pmg8.TextureReference()
+                        tex.name = param.value
+                    p.data = tex
+                case Vector():
+                    p.data = [to_native_vec4(param.value)]
+                case _:  # vector list
+                    p.data = [to_native_vec4(v) for v in param.value]
+            s.parameters.append(p)
+
+        sg.shaders.append(s)
+
+    d.shader_group = sg
+
+
+def _save_models_g8(
+    asset_models: dict[LodLevel, list[Model]],
+    lod_thresholds: dict[LodLevel, float],
+    d: pmg8.Drawable,
+    parent_shader_group: pmg8.ShaderGroup | None = None,
+):
+    sg = d.shader_group or parent_shader_group
+    assert sg and sg.shaders, "Need to assign the shader group or have a parent drawable with shaders before the models"
+
+    def _map_geometry(geom: Geometry) -> pmg8.Geometry:
+        g = pmg8.Geometry()
+        g.shader = sg.shaders[geom.shader_index]
+        g.primitive_type = pm.PrimitiveType.TRIS
+        g.matrix_palette = geom.bone_ids
+
+        channels = {pmg8.FvfChannel[_VB_CHANNEL_NAMES_INVERSE_MAP[n]] for n in geom.vertex_buffer.dtype.names}
+        fvf = pmg8.Fvf(channels, size_signature=geom.vertex_data_type.value)
+        g.vb.fvf = fvf
+        g.vb.resize(len(geom.vertex_buffer))
+        for channel in geom.vertex_buffer.dtype.names:
+            if (
+                channel == "Normal"
+                and fvf.is_channel_active(pmg8.FvfChannel.NORMAL)
+                and fvf.get_channel_size_type(pmg8.FvfChannel.NORMAL) == pmg8.FvfDataType.PACKED_NORMAL
+            ):
+                normals = geom.vertex_buffer["Normal"]
+                x = normals[:, 0]
+                y = normals[:, 1]
+                z = normals[:, 2]
+                packed_normals = (
+                    (x * 127.0).astype(dtype=np.uint8).astype(dtype=np.uint32)
+                    | ((y * 127.0).astype(dtype=np.uint8).astype(dtype=np.uint32) << 8)
+                    | ((z * 127.0).astype(dtype=np.uint8).astype(dtype=np.uint32) << 16)
+                )
+                channel_data = packed_normals
+            else:
+                channel_data = geom.vertex_buffer[channel]
+
+            g.vb.buffer[_VB_CHANNEL_NAMES_INVERSE_MAP[channel]] = channel_data
+
+        g.ib.indices = geom.index_buffer
+        return g
+
+    def _map_model(model: Model) -> pmg8.Model:
+        m = pmg8.Model()
+        m.geometries = [_map_geometry(g) for g in model.geometries]
+        m.render_bucket_mask = model.render_bucket_mask
+        m.flags = pm.ModelFlags(model.flags)
+        m.has_skin = model.has_skin
+        m.matrix_index = model.bone_index
+        m.matrix_count = model.matrix_count
+        return m
+
+    thresholds = _DEFAULT_LOD_THRESHOLDS | lod_thresholds
+    for lod_level, models in asset_models.items():
+        if not models:
+            continue
+
+        lod = pmg8.Lod()
+        lod.models = [_map_model(m) for m in models]
+        lod.lod_threshold = thresholds.get(lod_level, 9998.0)
+
+        d.lods[pm.LodType(lod_level.value)] = lod
+
+
+def _save_lights_native(lights: list[Light], d: pmg8.Drawable):
+    d.lights = [_map_light_to_native(li) for li in lights]
+
+
+def _save_bounds_native(bounds, d: pmg8.Drawable):
+    d.bound = save_bound_to_native(bounds) if bounds else None
+
+
+def save_drawable_to_native(asset: AssetDrawable) -> pmg8.Drawable:
+    """Convert an AssetDrawable dataclass to a native gen8 Drawable."""
+    d = pmg8.Drawable()
+    d.name = asset.name
+    _save_skeleton_native(asset.skeleton, d)
+    _save_shader_group_g8(asset.shader_group, d)
+    _save_models_g8(asset.models, asset.lod_thresholds, d)
+    _save_lights_native(asset.lights, d)
+    _save_bounds_native(asset.bounds, d)
+    return d
+
+
+def save_frag_drawable_to_native(asset: AssetFragDrawable) -> pmg8.FragmentDrawable:
+    """Convert an AssetFragDrawable dataclass to a native gen8 FragmentDrawable."""
+    d = pmg8.FragmentDrawable()
+    d.name = asset.name
+    d.skeleton_type = pm.SkeletonType.SKEL if asset.name == "skel" else pm.SkeletonType.NONE
+    _save_skeleton_native(asset.skeleton, d)
+    _save_shader_group_g8(asset.shader_group, d)
+    _save_models_g8(asset.models, asset.lod_thresholds, d)
+    if asset.frag_bound_matrix is not None:
+        m = asset.frag_bound_matrix
+        d.bound_matrix = pma.Matrix34(
+            pma.Vector4f(float(m[0][0]), float(m[0][1]), float(m[0][2]), float(m[0][3])),
+            pma.Vector4f(float(m[1][0]), float(m[1][1]), float(m[1][2]), float(m[1][3])),
+            pma.Vector4f(float(m[2][0]), float(m[2][1]), float(m[2][2]), float(m[2][3])),
+            pma.Vector4f(float(m[3][0]), float(m[3][1]), float(m[3][2]), float(m[3][3])),
+        )
+    d.extra_bounds = [
+        pm.ExtraBound(
+            matrix=pma.Matrix34(
+                pma.Vector4f(float(m[0][0]), float(m[0][1]), float(m[0][2]), float(m[0][3])),
+                pma.Vector4f(float(m[1][0]), float(m[1][1]), float(m[1][2]), float(m[1][3])),
+                pma.Vector4f(float(m[2][0]), float(m[2][1]), float(m[2][2]), float(m[2][3])),
+                pma.Vector4f(float(m[3][0]), float(m[3][1]), float(m[3][2]), float(m[3][3])),
+            )
+        )
+        for m in (asset.frag_extra_bound_matrices or [])
+    ]
+    return d
+
+
+def save_drawable_dictionary_to_native(asset: AssetDrawableDictionary) -> pmg8.DrawableDictionary:
+    """Convert an AssetDrawableDictionary dataclass to a native gen8 DrawableDictionary."""
+    dwd = pmg8.DrawableDictionary()
+    for name, drawable in asset.drawables.items():
+        dwd.drawables[pm.HashString(jenkhash.name_to_hash(name))] = save_drawable_to_native(drawable)
+    return dwd

@@ -1,8 +1,8 @@
-from dataclasses import dataclass
-from typing import Protocol, runtime_checkable
+from dataclasses import dataclass, field
 
+from ..assets import AssetGame
 from ..types import Matrix, Vector
-from .assets import Asset, AssetType
+from .assets import AssetType
 from .bounds import AssetBound
 
 
@@ -81,12 +81,9 @@ class CharacterCloth:
     bounds: AssetBound | None
 
 
-@runtime_checkable
-class AssetClothDictionary(Asset, Protocol):
-    ASSET_TYPE = AssetType.CLOTH_DICTIONARY
+@dataclass(slots=True)
+class AssetClothDictionary:
+    ASSET_GAME: AssetGame = AssetGame.GTA5
+    ASSET_TYPE: AssetType = AssetType.CLOTH_DICTIONARY
 
-    @property
-    def cloths(self) -> dict[str, CharacterCloth]: ...
-
-    @cloths.setter
-    def cloths(self, v: dict[str, CharacterCloth]): ...
+    cloths: dict[str, CharacterCloth] = field(default_factory=dict)

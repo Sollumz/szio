@@ -42,15 +42,15 @@ def from_native_bgraf(c: pm.ColorRGBA) -> tuple[float, float, float, float]:
 
 
 def to_native_uv(v: Vector) -> pm.UV:
-    return pm.UV(*v.xy)
+    return pm.UV(v[0], v[1])
 
 
 def to_native_vec3(v: Vector) -> pm.Vector3f:
-    return pm.Vector3f(*v.xyz)
+    return pm.Vector3f(v[0], v[1], v[2])
 
 
 def to_native_vec4(v: Vector) -> pm.Vector4f:
-    return pm.Vector4f(*v.xyzw)
+    return pm.Vector4f(v[0], v[1], v[2], v[3])
 
 
 def to_native_quat(v: Quaternion) -> pm.Quaternion:
@@ -131,10 +131,3 @@ def make_checkerboard_texture_data() -> np.ndarray:
     texture_data[checkerboard == 0] = magenta
     texture_data[checkerboard != 0] = black
     return texture_data
-
-
-def apply_target(parent_asset, asset):
-    asset.ASSET_GAME = parent_asset.ASSET_GAME
-    asset.ASSET_FORMAT = parent_asset.ASSET_FORMAT
-    asset.ASSET_VERSION = parent_asset.ASSET_VERSION
-    return asset
