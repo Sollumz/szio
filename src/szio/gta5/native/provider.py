@@ -7,7 +7,7 @@ import pymateria.gta5 as pm
 import pymateria.rsc7 as pmrsc
 
 from ..archetypes import AssetMapTypes
-from ..assets import Asset
+from ..assets import Asset, AssetGame
 from ..bounds import AssetBound, BoundType
 from ..cloths import AssetClothDictionary
 from ..drawables import AssetDrawable, AssetDrawableDictionary
@@ -16,6 +16,7 @@ from .adapters import NativeBound, NativeClothDictionary, NativeMapTypes
 
 
 class NativeProvider(ABC):
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = None
     ASSET_VERSION = None
     SUPPORTED_EXTENSIONS = {
@@ -126,6 +127,7 @@ class NativeProvider(ABC):
         return s
 
     def _apply_target(self, asset):
+        asset.ASSET_GAME = self.ASSET_GAME
         asset.ASSET_FORMAT = self.ASSET_FORMAT
         asset.ASSET_VERSION = self.ASSET_VERSION
         return asset

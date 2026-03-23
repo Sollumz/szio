@@ -3,12 +3,22 @@
 from abc import ABC as AbstractClass
 from abc import abstractclassmethod, abstractmethod
 from dataclasses import dataclass
-from typing import Any
+from pathlib import Path
+from typing import Any, Optional
 from xml.etree import ElementTree as ET
 
 from numpy import float32
 
 from ..types import Matrix, Quaternion, Vector
+
+
+def get_xml_root_tag(path: Path) -> Optional[str]:
+    """Gets the tag name of the root element without parsing the whole XML."""
+    if not path.is_file():
+        return None
+    for event, elem in ET.iterparse(path, events=("start",)):
+        return elem.tag
+    return None
 
 
 def indent(elem: ET.Element, level=0):

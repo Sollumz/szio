@@ -23,4 +23,5 @@ from .element import (
     Vector4ListProperty,
     Vector4Property,
     VectorProperty,
+    get_xml_root_tag,
 )

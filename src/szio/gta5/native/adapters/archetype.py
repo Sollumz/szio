@@ -34,6 +34,7 @@ from ...archetypes import (
 )
 from ...assets import (
     AssetFormat,
+    AssetGame,
     AssetType,
     AssetVersion,
 )
@@ -76,6 +77,7 @@ def _native_scenario_flags_from_str(flags_str: str) -> int:
 
 
 class NativeMapTypes:
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.NATIVE
     ASSET_VERSION = AssetVersion.GEN8
     ASSET_TYPE = AssetType.MAP_TYPES
@@ -617,6 +619,7 @@ class NativeMapTypes:
 
 
 class NativeMapTypesG9(NativeMapTypes):
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.NATIVE
     ASSET_VERSION = AssetVersion.GEN9
     ASSET_TYPE = AssetType.MAP_TYPES

@@ -1,10 +1,9 @@
-import xml.etree.ElementTree as ET
 from abc import ABC
 from pathlib import Path
-from typing import Optional
 
+from ...xml import get_xml_root_tag
 from ..archetypes import AssetMapTypes
-from ..assets import Asset, AssetFormat, AssetVersion
+from ..assets import Asset, AssetFormat, AssetGame, AssetVersion
 from ..bounds import AssetBound, BoundType
 from ..cloths import AssetClothDictionary
 from ..drawables import AssetDrawable, AssetDrawableDictionary
@@ -25,14 +24,8 @@ from .adapters import (
 )
 
 
-def _get_xml_root_element_name(path: Path) -> Optional[str]:
-    """Gets the name of the root element without parsing the whole XML."""
-    for event, elem in ET.iterparse(path, events=("start",)):
-        return elem.tag
-    return None
-
-
 class CWProvider(ABC):
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = None
     ASSET_VERSION = None
     XML_EXTENSION = ".xml"
@@ -53,7 +46,7 @@ class CWProvider(ABC):
             and (ext := suffixes[-2].lower()) in CWProvider.SUPPORTED_EXTENSIONS
         ):
             expected_root_element_name = CWProvider.SUPPORTED_EXTENSIONS[ext]
-            return _get_xml_root_element_name(path) == expected_root_element_name
+            return get_xml_root_tag(path) == expected_root_element_name
 
         return False
 
@@ -153,6 +146,7 @@ class CWProvider(ABC):
             raise ValueError(f"Unsupported asset '{asset}' (name: '{name}', directory: '{str(directory)}')")
 
     def _apply_target(self, asset):
+        asset.ASSET_GAME = self.ASSET_GAME
         asset.ASSET_FORMAT = self.ASSET_FORMAT
         asset.ASSET_VERSION = self.ASSET_VERSION
         return asset

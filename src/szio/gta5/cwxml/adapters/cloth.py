@@ -4,6 +4,7 @@ from ....types import Vector
 from ... import jenkhash
 from ...assets import (
     AssetFormat,
+    AssetGame,
     AssetType,
     AssetVersion,
     canonical_asset,
@@ -211,6 +212,7 @@ def to_cw_char_controller(controller: CharacterClothController, parent_asset) ->
 
 
 class CWClothDictionary:
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.CWXML
     ASSET_VERSION = AssetVersion.GEN8
     ASSET_TYPE = AssetType.CLOTH_DICTIONARY

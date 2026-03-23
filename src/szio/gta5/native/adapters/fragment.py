@@ -5,6 +5,7 @@ import pymateria.gta5.gen8 as pmg8
 from ....types import Vector
 from ...assets import (
     AssetFormat,
+    AssetGame,
     AssetType,
     AssetVersion,
     canonical_asset,
@@ -71,6 +72,7 @@ def _get_vehicle_windows(vw: pmg8.VehicleWindow) -> list[FragVehicleWindow]:
 
 
 class NativeFragment:
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.NATIVE
     ASSET_VERSION = AssetVersion.GEN8
     ASSET_TYPE = AssetType.FRAGMENT

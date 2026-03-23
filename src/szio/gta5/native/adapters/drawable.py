@@ -9,6 +9,7 @@ from ....types import DataSource, Matrix, Quaternion, Vector
 from ... import jenkhash
 from ...assets import (
     AssetFormat,
+    AssetGame,
     AssetType,
     AssetVersion,
     canonical_asset,
@@ -160,6 +161,7 @@ def _map_light_to_native(light: Light, definition: bool = False) -> pm.Light:
 
 
 class NativeDrawable:
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.NATIVE
     ASSET_VERSION = AssetVersion.GEN8
     ASSET_TYPE = AssetType.DRAWABLE
@@ -704,6 +706,7 @@ class NativeFragDrawable(NativeDrawable):
 
 
 class NativeDrawableDictionary:
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.NATIVE
     ASSET_VERSION = AssetVersion.GEN8
     ASSET_TYPE = AssetType.DRAWABLE_DICTIONARY

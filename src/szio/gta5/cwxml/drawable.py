@@ -730,10 +730,8 @@ class DrawableDictionary(MutableSequence, Element):
     @classmethod
     def from_xml(cls, element: ET.Element):
         new = cls()
-        new.tag_name = "Item"
-        children = element.findall(new.tag_name)
 
-        for child in children:
+        for child in element.findall("Item"):
             drawable = Drawable.from_xml(child)
             new.append(drawable)
 

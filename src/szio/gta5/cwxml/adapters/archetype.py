@@ -32,6 +32,7 @@ from ...archetypes import (
 )
 from ...assets import (
     AssetFormat,
+    AssetGame,
     AssetType,
     AssetVersion,
 )
@@ -73,6 +74,7 @@ _CW_ASSET_TYPE_INVERSE_MAP = {v: k for k, v in _CW_ASSET_TYPE_MAP.items()}
 
 
 class CWMapTypes:
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.CWXML
     ASSET_VERSION = AssetVersion.GEN8
     ASSET_TYPE = AssetType.MAP_TYPES

@@ -7,6 +7,7 @@ import pymateria.gta5 as pm
 from ....types import Vector
 from ...assets import (
     AssetFormat,
+    AssetGame,
     AssetType,
     AssetVersion,
     canonical_asset,
@@ -176,6 +177,7 @@ def to_native_char_controller(controller: CharacterClothController, parent_asset
 
 
 class NativeClothDictionary:
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.NATIVE
     ASSET_VERSION = AssetVersion.GEN8
     ASSET_TYPE = AssetType.CLOTH_DICTIONARY

@@ -2,6 +2,7 @@ import pymateria.gta5.gen9 as pmg9
 
 from ...assets import (
     AssetFormat,
+    AssetGame,
     AssetType,
     AssetVersion,
 )
@@ -10,6 +11,7 @@ from .fragment import NativeFragment
 
 
 class NativeFragmentG9(NativeFragment):
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.NATIVE
     ASSET_VERSION = AssetVersion.GEN9
     ASSET_TYPE = AssetType.FRAGMENT

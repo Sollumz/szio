@@ -3,6 +3,7 @@ from typing import Sequence
 from ....types import Matrix, Vector
 from ...assets import (
     AssetFormat,
+    AssetGame,
     AssetType,
     AssetVersion,
     canonical_asset,
@@ -103,6 +104,7 @@ def primitive_type_from_cw(p: cw.Polygon) -> BoundPrimitiveType:
 
 
 class CWBound:
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.CWXML
     ASSET_VERSION = AssetVersion.GEN8
     ASSET_TYPE = AssetType.BOUND

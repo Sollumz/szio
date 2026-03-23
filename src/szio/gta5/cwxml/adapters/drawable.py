@@ -6,6 +6,7 @@ from ....types import Matrix, Quaternion, Vector
 from ... import jenkhash
 from ...assets import (
     AssetFormat,
+    AssetGame,
     AssetType,
     AssetVersion,
     canonical_asset,
@@ -224,6 +225,7 @@ CW_VERTEX_DATA_TYPE_INVERSE_MAP = {v: k for k, v in CW_VERTEX_DATA_TYPE_MAP.item
 
 
 class CWDrawable:
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.CWXML
     ASSET_VERSION = AssetVersion.GEN8
     ASSET_TYPE = AssetType.DRAWABLE
@@ -601,6 +603,7 @@ class CWFragDrawable(CWDrawable):
 
 
 class CWDrawableDictionary:
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.CWXML
     ASSET_VERSION = AssetVersion.GEN8
     ASSET_TYPE = AssetType.DRAWABLE_DICTIONARY

@@ -3,6 +3,7 @@ import numpy as np
 from ....types import Matrix, Vector
 from ...assets import (
     AssetFormat,
+    AssetGame,
     AssetType,
     AssetVersion,
     canonical_asset,
@@ -45,6 +46,7 @@ from .drawable import (
 
 
 class CWFragment:
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.CWXML
     ASSET_VERSION = AssetVersion.GEN8
     ASSET_TYPE = AssetType.FRAGMENT

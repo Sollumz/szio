@@ -36,11 +36,13 @@ from .archetypes import (
 from .assets import (
     Asset,
     AssetFormat,
+    AssetGame,
     AssetProvider,
     AssetTarget,
     AssetType,
     AssetVersion,
     AssetWithDependencies,
+    SaveOptions,
     create_asset_bound,
     create_asset_cloth_dictionary,
     create_asset_drawable,

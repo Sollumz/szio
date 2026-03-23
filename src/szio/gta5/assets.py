@@ -1,8 +1,11 @@
 from collections.abc import Sequence
+from dataclasses import dataclass
 from enum import Enum, auto
 from functools import cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Protocol, TypeVar, runtime_checkable
+
+from ..assets import AssetGame
 
 if TYPE_CHECKING:
     from .archetypes import AssetMapTypes
@@ -46,8 +49,15 @@ class AssetType(Enum):
     MAP_TYPES = auto()
 
 
+@dataclass
+class SaveOptions:
+    gen8_directory: Path | None = None
+    gen9_directory: Path | None = None
+
+
 @runtime_checkable
 class Asset(Protocol):
+    ASSET_GAME: AssetGame
     ASSET_FORMAT: AssetFormat
     ASSET_VERSION: AssetVersion
     ASSET_TYPE: AssetType
@@ -61,6 +71,7 @@ class AssetWithDependencies(NamedTuple):
 
 @runtime_checkable
 class AssetProvider(Protocol):
+    ASSET_GAME: AssetGame
     ASSET_FORMAT: AssetFormat
     ASSET_VERSION: AssetVersion
 
@@ -86,6 +97,7 @@ class AssetProvider(Protocol):
 
 
 class MultiAssetProxy:
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.MULTI_TARGET
     ASSET_VERSION = AssetVersion.MULTI_TARGET
 
@@ -270,8 +282,7 @@ def save_asset(
     directory: Path,
     name: str,
     tool_metadata: tuple[str, str] | None = None,
-    gen8_directory: Path | None = None,
-    gen9_directory: Path | None = None,
+    options: SaveOptions | None = None,
 ):
     if asset.ASSET_FORMAT == AssetFormat.MULTI_TARGET:
         versions = asset.target_versions()
@@ -279,8 +290,8 @@ def save_asset(
         if AssetVersion.GEN8 in versions and AssetVersion.GEN9 in versions:
             # gen8 and gen9 use the same file extensions so if both are enabled during export we need to save them
             # to separate directories.
-            gen8_directory = gen8_directory or (directory / "gen8")
-            gen9_directory = gen9_directory or (directory / "gen9")
+            gen8_directory = (options.gen8_directory if options else None) or (directory / "gen8")
+            gen9_directory = (options.gen9_directory if options else None) or (directory / "gen9")
             gen8_directory.mkdir(exist_ok=True)
             gen9_directory.mkdir(exist_ok=True)
             asset_directories[AssetVersion.GEN8] = gen8_directory

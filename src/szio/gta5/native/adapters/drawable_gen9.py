@@ -10,6 +10,7 @@ from ....types import DataSource, Matrix, Vector
 from ... import jenkhash
 from ...assets import (
     AssetFormat,
+    AssetGame,
     AssetType,
     AssetVersion,
     canonical_asset,
@@ -75,6 +76,7 @@ _VERTEX_FORMATS = {
 
 
 class NativeDrawableG9(NativeDrawable):
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.NATIVE
     ASSET_VERSION = AssetVersion.GEN9
     ASSET_TYPE = AssetType.DRAWABLE
@@ -419,6 +421,7 @@ class NativeFragDrawableG9(NativeDrawableG9):
 
 
 class NativeDrawableDictionaryG9:
+    ASSET_GAME = AssetGame.GTA5
     ASSET_FORMAT = AssetFormat.NATIVE
     ASSET_VERSION = AssetVersion.GEN9
     ASSET_TYPE = AssetType.DRAWABLE_DICTIONARY
