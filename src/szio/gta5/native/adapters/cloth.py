@@ -66,7 +66,7 @@ def to_native_bridge(bridge: ClothBridgeSimGfx) -> pm.ClothBridgeSimGFX:
     b.vertex_weight = {0: bridge.vertex_weights_high}
     b.inflation_scale = {0: bridge.inflation_scale_high}
     b.cloth_display_map = {0: bridge.display_map_high}
-    b.pinnable_verts = [0] * int(np.ceil(bridge.vertex_count_high / 32))
+    b.pinnable_verts = [0] * math.ceil(bridge.vertex_count_high / 32)
     return b
 
 
