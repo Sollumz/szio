@@ -10,11 +10,13 @@ from szio.gta5 import (
     AssetDrawable,
     AssetDrawableDictionary,
     AssetFormat,
+    AssetFragment,
     AssetTarget,
     AssetVersion,
     BoundPrimitiveType,
     BoundType,
     CollisionFlags,
+    FragmentTemplateAsset,
     LodLevel,
     RenderBucket,
     try_load_asset,
@@ -270,6 +272,249 @@ class TestDrawableDictionaryGen9(DrawableDictionaryTests):
 
 
 # ---------------------------------------------------------------------------
+# Fragment tests
+# ---------------------------------------------------------------------------
+
+class FragmentTests:
+    """Shared fragment test methods. Subclasses provide the `fragment` fixture."""
+
+    def test_is_asset_fragment(self, fragment: AssetFragment):
+        assert isinstance(fragment, AssetFragment)
+
+    def test_asset_game(self, fragment: AssetFragment):
+        assert fragment.ASSET_GAME == AssetGame.GTA5
+
+    def test_name(self, fragment: AssetFragment):
+        assert fragment.name == "test_fragment"
+
+    def test_gravity_factor(self, fragment: AssetFragment):
+        assert fragment.gravity_factor == pytest.approx(1.0)
+
+    def test_buoyancy_factor(self, fragment: AssetFragment):
+        assert fragment.buoyancy_factor == pytest.approx(1.5)
+
+    def test_template_asset(self, fragment: AssetFragment):
+        assert fragment.template_asset == FragmentTemplateAsset.NONE
+
+    def test_has_drawable(self, fragment: AssetFragment):
+        assert fragment.drawable is not None
+
+    def test_drawable_has_shader_group(self, fragment: AssetFragment):
+        assert fragment.drawable.shader_group is not None
+        assert len(fragment.drawable.shader_group.shaders) == 1
+
+    def test_drawable_has_models(self, fragment: AssetFragment):
+        assert LodLevel.HIGH in fragment.drawable.models
+        models = fragment.drawable.models[LodLevel.HIGH]
+        assert len(models) == 1
+        assert len(models[0].geometries) == 1
+
+    def test_drawable_geometry(self, fragment: AssetFragment):
+        geom = fragment.drawable.models[LodLevel.HIGH][0].geometries[0]
+        assert len(geom.vertex_buffer) == 8
+        assert len(geom.index_buffer) == 12
+
+    def test_has_physics(self, fragment: AssetFragment):
+        assert fragment.physics is not None
+
+    def test_physics_archetype(self, fragment: AssetFragment):
+        arch = fragment.physics.lod1.archetype
+        assert arch is not None
+        assert arch.name == "test_fragment"
+        assert arch.mass == pytest.approx(100.0)
+        assert arch.bounds is not None
+        assert arch.bounds.bound_type == BoundType.COMPOSITE
+
+    def test_physics_groups(self, fragment: AssetFragment):
+        groups = fragment.physics.lod1.groups
+        assert len(groups) == 1
+        assert groups[0].name == "test_group_root"
+        assert groups[0].parent_group_index == 255
+        assert groups[0].strength == pytest.approx(-1.0)
+
+    def test_physics_children(self, fragment: AssetFragment):
+        children = fragment.physics.lod1.children
+        assert len(children) == 1
+        assert children[0].group_index == 0
+        assert children[0].pristine_mass == pytest.approx(100.0)
+
+
+class TestFragmentSimpleCWXML(FragmentTests):
+    @pytest.fixture()
+    def fragment(self) -> AssetFragment:
+        asset = try_load_asset(DATA_DIR / "test_fragment_simple.yft.xml")
+        assert asset is not None
+        return asset
+
+    def test_no_extra_drawables(self, fragment: AssetFragment):
+        assert fragment.extra_drawables == []
+
+    def test_no_damaged_archetype(self, fragment: AssetFragment):
+        assert fragment.physics.lod1.damaged_archetype is None
+
+    def test_no_cloths(self, fragment: AssetFragment):
+        assert fragment.cloths == []
+
+    def test_no_glass_windows(self, fragment: AssetFragment):
+        assert fragment.glass_windows == []
+
+    def test_no_vehicle_windows(self, fragment: AssetFragment):
+        assert fragment.vehicle_windows == []
+
+
+class TestFragmentDamagedCWXML(FragmentTests):
+    @pytest.fixture()
+    def fragment(self) -> AssetFragment:
+        asset = try_load_asset(DATA_DIR / "test_fragment_damaged.yft.xml")
+        assert asset is not None
+        return asset
+
+    def test_has_extra_drawables(self, fragment: AssetFragment):
+        assert len(fragment.extra_drawables) == 1
+
+    def test_extra_drawable_has_models(self, fragment: AssetFragment):
+        drw = fragment.extra_drawables[0]
+        assert LodLevel.HIGH in drw.models
+        assert len(drw.models[LodLevel.HIGH]) == 1
+
+    def test_has_damaged_archetype(self, fragment: AssetFragment):
+        damaged = fragment.physics.lod1.damaged_archetype
+        assert damaged is not None
+        assert damaged.bounds is not None
+        assert damaged.bounds.bound_type == BoundType.COMPOSITE
+        assert damaged.mass == pytest.approx(80.0)
+
+
+class FragmentClothTests:
+    """Shared cloth fragment test methods. Subclasses provide the `fragment` fixture."""
+
+    def test_is_asset_fragment(self, fragment: AssetFragment):
+        assert isinstance(fragment, AssetFragment)
+
+    def test_no_main_drawable(self, fragment: AssetFragment):
+        assert fragment.drawable is None
+
+    def test_base_drawable_from_cloth(self, fragment: AssetFragment):
+        assert fragment.base_drawable is not None
+
+    def test_has_cloths(self, fragment: AssetFragment):
+        assert len(fragment.cloths) == 1
+
+    def test_cloth_has_drawable(self, fragment: AssetFragment):
+        cloth = fragment.cloths[0]
+        assert cloth.drawable is not None
+        assert cloth.drawable.shader_group is not None
+        assert len(cloth.drawable.shader_group.shaders) == 1
+
+    def test_cloth_controller(self, fragment: AssetFragment):
+        ctrl = fragment.cloths[0].controller
+        assert ctrl.name == "test_cloth"
+        assert ctrl.bridge.vertex_count_high == 4
+
+    def test_cloth_verlet(self, fragment: AssetFragment):
+        vc = fragment.cloths[0].controller.cloth_high
+        assert len(vc.vertex_positions) == 4
+        assert len(vc.edges) == 2
+
+    def test_cloth_tuning(self, fragment: AssetFragment):
+        tuning = fragment.cloths[0].tuning
+        assert tuning is not None
+        assert tuning.weight == pytest.approx(1.0)
+
+
+class TestFragmentClothCWXML(FragmentClothTests):
+    @pytest.fixture()
+    def fragment(self) -> AssetFragment:
+        asset = try_load_asset(DATA_DIR / "test_fragment_cloth.yft.xml")
+        assert asset is not None
+        return asset
+
+
+@requires_native
+class TestFragmentSimpleGen8(FragmentTests):
+    @pytest.fixture()
+    def fragment(self) -> AssetFragment:
+        asset = try_load_asset(DATA_DIR / "gen8" / "test_fragment_simple.yft")
+        assert asset is not None
+        return asset
+
+
+@requires_native
+class TestFragmentSimpleGen9(FragmentTests):
+    @pytest.fixture()
+    def fragment(self) -> AssetFragment:
+        asset = try_load_asset(DATA_DIR / "gen9" / "test_fragment_simple.yft")
+        assert asset is not None
+        return asset
+
+
+@requires_native
+class TestFragmentDamagedGen8(FragmentTests):
+    @pytest.fixture()
+    def fragment(self) -> AssetFragment:
+        asset = try_load_asset(DATA_DIR / "gen8" / "test_fragment_damaged.yft")
+        assert asset is not None
+        return asset
+
+    def test_has_extra_drawables(self, fragment: AssetFragment):
+        assert len(fragment.extra_drawables) == 1
+
+    def test_extra_drawable_has_models(self, fragment: AssetFragment):
+        drw = fragment.extra_drawables[0]
+        assert LodLevel.HIGH in drw.models
+        assert len(drw.models[LodLevel.HIGH]) == 1
+
+    def test_has_damaged_archetype(self, fragment: AssetFragment):
+        damaged = fragment.physics.lod1.damaged_archetype
+        assert damaged is not None
+        assert damaged.bounds is not None
+        assert damaged.bounds.bound_type == BoundType.COMPOSITE
+        assert damaged.mass == pytest.approx(80.0)
+
+
+@requires_native
+class TestFragmentDamagedGen9(FragmentTests):
+    @pytest.fixture()
+    def fragment(self) -> AssetFragment:
+        asset = try_load_asset(DATA_DIR / "gen9" / "test_fragment_damaged.yft")
+        assert asset is not None
+        return asset
+
+    def test_has_extra_drawables(self, fragment: AssetFragment):
+        assert len(fragment.extra_drawables) == 1
+
+    def test_extra_drawable_has_models(self, fragment: AssetFragment):
+        drw = fragment.extra_drawables[0]
+        assert LodLevel.HIGH in drw.models
+        assert len(drw.models[LodLevel.HIGH]) == 1
+
+    def test_has_damaged_archetype(self, fragment: AssetFragment):
+        damaged = fragment.physics.lod1.damaged_archetype
+        assert damaged is not None
+        assert damaged.bounds is not None
+        assert damaged.bounds.bound_type == BoundType.COMPOSITE
+        assert damaged.mass == pytest.approx(80.0)
+
+
+@requires_native
+class TestFragmentClothGen8(FragmentClothTests):
+    @pytest.fixture()
+    def fragment(self) -> AssetFragment:
+        asset = try_load_asset(DATA_DIR / "gen8" / "test_fragment_cloth.yft")
+        assert asset is not None
+        return asset
+
+
+@requires_native
+class TestFragmentClothGen9(FragmentClothTests):
+    @pytest.fixture()
+    def fragment(self) -> AssetFragment:
+        asset = try_load_asset(DATA_DIR / "gen9" / "test_fragment_cloth.yft")
+        assert asset is not None
+        return asset
+
+
+# ---------------------------------------------------------------------------
 # Roundtrip tests
 # ---------------------------------------------------------------------------
 
@@ -280,6 +525,9 @@ class TestRoundtripCWXML:
         "test_drawable.ydr.xml",
         "test_bounds.ybn.xml",
         "test_drawable_dictionary.ydd.xml",
+        "test_fragment_simple.yft.xml",
+        "test_fragment_damaged.yft.xml",
+        "test_fragment_cloth.yft.xml",
     ])
     def test_save_and_reload(self, filename: str, tmp_path: Path):
         asset = try_load_asset(DATA_DIR / filename)
@@ -425,3 +673,73 @@ class TestRoundtripNative:
         assert reloaded is not None
 
         assert len(reloaded.drawables) == len(original.drawables)
+
+    def test_fragment_cwxml_to_gen8_roundtrip(self, tmp_path: Path):
+        """Load fragment from CWXML, save as native gen8, reload and verify."""
+        original = try_load_asset(DATA_DIR / "test_fragment_simple.yft.xml")
+        assert original is not None
+        save_asset(original, tmp_path, "rt", targets=self.GEN8_TARGETS)
+        reloaded = try_load_asset(tmp_path / "rt.yft")
+        assert reloaded is not None
+
+        assert reloaded.name == original.name
+        assert reloaded.physics is not None
+        assert reloaded.physics.lod1.archetype is not None
+        assert len(reloaded.physics.lod1.children) == len(original.physics.lod1.children)
+
+    def test_fragment_cwxml_to_gen9_roundtrip(self, tmp_path: Path):
+        """Load fragment from CWXML, save as native gen9, reload and verify."""
+        original = try_load_asset(DATA_DIR / "test_fragment_simple.yft.xml")
+        assert original is not None
+        save_asset(original, tmp_path, "rt", targets=self.GEN9_TARGETS)
+        reloaded = try_load_asset(tmp_path / "rt.yft")
+        assert reloaded is not None
+
+        assert reloaded.name == original.name
+        assert reloaded.physics is not None
+        assert reloaded.physics.lod1.archetype is not None
+        assert len(reloaded.physics.lod1.children) == len(original.physics.lod1.children)
+
+    def test_fragment_simple_gen8_roundtrip(self, tmp_path: Path):
+        original = try_load_asset(DATA_DIR / "gen8" / "test_fragment_simple.yft")
+        assert original is not None
+        save_asset(original, tmp_path, "rt", targets=self.GEN8_TARGETS)
+        reloaded = try_load_asset(tmp_path / "rt.yft")
+        assert reloaded is not None
+
+        assert reloaded.name == original.name
+        assert reloaded.physics is not None
+        assert len(reloaded.physics.lod1.children) == len(original.physics.lod1.children)
+
+    def test_fragment_simple_gen9_roundtrip(self, tmp_path: Path):
+        original = try_load_asset(DATA_DIR / "gen9" / "test_fragment_simple.yft")
+        assert original is not None
+        save_asset(original, tmp_path, "rt", targets=self.GEN9_TARGETS)
+        reloaded = try_load_asset(tmp_path / "rt.yft")
+        assert reloaded is not None
+
+        assert reloaded.name == original.name
+        assert reloaded.physics is not None
+        assert len(reloaded.physics.lod1.children) == len(original.physics.lod1.children)
+
+    def test_fragment_damaged_gen8_roundtrip(self, tmp_path: Path):
+        original = try_load_asset(DATA_DIR / "gen8" / "test_fragment_damaged.yft")
+        assert original is not None
+        save_asset(original, tmp_path, "rt", targets=self.GEN8_TARGETS)
+        reloaded = try_load_asset(tmp_path / "rt.yft")
+        assert reloaded is not None
+
+        assert reloaded.name == original.name
+        assert len(reloaded.extra_drawables) == len(original.extra_drawables)
+        assert reloaded.physics.lod1.damaged_archetype is not None
+
+    def test_fragment_damaged_gen9_roundtrip(self, tmp_path: Path):
+        original = try_load_asset(DATA_DIR / "gen9" / "test_fragment_damaged.yft")
+        assert original is not None
+        save_asset(original, tmp_path, "rt", targets=self.GEN9_TARGETS)
+        reloaded = try_load_asset(tmp_path / "rt.yft")
+        assert reloaded is not None
+
+        assert reloaded.name == original.name
+        assert len(reloaded.extra_drawables) == len(original.extra_drawables)
+        assert reloaded.physics.lod1.damaged_archetype is not None

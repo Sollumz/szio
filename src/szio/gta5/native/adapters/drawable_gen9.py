@@ -240,14 +240,17 @@ def load_drawable(d: pmg9.Drawable) -> AssetDrawable:
     )
 
 
-def load_frag_drawable(d: pmg9.FragmentDrawable) -> AssetFragDrawable:
+def load_frag_drawable(
+    d: pmg9.FragmentDrawable,
+    parent_shader_group: pmg9.ShaderGroup | None = None,
+) -> AssetFragDrawable:
     """Convert a native gen9 FragmentDrawable to an AssetFragDrawable dataclass."""
     return AssetFragDrawable(
         name=d.name,
         bounds=None,
         skeleton=_load_skeleton_native(d),
         shader_group=_load_shader_group_g9(d),
-        models=_load_models_g9(d),
+        models=_load_models_g9(d, shader_group=parent_shader_group),
         lod_thresholds=_load_lod_thresholds_native(d),
         lights=[],
         frag_bound_matrix=from_native_mat34(d.bound_matrix),
@@ -356,7 +359,9 @@ def _save_models_g9(
     parent_shader_group: pmg9.ShaderGroup | None = None,
 ):
     sg = d.shader_group or parent_shader_group
-    assert sg and sg.shaders, "Need to assign the shader group or have a parent drawable with shaders before the models"
+    has_models = any(models for models in asset_models.values())
+    if has_models:
+        assert sg and sg.shaders, "Need to assign the shader group or have a parent drawable with shaders before the models"
 
     def _map_geometry(geom: Geometry) -> pmg9.Geometry:
         g = pmg9.Geometry()
@@ -420,14 +425,16 @@ def save_drawable_to_native(asset: AssetDrawable) -> pmg9.Drawable:
     return d
 
 
-def save_frag_drawable_to_native(asset: AssetFragDrawable) -> pmg9.FragmentDrawable:
+def save_frag_drawable_to_native(
+    asset: AssetFragDrawable, parent_shader_group: pmg9.ShaderGroup | None = None,
+) -> pmg9.FragmentDrawable:
     """Convert an AssetFragDrawable dataclass to a native gen9 FragmentDrawable."""
     d = pmg9.FragmentDrawable()
     d.name = asset.name
     d.skeleton_type = pm.SkeletonType.SKEL if asset.name == "skel" else pm.SkeletonType.NONE
     _save_skeleton_native(asset.skeleton, d)
     _save_shader_group_g9(asset.shader_group, d)
-    _save_models_g9(asset.models, asset.lod_thresholds, d)
+    _save_models_g9(asset.models, asset.lod_thresholds, d, parent_shader_group=parent_shader_group)
     if asset.frag_bound_matrix is not None:
         m = asset.frag_bound_matrix
         d.bound_matrix = pma.Matrix34(

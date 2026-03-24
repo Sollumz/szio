@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Fragment>
+ <Name>test_fragment_cloth</Name>
+ <BoundingSphereCenter x="0" y="0" z="0.5" />
+ <BoundingSphereRadius value="1.5" />
+ <UnknownB0 value="0" />
+ <UnknownB8 value="0" />
+ <UnknownBC value="0" />
+ <UnknownC0 value="65280" />
+ <UnknownC4 value="1" />
+ <UnknownCC value="0" />
+ <GravityFactor value="1" />
+ <BuoyancyFactor value="1" />
+ <Cloths>
+  <Item>
+   <Unknown78 value="16" />
+   <Controller>
+    <Name>test_cloth</Name>
+    <Type value="3" />
+    <BridgeSimGfx>
+     <VertexCount value="4" />
+     <Unknown20>1 1 1 1</Unknown20>
+     <Unknown60>1 1 1 1</Unknown60>
+     <UnknownA0>1 1 1 1</UnknownA0>
+     <UnknownE0>0 1 2 3</UnknownE0>
+     <Unknown128>1</Unknown128>
+    </BridgeSimGfx>
+    <MorphController>
+     <Unknown18>
+      <Unknown180 value="2" />
+     </Unknown18>
+    </MorphController>
+    <VerletCloth1>
+     <BBMin x="-1" y="-1" z="0" />
+     <BBMax x="1" y="1" z="0" />
+     <UnknownA8 value="9999" />
+     <UnknownAC value="9999" />
+     <UnknownE8 value="2" />
+     <UnknownFA value="0" />
+     <Unknown148 value="1" />
+     <Unknown158 value="1" />
+     <Vertices>
+      -1, -1, 0, 0.0
+      1, -1, 0, 0.0
+      1, 1, 0, 0.0
+      -1, 1, 0, 0.0
+     </Vertices>
+     <Vertices2>
+      0, 0, 1, 0.0
+      0, 0, 1, 0.0
+      0, 0, 1, 0.0
+      0, 0, 1, 0.0
+     </Vertices2>
+     <Constraints>
+      <Item>
+       <Unknown0 value="0" />
+       <Unknown2 value="1" />
+       <Unknown4 value="4" />
+       <Unknown8 value="0.5" />
+       <UnknownC value="0.25" />
+      </Item>
+      <Item>
+       <Unknown0 value="1" />
+       <Unknown2 value="2" />
+       <Unknown4 value="4" />
+       <Unknown8 value="0.5" />
+       <UnknownC value="0.25" />
+      </Item>
+     </Constraints>
+     <Constraints2 />
+     <Behaviour />
+    </VerletCloth1>
+   </Controller>
+   <InstanceTuning>
+    <Unknown10 value="0.5" />
+    <Unknown14 value="0.1" />
+    <Unknown20 value="0" />
+    <Unknown24 value="0" />
+    <Unknown28 value="-1" />
+    <Unknown2C value="0" />
+    <Flags value="0" />
+    <Unknown34 value="1" />
+    <Unknown38 value="100" />
+    <Unknown3C value="131328" />
+   </InstanceTuning>
+   <Drawable>
+    <Name>skel</Name>
+    <Matrix>
+     1 0 0
+     0 1 0
+     0 0 1
+     0 0 0
+    </Matrix>
+    <BoundingSphereCenter x="0" y="0" z="0.5" />
+    <BoundingSphereRadius value="1.5" />
+    <BoundingBoxMin x="-1" y="-1" z="0" />
+    <BoundingBoxMax x="1" y="1" z="1" />
+    <LodDistHigh value="60" />
+    <LodDistMed value="9998" />
+    <LodDistLow value="9998" />
+    <LodDistVlow value="9998" />
+    <FlagsHigh value="1" />
+    <FlagsMed value="0" />
+    <FlagsLow value="0" />
+    <FlagsVlow value="0" />
+    <ShaderGroup>
+     <Shaders>
+      <Item>
+       <Name>cloth_default</Name>
+       <FileName>cloth_default.sps</FileName>
+       <RenderBucket value="0" />
+       <Parameters>
+        <Item name="DiffuseSampler" type="Texture">
+         <Name>test_cloth_texture</Name>
+        </Item>
+       </Parameters>
+      </Item>
+     </Shaders>
+    </ShaderGroup>
+    <Skeleton>
+     <Unknown1C value="0" />
+     <Unknown50 value="0" />
+     <Unknown54 value="0" />
+     <Unknown58 value="0" />
+     <Bones>
+      <Item>
+       <Name>test_fragment_cloth</Name>
+       <Tag value="0" />
+       <Index value="0" />
+       <ParentIndex value="-1" />
+       <SiblingIndex value="-1" />
+       <Flags>RotX, RotY, RotZ, TransX, TransY, TransZ, Unk0</Flags>
+       <Translation x="0" y="0" z="0" />
+       <Rotation x="0" y="0" z="0" w="1" />
+       <Scale x="1" y="1" z="1" />
+      </Item>
+     </Bones>
+    </Skeleton>
+    <DrawableModelsHigh>
+     <Item>
+      <RenderMask value="255" />
+      <Flags value="0" />
+      <HasSkin value="0" />
+      <BoneIndex value="0" />
+      <Unknown1 value="0" />
+      <Geometries>
+       <Item>
+        <ShaderIndex value="0" />
+        <BoundingBoxMin x="-1" y="-1" z="0" w="-1" />
+        <BoundingBoxMax x="1" y="1" z="0" w="1" />
+        <VertexBuffer>
+         <Flags value="0" />
+         <Layout type="GTAV1">
+          <Position />
+          <Normal />
+          <Colour0 />
+          <TexCoord0 />
+         </Layout>
+         <Data>
+          -1 -1 0   0 0 1   255 255 255 255   0 1
+          1 -1 0   0 0 1   255 255 255 255   1 1
+          1 1 0   0 0 1   255 255 255 255   1 0
+          -1 1 0   0 0 1   255 255 255 255   0 0
+         </Data>
+        </VertexBuffer>
+        <IndexBuffer>
+         <Data>0 1 2 2 3 0</Data>
+        </IndexBuffer>
+       </Item>
+      </Geometries>
+     </Item>
+    </DrawableModelsHigh>
+   </Drawable>
+   <UnknownData>0 0 0 0</UnknownData>
+  </Item>
+ </Cloths>
+</Fragment>

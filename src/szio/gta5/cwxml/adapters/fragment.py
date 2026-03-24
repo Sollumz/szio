@@ -35,7 +35,7 @@ def load_fragment(f: cw.Fragment) -> "AssetFragment":
     from .drawable import load_frag_drawable
 
     def _load_archetype(a: cw.Archetype | None) -> PhysArchetype | None:
-        if not a:
+        if not a or not a.name:
             return None
         return PhysArchetype(
             name=a.name,
@@ -193,7 +193,9 @@ def load_fragment(f: cw.Fragment) -> "AssetFragment":
             bridge=ClothBridgeSimGfx(
                 vertex_count_high=c.bridge.vertex_count_high,
                 pin_radius_high=c.bridge.pin_radius_high,
-                vertex_map_high=c.bridge.vertex_map_high,
+                vertex_weights_high=c.bridge.vertex_weights_high,
+                inflation_scale_high=c.bridge.inflation_scale_high,
+                display_map_high=c.bridge.display_map_high,
             ),
             cloth_high=_load_verlet_cloth(c.cloth_high),
             morph_high_poly_count=c.morph_controller.map_data_high.poly_count,

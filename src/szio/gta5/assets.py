@@ -35,6 +35,15 @@ class AssetTarget(NamedTuple):
     format: AssetFormat
     version: AssetVersion
 
+    @staticmethod
+    def all() -> "Sequence[AssetTarget]":
+        return (
+            AssetTarget(AssetFormat.NATIVE, AssetVersion.GEN8),
+            AssetTarget(AssetFormat.NATIVE, AssetVersion.GEN9),
+            AssetTarget(AssetFormat.CWXML, AssetVersion.GEN8),
+            AssetTarget(AssetFormat.CWXML, AssetVersion.GEN9),
+        )
+
 
 class AssetType(Enum):
     BOUND = auto()

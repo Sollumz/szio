@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Fragment>
+ <Name>test_fragment</Name>
+ <BoundingSphereCenter x="0" y="0" z="1" />
+ <BoundingSphereRadius value="2" />
+ <UnknownB0 value="0" />
+ <UnknownB8 value="0" />
+ <UnknownBC value="0" />
+ <UnknownC0 value="65280" />
+ <UnknownC4 value="1" />
+ <UnknownCC value="0" />
+ <GravityFactor value="1" />
+ <BuoyancyFactor value="1.5" />
+ <Drawable>
+  <Name>skel</Name>
+  <Matrix>
+   1 0 0
+   0 1 0
+   0 0 1
+   0 0 0
+  </Matrix>
+  <BoundingSphereCenter x="0" y="0" z="1" />
+  <BoundingSphereRadius value="2" />
+  <BoundingBoxMin x="-1" y="-1" z="0" />
+  <BoundingBoxMax x="1" y="1" z="2" />
+  <LodDistHigh value="60" />
+  <LodDistMed value="9998" />
+  <LodDistLow value="9998" />
+  <LodDistVlow value="9998" />
+  <FlagsHigh value="1" />
+  <FlagsMed value="0" />
+  <FlagsLow value="0" />
+  <FlagsVlow value="0" />
+  <ShaderGroup>
+   <Shaders>
+    <Item>
+     <Name>default</Name>
+     <FileName>default.sps</FileName>
+     <RenderBucket value="0" />
+     <Parameters>
+      <Item name="DiffuseSampler" type="Texture">
+       <Name>test_texture</Name>
+      </Item>
+     </Parameters>
+    </Item>
+   </Shaders>
+  </ShaderGroup>
+  <Skeleton>
+   <Unknown1C value="0" />
+   <Unknown50 value="0" />
+   <Unknown54 value="0" />
+   <Unknown58 value="0" />
+   <Bones>
+    <Item>
+     <Name>test_fragment</Name>
+     <Tag value="0" />
+     <Index value="0" />
+     <ParentIndex value="-1" />
+     <SiblingIndex value="-1" />
+     <Flags>RotX, RotY, RotZ, TransX, TransY, TransZ, Unk0</Flags>
+     <Translation x="0" y="0" z="0" />
+     <Rotation x="0" y="0" z="0" w="1" />
+     <Scale x="1" y="1" z="1" />
+    </Item>
+   </Bones>
+  </Skeleton>
+  <DrawableModelsHigh>
+   <Item>
+    <RenderMask value="255" />
+    <Flags value="0" />
+    <HasSkin value="0" />
+    <BoneIndex value="0" />
+    <Unknown1 value="0" />
+    <Geometries>
+     <Item>
+      <ShaderIndex value="0" />
+      <BoundingBoxMin x="-1" y="-1" z="0" w="-1" />
+      <BoundingBoxMax x="1" y="1" z="2" w="1" />
+      <VertexBuffer>
+       <Flags value="0" />
+       <Layout type="GTAV1">
+        <Position />
+        <Normal />
+        <Colour0 />
+        <TexCoord0 />
+       </Layout>
+       <Data>
+        -1 -1 0   0 0 -1   255 255 255 255   0 1
+        1 -1 0   0 0 -1   255 255 255 255   1 1
+        1 1 0   0 0 -1   255 255 255 255   1 0
+        -1 1 0   0 0 -1   255 255 255 255   0 0
+        -1 -1 2   0 0 1   255 255 255 255   0 1
+        1 -1 2   0 0 1   255 255 255 255   1 1
+        1 1 2   0 0 1   255 255 255 255   1 0
+        -1 1 2   0 0 1   255 255 255 255   0 0
+       </Data>
+      </VertexBuffer>
+      <IndexBuffer>
+       <Data>0 1 2 2 3 0 4 5 6 6 7 4</Data>
+      </IndexBuffer>
+     </Item>
+    </Geometries>
+   </Item>
+  </DrawableModelsHigh>
+ </Drawable>
+ <Physics>
+  <LOD1>
+   <Unknown14 value="1" />
+   <Unknown18 value="10" />
+   <Unknown1C value="-1" />
+   <PositionOffset x="0" y="0" z="1" />
+   <Unknown40 x="0" y="0" z="1" />
+   <Unknown50 x="0" y="0" z="0" />
+   <DampingLinearC x="0.02" y="0.02" z="0.02" />
+   <DampingLinearV x="0.02" y="0.02" z="0.02" />
+   <DampingLinearV2 x="0.01" y="0.01" z="0.01" />
+   <DampingAngularC x="0.02" y="0.02" z="0.02" />
+   <DampingAngularV x="0.02" y="0.02" z="0.02" />
+   <DampingAngularV2 x="0.01" y="0.01" z="0.01" />
+   <Archetype>
+    <Name>test_fragment</Name>
+    <Mass value="100" />
+    <MassInv value="0.01" />
+    <Unknown48 value="1" />
+    <Unknown4C value="150" />
+    <Unknown50 value="6.283" />
+    <Unknown54 value="1" />
+    <InertiaTensor x="10" y="10" z="10" />
+    <InertiaTensorInv x="0.1" y="0.1" z="0.1" />
+    <Bounds type="Composite">
+     <BoxMin x="-1" y="-1" z="0" />
+     <BoxMax x="1" y="1" z="2" />
+     <BoxCenter x="0" y="0" z="1" />
+     <SphereCenter x="0" y="0" z="1" />
+     <SphereRadius value="2" />
+     <Margin value="0" />
+     <Volume value="8" />
+     <Inertia x="1" y="1" z="1" />
+     <MaterialIndex value="0" />
+     <MaterialColourIndex value="0" />
+     <ProceduralID value="0" />
+     <RoomID value="0" />
+     <PedDensity value="0" />
+     <UnkFlags value="0" />
+     <PolyFlags value="0" />
+     <UnkType value="1" />
+     <Children>
+      <Item type="Box">
+       <BoxMin x="-1" y="-1" z="0" />
+       <BoxMax x="1" y="1" z="2" />
+       <BoxCenter x="0" y="0" z="1" />
+       <SphereCenter x="0" y="0" z="1" />
+       <SphereRadius value="2" />
+       <Margin value="0.04" />
+       <Volume value="8" />
+       <Inertia x="1" y="1" z="1" />
+       <MaterialIndex value="0" />
+       <MaterialColourIndex value="0" />
+       <ProceduralID value="0" />
+       <RoomID value="0" />
+       <PedDensity value="0" />
+       <UnkFlags value="0" />
+       <PolyFlags value="0" />
+       <UnkType value="1" />
+       <CompositeTransform>
+        1 0 0 0
+        0 1 0 0
+        0 0 1 0
+        0 0 0 1
+       </CompositeTransform>
+       <Materials>
+        <Item>
+         <Type value="0" />
+         <ProceduralID value="0" />
+         <RoomID value="0" />
+         <PedDensity value="0" />
+         <Flags>NONE</Flags>
+         <MaterialColourIndex value="0" />
+         <Unk value="0" />
+        </Item>
+       </Materials>
+      </Item>
+     </Children>
+    </Bounds>
+   </Archetype>
+   <Groups>
+    <Item>
+     <Name>test_group_root</Name>
+     <ParentIndex value="255" />
+     <GlassWindowIndex value="0" />
+     <GlassFlags value="0" />
+     <Strength value="-1" />
+     <ForceTransmissionScaleUp value="35" />
+     <ForceTransmissionScaleDown value="5" />
+     <JointStiffness value="0" />
+     <MinSoftAngle1 value="-1" />
+     <MaxSoftAngle1 value="1" />
+     <MaxSoftAngle2 value="1" />
+     <MaxSoftAngle3 value="1" />
+     <RotationSpeed value="0" />
+     <RotationStrength value="0" />
+     <RestoringStrength value="0" />
+     <RestoringMaxTorque value="0" />
+     <LatchStrength value="0" />
+     <Mass value="100" />
+     <MinDamageForce value="1000" />
+     <DamageHealth value="1000" />
+     <UnkFloat5C value="4100" />
+     <UnkFloat60 value="0" />
+     <UnkFloat64 value="1" />
+     <UnkFloat68 value="0" />
+     <UnkFloat6C value="0" />
+     <UnkFloat70 value="1" />
+     <UnkFloat74 value="1" />
+     <UnkFloat78 value="0" />
+     <UnkFloatA8 value="0" />
+    </Item>
+   </Groups>
+   <Children>
+    <Item>
+     <GroupIndex value="0" />
+     <BoneTag value="0" />
+     <PristineMass value="100" />
+     <DamagedMass value="100" />
+     <UnkFloat value="0" />
+     <UnkVec x="0" y="0" z="0" w="0" />
+     <InertiaTensor x="10" y="10" z="10" w="100" />
+    </Item>
+   </Children>
+  </LOD1>
+ </Physics>
+</Fragment>

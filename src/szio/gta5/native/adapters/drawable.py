@@ -2,6 +2,7 @@ import logging
 from collections import defaultdict
 
 import numpy as np
+import pymateria as pma
 import pymateria.gta5 as pm
 import pymateria.gta5.gen8 as pmg8
 
@@ -420,14 +421,17 @@ def load_drawable(d: pmg8.Drawable) -> AssetDrawable:
     )
 
 
-def load_frag_drawable(d: pmg8.FragmentDrawable) -> AssetFragDrawable:
+def load_frag_drawable(
+    d: pmg8.FragmentDrawable,
+    parent_shader_group: pmg8.ShaderGroup | None = None,
+) -> AssetFragDrawable:
     """Convert a native gen8 FragmentDrawable to an AssetFragDrawable dataclass."""
     return AssetFragDrawable(
         name=d.name,
         bounds=None,
         skeleton=_load_skeleton_native(d),
         shader_group=_load_shader_group_g8(d),
-        models=_load_models_g8(d),
+        models=_load_models_g8(d, shader_group=parent_shader_group),
         lod_thresholds=_load_lod_thresholds_native(d),
         lights=[],
         frag_bound_matrix=from_native_mat34(d.bound_matrix),
@@ -460,10 +464,10 @@ def _save_skeleton_native(skel: Skeleton | None, d: pmg8.Drawable):
         b.id = bone.tag
         b.degrees_of_freedom = bone.flags.value
         pos = bone.position
-        b.default_translation = pm.Vector4f(pos[0], pos[1], pos[2], 0.0)
+        b.default_translation = pma.Vector4f(pos[0], pos[1], pos[2], 0.0)
         b.default_rotation = to_native_quat(bone.rotation)
         sc = bone.scale
-        b.default_scale = pm.Vector4f(sc[0], sc[1], sc[2], 0.0)
+        b.default_scale = pma.Vector4f(sc[0], sc[1], sc[2], 0.0)
         if bone.translation_limit:
             limit = pm.BoneTranslationLimit()
             limit.bone_id = bone.tag
@@ -576,7 +580,9 @@ def _save_models_g8(
     parent_shader_group: pmg8.ShaderGroup | None = None,
 ):
     sg = d.shader_group or parent_shader_group
-    assert sg and sg.shaders, "Need to assign the shader group or have a parent drawable with shaders before the models"
+    has_models = any(models for models in asset_models.values())
+    if has_models:
+        assert sg and sg.shaders, "Need to assign the shader group or have a parent drawable with shaders before the models"
 
     def _map_geometry(geom: Geometry) -> pmg8.Geometry:
         g = pmg8.Geometry()
@@ -654,14 +660,16 @@ def save_drawable_to_native(asset: AssetDrawable) -> pmg8.Drawable:
     return d
 
 
-def save_frag_drawable_to_native(asset: AssetFragDrawable) -> pmg8.FragmentDrawable:
+def save_frag_drawable_to_native(
+    asset: AssetFragDrawable, parent_shader_group: pmg8.ShaderGroup | None = None,
+) -> pmg8.FragmentDrawable:
     """Convert an AssetFragDrawable dataclass to a native gen8 FragmentDrawable."""
     d = pmg8.FragmentDrawable()
     d.name = asset.name
     d.skeleton_type = pm.SkeletonType.SKEL if asset.name == "skel" else pm.SkeletonType.NONE
     _save_skeleton_native(asset.skeleton, d)
     _save_shader_group_g8(asset.shader_group, d)
-    _save_models_g8(asset.models, asset.lod_thresholds, d)
+    _save_models_g8(asset.models, asset.lod_thresholds, d, parent_shader_group=parent_shader_group)
     if asset.frag_bound_matrix is not None:
         m = asset.frag_bound_matrix
         d.bound_matrix = pma.Matrix34(

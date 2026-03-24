@@ -213,7 +213,8 @@ def load_fragment(f: pmg8.Fragment) -> AssetFragment:
         from ._utils import _h2s
 
         return ClothController(
-            name=_h2s(c.name),
+            # TODO: investigate why c.name has null padding — bad asset or pymateria bug?
+            name=_h2s(c.name).rstrip("\x00"),
             flags=c.flags,
             bridge=from_native_bridge(c.bridge_sim_gfx),
             cloth_high=_load_verlet_cloth(c.cloth[0]),
@@ -238,8 +239,9 @@ def load_fragment(f: pmg8.Fragment) -> AssetFragment:
         else:
             drawable = load_frag_drawable(d)
 
-    # Load extra drawables
-    extra_drawables = [load_frag_drawable(ed) for ed in f.extra_drawables]
+    # Load extra drawables (share the parent drawable's shader group)
+    parent_sg = f.drawable.shader_group if f.drawable else None
+    extra_drawables = [load_frag_drawable(ed, parent_shader_group=parent_sg) for ed in f.extra_drawables]
 
     # Load physics
     group = f.physics_lod_group
@@ -307,7 +309,9 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
 
     # Save extra drawables
     if asset.extra_drawables:
-        f.extra_drawables = [save_frag_drawable_to_native(d) for d in asset.extra_drawables]
+        parent_sg = f.drawable.shader_group if f.drawable else None
+
+        f.extra_drawables = [save_frag_drawable_to_native(d, parent_shader_group=parent_sg) for d in asset.extra_drawables]
         f.extra_drawable_names = [d.name for d in asset.extra_drawables]
         f.damaged_object_index = 0
 
@@ -337,6 +341,8 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
             a.inv_ang_inertia = to_native_vec3(arch.inertia_inv)
             return a
 
+        parent_sg = f.drawable.shader_group if f.drawable else None
+
         def _save_child(child: PhysChild) -> pmg8.FragmentTypeChild:
             c = pmg8.FragmentTypeChild()
             c.bone_id = child.bone_tag
@@ -344,8 +350,8 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
             c.undamaged_mass = child.pristine_mass
             c.damaged_mass = child.damaged_mass
             c.flags = 0
-            c.undamaged_entity = save_frag_drawable_to_native(child.drawable) if child.drawable else None
-            c.damaged_entity = save_frag_drawable_to_native(child.damaged_drawable) if child.damaged_drawable else None
+            c.undamaged_entity = save_frag_drawable_to_native(child.drawable, parent_shader_group=parent_sg) if child.drawable else None
+            c.damaged_entity = save_frag_drawable_to_native(child.damaged_drawable, parent_shader_group=parent_sg) if child.damaged_drawable else None
             return c
 
         def _save_group(group: PhysGroup) -> pm.FragmentTypeGroup:

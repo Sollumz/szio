@@ -44,6 +44,10 @@ class VectorImpl(np.ndarray):
     def w(self) -> float:
         return self[3]
 
+    @property
+    def length(self) -> float:
+        return float(np.linalg.norm(self))
+
 
 class QuaternionImpl(np.ndarray):
     def __new__(cls, wxyz: Sequence[float] | np.ndarray = (1.0, 0.0, 0.0, 0.0)) -> "QuaternionImpl":

@@ -55,7 +55,7 @@ def to_cw_bridge(bridge: ClothBridgeSimGfx) -> cw.ClothBridgeSimGfx:
     b.inflation_scale_high = bridge.inflation_scale_high if bridge.inflation_scale_high else None
     b.display_map_high = bridge.display_map_high if bridge.display_map_high else None
     # just need to allocate space for the pinnable list, unused
-    b.pinnable_list = [0] * int(np.ceil(bridge.vertex_count_high / 32))
+    b.pinnable_list = [0] * ((bridge.vertex_count_high + 31) // 32)
     # Remove elements for other LODs for now
     b.pin_radius_med = None
     b.pin_radius_low = None

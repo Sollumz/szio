@@ -95,6 +95,15 @@ class PhysicsChild(ElementTree):
         self.drawable = Drawable()
         self.damaged_drawable = Drawable("Drawable2")
 
+    @classmethod
+    def from_xml(cls, element: ET.Element) -> "PhysicsChild":
+        new: PhysicsChild = super().from_xml(element)
+        if element.find("Drawable") is None:
+            new.drawable = None
+        if element.find("Drawable2") is None:
+            new.damaged_drawable = None
+        return new
+
 
 class ChildrenList(ListProperty):
     list_type = PhysicsChild
