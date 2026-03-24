@@ -13,7 +13,7 @@ from szio.gta5 import AssetFormat, AssetTarget, AssetVersion
 GTA5_XMLS = {
     ".ydr": ("Drawable", "<Drawable />"),
     ".ydd": ("DrawableDictionary", "<DrawableDictionary />"),
-    ".ybn": ("BoundsFile", "<BoundsFile />"),
+    ".ybn": ("BoundsFile", '<BoundsFile><Bounds type="Composite" /></BoundsFile>'),
 }
 
 

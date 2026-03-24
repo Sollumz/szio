@@ -120,6 +120,11 @@ class ElementTree(Element):
                 if child is not None and obj_element.tag_name == child.tag:
                     # Add element to object if tag is defined in class definition
                     setattr(new, prop_name, type(obj_element).from_xml(child))
+                elif isinstance(obj_element, ElementTree):
+                    # ElementTree children (complex sub-structures) are set to None when
+                    # missing, so callers can check existence with `if obj.child:`.
+                    # ElementProperty children (leaf values) keep their defaults.
+                    setattr(new, prop_name, None)
             elif isinstance(obj_element, AttributeProperty):
                 # Add attribute to element if attribute is defined in class definition
                 if obj_element.name in element.attrib:

@@ -292,10 +292,3 @@ class Fragment(ElementTree, AbstractClass):
     def get_lods_by_id(self):
         return {1: self.physics.lod1, 2: self.physics.lod2, 3: self.physics.lod3}
 
-    @classmethod
-    def from_xml(cls, element: ET.Element) -> "Fragment":
-        new: Fragment = super().from_xml(element)
-        if element.find("Drawable") is None:
-            # If there is no drawable in the xml, remove the default one
-            new.drawable = None
-        return new

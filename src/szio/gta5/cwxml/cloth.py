@@ -238,14 +238,6 @@ class VerletCloth(ElementTree):
         self.custom_edges = VerletClothEdgeList("Constraints2")
         self.bounds = BoundComposite()
 
-    @classmethod
-    def from_xml(cls, element: ET.Element) -> "VerletCloth":
-        new: VerletCloth = super().from_xml(element)
-        if element.find(BoundComposite.tag_name) is None:
-            # If there is no bounds in the xml, remove the default one
-            new.bounds = None
-        return new
-
     def to_xml(self):
         element = super().to_xml()
 
@@ -341,15 +333,6 @@ class EnvironmentCloth(ElementTree):
         self.controller = ClothController()
         self.tuning = ClothInstanceTuning()
         self.drawable = Drawable()
-
-    @classmethod
-    def from_xml(cls, element: ET.Element) -> "EnvironmentCloth":
-        new: EnvironmentCloth = super().from_xml(element)
-        if element.find(ClothInstanceTuning.tag_name) is None:
-            # If there is no tuning in the xml, remove the default one
-            new.tuning = None
-        return new
-
 
 class EnvironmentClothList(ListProperty):
     list_type = EnvironmentCloth

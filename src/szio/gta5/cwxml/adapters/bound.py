@@ -123,7 +123,10 @@ def _bound_type_from_cw(b: cw.Bound) -> BoundType:
 _PRIMITIVE_TYPES = {"Box", "Sphere", "Cylinder", "Capsule", "Disc"}
 
 
-def load_bound(b: cw.Bound) -> AssetBound:
+def load_bound(b: cw.Bound | None) -> AssetBound | None:
+    if b is None:
+        return None
+
     bt = _bound_type_from_cw(b)
     is_primitive = b.type in _PRIMITIVE_TYPES
 
