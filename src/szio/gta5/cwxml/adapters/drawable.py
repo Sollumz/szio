@@ -523,23 +523,31 @@ def _save_models(v: dict[LodLevel, list[Model]], d: cw.Drawable):
     d.flags_vlow = len(d.drawable_models_vlow)
 
     # Calculate extents
-    max_x = max_y = max_z = float("-inf")
-    min_x = min_y = min_z = float("+inf")
-    for geom_xml in d.all_geoms:
-        geom_max = geom_xml.bounding_box_max
-        geom_min = geom_xml.bounding_box_min
+    all_geoms = d.all_geoms
+    if all_geoms:
+        max_x = max_y = max_z = float("-inf")
+        min_x = min_y = min_z = float("+inf")
+        for geom_xml in all_geoms:
+            geom_max = geom_xml.bounding_box_max
+            geom_min = geom_xml.bounding_box_min
 
-        max_x = max(max_x, geom_max.x)
-        max_y = max(max_y, geom_max.y)
-        max_z = max(max_z, geom_max.z)
-        min_x = min(min_x, geom_min.x)
-        min_y = min(min_y, geom_min.y)
-        min_z = min(min_z, geom_min.z)
+            max_x = max(max_x, geom_max.x)
+            max_y = max(max_y, geom_max.y)
+            max_z = max(max_z, geom_max.z)
+            min_x = min(min_x, geom_min.x)
+            min_y = min(min_y, geom_min.y)
+            min_z = min(min_z, geom_min.z)
 
-    bbmax = Vector((max_x, max_y, max_z))
-    bbmin = Vector((min_x, min_y, min_z))
-    bs_center = (bbmin + bbmax) * 0.5
-    bs_radius = float(np.linalg.norm(bbmax - bs_center))
+        bbmax = Vector((max_x, max_y, max_z))
+        bbmin = Vector((min_x, min_y, min_z))
+        bs_center = (bbmin + bbmax) * 0.5
+        bs_radius = float(np.linalg.norm(bbmax - bs_center))
+    else:
+        bbmax = Vector((0.0, 0.0, 0.0))
+        bbmin = Vector((0.0, 0.0, 0.0))
+        bs_center = Vector((0.0, 0.0, 0.0))
+        bs_radius = 0.0
+
     d.bounding_sphere_center = bs_center
     d.bounding_sphere_radius = bs_radius
     d.bounding_box_max = bbmax
