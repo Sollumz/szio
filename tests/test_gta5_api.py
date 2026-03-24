@@ -331,6 +331,38 @@ class TestRoundtripCWXML:
             assert reloaded.drawables[name].shader_group.shaders[0].name == \
                 original.drawables[name].shader_group.shaders[0].name
 
+    def test_fragment_roundtrip_preserves_data(self, tmp_path: Path):
+        original = try_load_asset(DATA_DIR / "test_fragment_simple.yft.xml")
+        save_asset(original, tmp_path, "rt", targets=self.TARGETS)
+        reloaded = try_load_asset(tmp_path / "rt.yft.xml")
+
+        assert reloaded.name == original.name
+        assert reloaded.gravity_factor == pytest.approx(original.gravity_factor)
+        assert reloaded.buoyancy_factor == pytest.approx(original.buoyancy_factor)
+        assert len(reloaded.physics.lod1.groups) == len(original.physics.lod1.groups)
+        assert len(reloaded.physics.lod1.children) == len(original.physics.lod1.children)
+        assert reloaded.physics.lod1.archetype.name == original.physics.lod1.archetype.name
+        assert reloaded.physics.lod1.archetype.mass == pytest.approx(original.physics.lod1.archetype.mass)
+
+    def test_fragment_damaged_roundtrip_preserves_data(self, tmp_path: Path):
+        original = try_load_asset(DATA_DIR / "test_fragment_damaged.yft.xml")
+        save_asset(original, tmp_path, "rt", targets=self.TARGETS)
+        reloaded = try_load_asset(tmp_path / "rt.yft.xml")
+
+        assert reloaded.name == original.name
+        assert len(reloaded.extra_drawables) == len(original.extra_drawables)
+        assert reloaded.physics.lod1.damaged_archetype is not None
+        assert reloaded.physics.lod1.damaged_archetype.mass == pytest.approx(
+            original.physics.lod1.damaged_archetype.mass
+        )
+
+    def test_fragment_cloth_roundtrip_no_physics(self, tmp_path: Path):
+        original = try_load_asset(DATA_DIR / "test_fragment_cloth.yft.xml")
+        assert original.physics is None
+        save_asset(original, tmp_path, "rt", targets=self.TARGETS)
+        reloaded = try_load_asset(tmp_path / "rt.yft.xml")
+        assert reloaded.physics is None
+
 
 @requires_native
 class TestRoundtripNative:

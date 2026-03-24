@@ -362,6 +362,8 @@ def save_fragment_to_cw(asset: "AssetFragment", version: AssetVersion = AssetVer
         p.lod2 = None
         p.lod3 = None
         f.physics = p
+    else:
+        f.physics = None
 
     # Glass windows
     def _save_glass_window(glass: FragGlassWindow) -> cw.GlassWindow:
