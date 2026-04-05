@@ -36,7 +36,6 @@ from .archetypes import (
 from .assets import (
     Asset,
     AssetFormat,
-    AssetGame,
     AssetProvider,
     AssetTarget,
     AssetType,
