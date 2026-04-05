@@ -50,6 +50,15 @@ from .assets import (
 )
 from .bounds import (
     AssetBound,
+    AssetBoundSphere,
+    AssetBoundCapsule,
+    AssetBoundBox,
+    AssetBoundGeometry,
+    AssetBoundBvh,
+    AssetBoundComposite,
+    AssetBoundDisc,
+    AssetBoundCylinder,
+    AssetBoundPlane,
     BoundPrimitive,
     BoundPrimitiveType,
     BoundType,

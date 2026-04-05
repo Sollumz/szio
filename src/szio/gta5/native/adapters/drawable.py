@@ -55,6 +55,13 @@ _DEFAULT_LOD_THRESHOLDS = {
     LodLevel.VERYLOW: 9998.0,
 }
 
+_DEFAULT_LOD_THRESHOLDS_NO_MODELS = {
+    LodLevel.HIGH: 9998.0,
+    LodLevel.MEDIUM: 9998.0,
+    LodLevel.LOW: 9998.0,
+    LodLevel.VERYLOW: 9998.0,
+}
+
 _VB_CHANNEL_NAMES_MAP = {
     "POSITION": "Position",
     "WEIGHT": "BlendWeights",
@@ -633,14 +640,14 @@ def _save_models_g8(
         m.matrix_count = model.matrix_count
         return m
 
-    thresholds = _DEFAULT_LOD_THRESHOLDS | lod_thresholds
+    thresholds = (_DEFAULT_LOD_THRESHOLDS if has_models else _DEFAULT_LOD_THRESHOLDS_NO_MODELS) | lod_thresholds
     for lod_level, models in asset_models.items():
         if not models:
             continue
 
         lod = pmg8.Lod()
         lod.models = [_map_model(m) for m in models]
-        lod.lod_threshold = thresholds.get(lod_level, 9998.0)
+        lod.lod_threshold = thresholds[lod_level]
 
         d.lods[pm.LodType(lod_level.value)] = lod
 

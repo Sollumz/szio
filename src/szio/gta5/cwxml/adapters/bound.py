@@ -127,12 +127,12 @@ def load_bound_from_cw(b: cw.Bound | None) -> AssetBound | None:
     if b is None:
         return None
 
-    bt = _bound_type_from_cw(b)
+    bound_type = _bound_type_from_cw(b)
     is_primitive = b.type in _PRIMITIVE_TYPES
 
-    result = AssetBound(bound_type=bt)
+    result = AssetBound.create(bound_type)
 
-    # Material (was adapter.material getter)
+    # Material
     lo = b.unk_flags & 0xFF
     hi = b.poly_flags & 0xFF
     flags = CollisionMaterialFlags((hi << 8) | lo)
@@ -152,7 +152,7 @@ def load_bound_from_cw(b: cw.Bound | None) -> AssetBound | None:
     result.volume = b.volume
     result.inertia = Vector(b.inertia)
 
-    # Extent (was adapter.extent getter)
+    # Extent
     bb_min, bb_max = b.box_min, b.box_max
     if is_primitive:
         center = Vector(b.box_center)
@@ -161,7 +161,7 @@ def load_bound_from_cw(b: cw.Bound | None) -> AssetBound | None:
     result.bb_min = Vector(bb_min)
     result.bb_max = Vector(bb_max)
 
-    if bt == BoundType.COMPOSITE:
+    if bound_type == BoundType.COMPOSITE:
         composite: cw.BoundComposite = b
         result.children = []
         for child_b in composite.children:
@@ -173,25 +173,25 @@ def load_bound_from_cw(b: cw.Bound | None) -> AssetBound | None:
                 child.composite_collision_type_flags = collision_flags_from_cw(child_b.composite_flags1)
                 child.composite_collision_include_flags = collision_flags_from_cw(child_b.composite_flags2)
                 result.children.append(child)
-    elif bt == BoundType.SPHERE:
+    elif bound_type == BoundType.SPHERE:
         result.sphere_radius = b.sphere_radius
-    elif bt == BoundType.CAPSULE:
+    elif bound_type == BoundType.CAPSULE:
         # Inline capsule_radius_length getter
         extent = b.box_max - b.box_min
         radius = extent.x * 0.5
         length = extent.y - (radius * 2.0)
         result.capsule_radius_length = (radius, length)
-    elif bt == BoundType.CYLINDER:
+    elif bound_type == BoundType.CYLINDER:
         # Inline cylinder_radius_length getter
         extent = b.box_max - b.box_min
         radius = extent.x * 0.5
         length = extent.y
         result.cylinder_radius_length = (radius, length)
-    elif bt == BoundType.DISC:
+    elif bound_type == BoundType.DISC:
         result.disc_radius = b.sphere_radius
-    elif bt == BoundType.PLANE:
+    elif bound_type == BoundType.PLANE:
         result.plane_normal = Vector(b.normal)
-    elif bt in (BoundType.GEOMETRY, BoundType.BVH):
+    elif bound_type in (BoundType.GEOMETRY, BoundType.BVH):
         # Inline geometry_primitives getter
         materials = [
             CollisionMaterial(
@@ -266,7 +266,6 @@ def save_bound_to_cw(asset: AssetBound) -> cw.Bound:
     b.volume = asset.volume
     b.inertia = Vector(asset.inertia)
 
-    # Material (was adapter.material setter)
     if asset.material:
         lo = asset.material.material_flags.value & 0xFF
         hi = (asset.material.material_flags.value >> 8) & 0xFF

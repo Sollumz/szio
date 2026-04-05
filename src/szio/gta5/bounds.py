@@ -1,4 +1,5 @@
 import sys
+from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum, IntFlag, auto
@@ -198,11 +199,10 @@ class BoundVertex:
 
 
 @dataclass(slots=True)
-class AssetBound:
+class AssetBound(ABC):
     ASSET_GAME: AssetGame = AssetGame.GTA5
     ASSET_TYPE: AssetType = AssetType.BOUND
 
-    bound_type: BoundType = BoundType.COMPOSITE
     material: CollisionMaterial | None = None
     centroid: Vector = field(default_factory=Vector)
     radius_around_centroid: float = 0.0
@@ -213,33 +213,14 @@ class AssetBound:
     bb_min: Vector = field(default_factory=Vector)
     bb_max: Vector = field(default_factory=Vector)
 
-    # Composite-specific
-    children: list["AssetBound | None"] = None
-
-    # Shape-specific dimensions
-    sphere_radius: float = 0.0
-    capsule_radius_length: tuple[float, float] = (0.0, 0.0)
-    cylinder_radius_length: tuple[float, float] = (0.0, 0.0)
-    disc_radius: float = 0.0
-    plane_normal: Vector = field(default_factory=Vector)
-
-    # Geometry/BVH-specific
-    geometry_primitives: list[BoundPrimitive] = None
-    geometry_vertices: list[BoundVertex] = None
-    geometry_center: Vector = field(default_factory=Vector)
-
     # Composite child properties (set by parent composite)
     composite_transform: Matrix = None
     composite_collision_type_flags: CollisionFlags = field(default_factory=lambda: CollisionFlags(0))
     composite_collision_include_flags: CollisionFlags = field(default_factory=lambda: CollisionFlags(0))
 
-    def __post_init__(self):
-        if self.children is None and self.bound_type == BoundType.COMPOSITE:
-            self.children = []
-        if self.geometry_primitives is None and self.bound_type in (BoundType.GEOMETRY, BoundType.BVH):
-            self.geometry_primitives = []
-        if self.geometry_vertices is None and self.bound_type in (BoundType.GEOMETRY, BoundType.BVH):
-            self.geometry_vertices = []
+    @property
+    @abstractmethod
+    def bound_type(self) -> BoundType: ...
 
     @property
     def extent(self) -> tuple[Vector, Vector]:
@@ -250,3 +231,127 @@ class AssetBound:
     def extent(self, v: tuple[Vector, Vector]):
         """Sets the dimensions of this bound from a bounding box (tuple of minimum and maximum corner vectors)."""
         self.bb_min, self.bb_max = v
+        self._apply_extent(v)
+
+    def _apply_extent(self, v: tuple[Vector, Vector]):
+        pass
+
+    @staticmethod
+    def create(bound_type: BoundType) -> "AssetBound":
+        match bound_type:
+            case BoundType.SPHERE:
+                return AssetBoundSphere()
+            case BoundType.CAPSULE:
+                return AssetBoundCapsule()
+            case BoundType.BOX:
+                return AssetBoundBox()
+            case BoundType.GEOMETRY:
+                return AssetBoundGeometry()
+            case BoundType.BVH:
+                return AssetBoundBvh()
+            case BoundType.COMPOSITE:
+                return AssetBoundComposite()
+            case BoundType.DISC:
+                return AssetBoundDisc()
+            case BoundType.CYLINDER:
+                return AssetBoundCylinder()
+            case BoundType.PLANE:
+                return AssetBoundPlane()
+            case _:
+                raise AssertionError(f"Unknown bound type '{bound_type}'")
+
+
+@dataclass(slots=True)
+class AssetBoundSphere(AssetBound):
+    sphere_radius: float = 0.0
+
+    @property
+    def bound_type(self) -> BoundType:
+        return BoundType.SPHERE
+
+    def _apply_extent(self, v: tuple[Vector, Vector]):
+        size = v[1] - v[0]
+        self.sphere_radius = min(size) * 0.5
+
+
+@dataclass
+class AssetBoundCapsule(AssetBound):
+    capsule_radius_length: tuple[float, float] = (0.0, 0.0)
+
+    @property
+    def bound_type(self) -> BoundType:
+        return BoundType.CAPSULE
+
+    def _apply_extent(self, v: tuple[Vector, Vector]):
+        size = v[1] - v[0]
+        self.capsule_radius_length = size.x * 0.5, size.y
+
+
+@dataclass
+class AssetBoundBox(AssetBound):
+    @property
+    def bound_type(self) -> BoundType:
+        return BoundType.BOX
+
+
+@dataclass
+class AssetBoundGeometry(AssetBound):
+    geometry_primitives: list[BoundPrimitive] = field(default_factory=list)
+    geometry_vertices: list[BoundVertex] = field(default_factory=list)
+    geometry_center: Vector = field(default_factory=Vector)
+
+    @property
+    def bound_type(self) -> BoundType:
+        return BoundType.GEOMETRY
+
+
+@dataclass
+class AssetBoundBvh(AssetBoundGeometry):
+    @property
+    def bound_type(self) -> BoundType:
+        return BoundType.BVH
+
+
+@dataclass
+class AssetBoundComposite(AssetBound):
+    children: list[AssetBound | None] = field(default_factory=list)
+
+    @property
+    def bound_type(self) -> BoundType:
+        return BoundType.COMPOSITE
+
+
+@dataclass
+class AssetBoundDisc(AssetBound):
+    disc_radius: float = 0.0
+
+    @property
+    def bound_type(self) -> BoundType:
+        return BoundType.DISC
+
+    def _apply_extent(self, v: tuple[Vector, Vector]):
+        size = v[1] - v[0]
+        self.margin = size.x * 0.5  # in discs the margin equals half the length
+        self.disc_radius = size.y * 0.5
+
+
+@dataclass
+class AssetBoundCylinder(AssetBound):
+    cylinder_radius_length: tuple[float, float] = (0.0, 0.0)
+
+    @property
+    def bound_type(self) -> BoundType:
+        return BoundType.CYLINDER
+
+    def _apply_extent(self, v: tuple[Vector, Vector]):
+        size = v[1] - v[0]
+        self.cylinder_radius_length = size.x * 0.5, size.y
+
+
+@dataclass
+class AssetBoundPlane(AssetBound):
+    plane_normal: Vector = field(default_factory=Vector)
+
+    @property
+    def bound_type(self) -> BoundType:
+        return BoundType.PLANE

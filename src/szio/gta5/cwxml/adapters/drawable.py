@@ -553,10 +553,11 @@ def _save_models(v: dict[LodLevel, list[Model]], d: cw.Drawable):
 
 
 def _save_lod_thresholds(v: dict[LodLevel, float], d: cw.Drawable):
-    d.lod_dist_high = v.get(LodLevel.HIGH, 9998.0)
-    d.lod_dist_med = v.get(LodLevel.MEDIUM, 9998.0)
-    d.lod_dist_low = v.get(LodLevel.LOW, 9998.0)
-    d.lod_dist_vlow = v.get(LodLevel.VERYLOW, 9998.0)
+    default_lod_dist = 0.0 if d.is_empty else 9998.0
+    d.lod_dist_high = v.get(LodLevel.HIGH, default_lod_dist)
+    d.lod_dist_med = v.get(LodLevel.MEDIUM, default_lod_dist)
+    d.lod_dist_low = v.get(LodLevel.LOW, default_lod_dist)
+    d.lod_dist_vlow = v.get(LodLevel.VERYLOW, default_lod_dist)
 
 
 def _save_lights(v: list[Light], d: cw.Drawable):

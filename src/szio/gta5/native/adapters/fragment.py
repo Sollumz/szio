@@ -97,14 +97,15 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
         c: pmg8.FragmentTypeChild | pmg9.FragmentTypeChild,
         idx: int,
         lod: pmg8.FragmentPhysicsLod | pmg9.FragmentPhysicsLod,
+        parent_shader_group: pmg8.ShaderGroup | pmg9.ShaderGroup,
     ) -> PhysChild:
         return PhysChild(
             bone_tag=c.bone_id,
             group_index=c.owner_group_pointer_index,
             pristine_mass=c.undamaged_mass,
             damaged_mass=c.damaged_mass,
-            drawable=load_frag_drawable(c.undamaged_entity) if c.undamaged_entity else None,
-            damaged_drawable=load_frag_drawable(c.damaged_entity) if c.damaged_entity else None,
+            drawable=load_frag_drawable(c.undamaged_entity, parent_shader_group=parent_shader_group) if c.undamaged_entity else None,
+            damaged_drawable=load_frag_drawable(c.damaged_entity, parent_shader_group=parent_shader_group) if c.damaged_entity else None,
             min_breaking_impulse=lod.min_breaking_impulses[idx],
             inertia=Vector(lod.damaged_ang_inertia[idx]),
             damaged_inertia=Vector(lod.undamaged_ang_inertia[idx]),
@@ -143,12 +144,15 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
             glass_window_index=g.glass_pane_model_info_index,
         )
 
-    def _load_lod(lod: pmg8.FragmentPhysicsLod | pmg9.FragmentPhysicsLod) -> PhysLod:
+    def _load_lod(
+        lod: pmg8.FragmentPhysicsLod | pmg9.FragmentPhysicsLod,
+        parent_shader_group: pmg8.ShaderGroup | pmg9.ShaderGroup,
+    ) -> PhysLod:
         d = lod.damping_constant
         return PhysLod(
             archetype=_load_archetype(lod.phys_damp_undamaged),
             damaged_archetype=_load_archetype(lod.phys_damp_damaged),
-            children=[_load_child(c, i, lod) for i, c in enumerate(lod.children)],
+            children=[_load_child(c, i, lod, parent_shader_group) for i, c in enumerate(lod.children)],
             groups=[_load_group(g, gname) for g, gname in zip(lod.groups, lod.group_names)],
             smallest_ang_inertia=lod.smallest_ang_inertia,
             largest_ang_inertia=lod.largest_ang_inertia,
@@ -245,7 +249,7 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
 
     # Load physics
     group = f.physics_lod_group
-    physics = PhysLodGroup(_load_lod(group.high_lod)) if group and group.high_lod else None
+    physics = PhysLodGroup(_load_lod(group.high_lod, parent_sg)) if group and group.high_lod else None
 
     # Load glass windows
     glass_windows = [_load_glass_window(g) for g in f.glass_pane_model_infos]
@@ -431,7 +435,7 @@ def _save_fragment_to_native(asset: AssetFragment, *, gen, save_frag_drawable, c
             collisions: pm.BoundComposite | None,
             damaged_collisions: pm.BoundComposite | None,
         ):
-            skel = f.drawable.skeleton
+            skel = f.drawable.skeleton if f.drawable else None
             bounds = collisions.bounds if collisions else ([None] * len(children))
             damaged_bounds = damaged_collisions.bounds if damaged_collisions else ([None] * len(children))
             for c, b, db in zip(children, bounds, damaged_bounds):

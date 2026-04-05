@@ -1,3 +1,4 @@
+
 import pymateria as pma
 import pymateria.gta5 as pm
 
@@ -21,8 +22,8 @@ from ._utils import (
 
 
 def load_bound_from_native(b: pm.Bound) -> AssetBound:
-    bt = BoundType[b.type.name]
-    result = AssetBound(bound_type=bt)
+    bound_type = BoundType[b.type.name]
+    result = AssetBound.create(bound_type)
 
     result.material = CollisionMaterial.from_packed(b.material_id_packed)
     result.centroid = Vector(b.position)
@@ -32,35 +33,35 @@ def load_bound_from_native(b: pm.Bound) -> AssetBound:
     result.volume = b.volume if b.volume is not None else 0.0
     result.inertia = Vector(b.angular_inertia) if b.angular_inertia is not None else Vector((0.0, 0.0, 0.0))
 
-    if bt == BoundType.BOX:
+    if bound_type == BoundType.BOX:
         result.bb_min = Vector(b.min)
         result.bb_max = Vector(b.max)
-    elif bt == BoundType.SPHERE:
+    elif bound_type == BoundType.SPHERE:
         r = b.radius
         result.sphere_radius = r
         result.bb_min = Vector((-r, -r, -r))
         result.bb_max = Vector((r, r, r))
-    elif bt == BoundType.CAPSULE:
+    elif bound_type == BoundType.CAPSULE:
         radius = b.radius
         length = b.length - (radius * 2.0)
         result.capsule_radius_length = (radius, length)
         result.bb_min = Vector((-radius, -b.length * 0.5, -radius))
         result.bb_max = Vector((radius, b.length * 0.5, radius))
-    elif bt == BoundType.CYLINDER:
+    elif bound_type == BoundType.CYLINDER:
         radius = b.radius
         height = b.height
         result.cylinder_radius_length = (radius, height)
         result.bb_min = Vector((-radius, -height * 0.5, -radius))
         result.bb_max = Vector((radius, height * 0.5, radius))
-    elif bt == BoundType.DISC:
+    elif bound_type == BoundType.DISC:
         radius = b.radius + b.margin
         result.disc_radius = radius
         half_margin = b.margin
         result.bb_min = Vector((-half_margin, -radius, -radius))
         result.bb_max = Vector((half_margin, radius, radius))
-    elif bt == BoundType.PLANE:
+    elif bound_type == BoundType.PLANE:
         result.plane_normal = Vector(b.normal)
-    elif bt in (BoundType.GEOMETRY, BoundType.BVH):
+    elif bound_type in (BoundType.GEOMETRY, BoundType.BVH):
         # Geometry primitives
         def _get_vertices(p: pm.BoundPrimitive):
             match p.type:
@@ -111,7 +112,7 @@ def load_bound_from_native(b: pm.Bound) -> AssetBound:
             result.bb_max = Vector(bbox.max)
         else:
             result.geometry_center = Vector((0.0, 0.0, 0.0))
-    elif bt == BoundType.COMPOSITE:
+    elif bound_type == BoundType.COMPOSITE:
         composite: pm.BoundComposite = b
         result.children = []
         for e in composite.bounds:
@@ -161,23 +162,18 @@ def save_bound_to_native(asset: AssetBound) -> pm.Bound:
 
     bt = asset.bound_type
     vmin, vmax = asset.bb_min, asset.bb_max
-    size = vmax - vmin
 
     if bt == BoundType.BOX:
         b.min = to_native_vec3(vmin)
         b.max = to_native_vec3(vmax)
     elif bt == BoundType.SPHERE:
-        b.radius = min(size) * 0.5
+        b.radius = asset.sphere_radius
     elif bt == BoundType.CAPSULE:
-        b.radius = size[0] * 0.5
-        b.length = size[1]
+        b.radius, b.length = asset.capsule_radius_length
     elif bt == BoundType.CYLINDER:
-        b.radius = size[0] * 0.5
-        b.height = size[1]
+        b.radius, b.length = asset.cylinder_radius_length
     elif bt == BoundType.DISC:
-        length = size[0]
-        b.margin = length * 0.5
-        b.radius = size[1] * 0.5 - b.margin
+        b.radius = asset.disc_radius - b.margin
     elif bt == BoundType.PLANE:
         b.normal = to_native_vec3(asset.plane_normal)
     elif bt in (BoundType.GEOMETRY, BoundType.BVH):
