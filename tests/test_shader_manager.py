@@ -1,4 +1,5 @@
 import pytest
+
 from szio.gta5 import ShaderManager
 
 

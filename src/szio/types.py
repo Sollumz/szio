@@ -1,8 +1,8 @@
+import ctypes
 import io
 import os
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Sequence, TypeAlias
-import ctypes
 
 import numpy as np
 

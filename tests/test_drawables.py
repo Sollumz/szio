@@ -7,6 +7,7 @@ import pytest
 import szio.gta5.native
 from szio._dds import DdsFile
 from szio.gta5 import (
+    AssetDrawable,
     AssetFormat,
     AssetTarget,
     AssetVersion,
@@ -14,7 +15,6 @@ from szio.gta5 import (
     RenderBucket,
     ShaderGroup,
     ShaderInst,
-    create_asset_drawable,
     save_asset,
     try_load_asset,
 )
@@ -42,7 +42,7 @@ def test_drawables_embed_texture_with_mipmaps(tex_file: Path, target_version: As
     with caplog.at_level(logging.WARNING):
         tex_data = tex_file.read_bytes()
 
-        drw = create_asset_drawable((AssetTarget(AssetFormat.NATIVE, target_version),))
+        drw = AssetDrawable()
         drw.shader_group = ShaderGroup(
             shaders=[
                 ShaderInst(
@@ -60,7 +60,7 @@ def test_drawables_embed_texture_with_mipmaps(tex_file: Path, target_version: As
         )
 
         target = AssetTarget(AssetFormat.NATIVE, target_version)
-        save_asset(drw, tmp_path, "test", targets=[target])
+        save_asset(drw, [target], tmp_path, "test")
 
         # Basic sanity check that it correctly embedded the texture
         loaded_drw = try_load_asset(tmp_path / "test.ydr")

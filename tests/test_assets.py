@@ -108,7 +108,7 @@ class TestSaveAsset:
         out_dir = tmp_path / "out"
         out_dir.mkdir()
         targets = [AssetTarget(AssetFormat.CWXML, AssetVersion.GEN8)]
-        szio.save_asset(asset, out_dir, "roundtrip", targets=targets)
+        szio.save_asset(asset, targets, out_dir, "roundtrip")
 
         reloaded = szio.try_load_asset(out_dir / f"roundtrip{ext}.xml")
         assert reloaded is not None

@@ -594,24 +594,14 @@ def _save_archetypes_native(archetypes: Sequence[Archetype], t) -> None:
     t.archetypes = [_map_archetype(a) for a in archetypes]
 
 
-# --- Standalone load/save functions ---
-
-
-def load_map_types(t: pm.gen8.MapTypes) -> AssetMapTypes:
+def load_map_types_from_native(t: pm.gen8.MapTypes | pm.gen9.MapTypes) -> AssetMapTypes:
     return AssetMapTypes(
         name=_h2s(t.name),
         archetypes=_load_archetypes_native(t),
     )
 
 
-def load_map_types_g9(t: pm.gen9.MapTypes) -> AssetMapTypes:
-    return AssetMapTypes(
-        name=_h2s(t.name),
-        archetypes=_load_archetypes_native(t),
-    )
-
-
-def save_map_types_to_native(asset: AssetMapTypes) -> pm.gen8.MapTypes:
+def save_map_types_to_native_g8(asset: AssetMapTypes) -> pm.gen8.MapTypes:
     t = pm.gen8.MapTypes()
     t.name = asset.name
     _save_archetypes_native(asset.archetypes, t)

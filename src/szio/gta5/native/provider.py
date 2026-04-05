@@ -1,5 +1,4 @@
-import math
-from abc import ABC, abstractmethod
+from abc import ABC
 from pathlib import Path
 
 import pymateria as pma
@@ -8,21 +7,15 @@ import pymateria.rsc7 as pmrsc
 
 from ..archetypes import AssetMapTypes
 from ..assets import Asset, AssetGame
-from ..bounds import AssetBound, BoundType
+from ..bounds import AssetBound
 from ..cloths import AssetClothDictionary
-from ..drawables import AssetDrawable, AssetDrawableDictionary
-from ..fragments import AssetFragment
-from .adapters.archetype import (
-    load_map_types,
-    save_map_types_to_native,
-)
-from .adapters.bound import (
-    load_bound,
+from .adapters import (
+    load_bound_from_native,
+    load_cloth_dictionary_from_native,
+    load_map_types_from_native,
     save_bound_to_native,
-)
-from .adapters.cloth import (
-    load_cloth_dictionary,
     save_cloth_dictionary_to_native,
+    save_map_types_to_native_g8,
 )
 
 
@@ -63,35 +56,15 @@ class NativeProvider(ABC):
     def load_file(self, path: Path) -> Asset:
         match path.suffix.lower():
             case ".ybn":
-                return load_bound(pm.Bound.import_rsc(path).result)
+                return load_bound_from_native(pm.Bound.import_rsc(path).result)
             case ".yld":
-                return load_cloth_dictionary(pm.ClothDictionary.import_rsc(path).result)
+                return load_cloth_dictionary_from_native(pm.ClothDictionary.import_rsc(path).result)
             case ".ytyp":
                 # gen9 map types has some minimal differences (made some padding explicit fields, doesn't really affect anything)
                 # gen8 import can read both
-                return load_map_types(pm.gen8.MapTypes.import_rsc(path).result)
+                return load_map_types_from_native(pm.gen8.MapTypes.import_rsc(path).result)
             case _:
                 raise ValueError(f"Unsupported file '{str(path)}'")
-
-    def create_asset_bound(self, bound_type: BoundType) -> AssetBound:
-        return AssetBound(bound_type=bound_type)
-
-    @abstractmethod
-    def create_asset_drawable(
-        self, is_frag: bool = False, parent_drawable: AssetDrawable | None = None
-    ) -> AssetDrawable: ...
-
-    @abstractmethod
-    def create_asset_drawable_dictionary(self) -> AssetDrawableDictionary: ...
-
-    @abstractmethod
-    def create_asset_fragment(self) -> AssetFragment: ...
-
-    def create_asset_cloth_dictionary(self) -> AssetClothDictionary:
-        return AssetClothDictionary()
-
-    @abstractmethod
-    def create_asset_map_types(self) -> AssetMapTypes: ...
 
     def save_asset(self, asset: Asset, directory: Path, name: str, tool_metadata: tuple[str, str] | None = None):
         if isinstance(asset, AssetBound):
@@ -104,7 +77,7 @@ class NativeProvider(ABC):
             )
         elif isinstance(asset, AssetMapTypes):
             path = directory / f"{name}.ytyp"
-            pm.gen8.MapTypes.export_rsc(save_map_types_to_native(asset), path, self._export_settings(tool_metadata))
+            pm.gen8.MapTypes.export_rsc(save_map_types_to_native_g8(asset), path, self._export_settings(tool_metadata))
         else:
             raise ValueError(f"Unsupported asset '{asset}' (name: '{name}', directory: '{str(directory)}')")
 

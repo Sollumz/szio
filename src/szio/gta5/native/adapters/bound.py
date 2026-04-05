@@ -1,9 +1,7 @@
-from typing import Sequence
-
 import pymateria as pma
 import pymateria.gta5 as pm
 
-from ....types import Matrix, Vector
+from ....types import Vector
 from ...bounds import (
     AssetBound,
     BoundPrimitive,
@@ -22,9 +20,7 @@ from ._utils import (
 )
 
 
-def load_bound(b: pm.Bound) -> AssetBound:
-    from ....types import Matrix, Vector
-
+def load_bound_from_native(b: pm.Bound) -> AssetBound:
     bt = BoundType[b.type.name]
     result = AssetBound(bound_type=bt)
 
@@ -122,7 +118,7 @@ def load_bound(b: pm.Bound) -> AssetBound:
             if e is None or e.bound is None:
                 result.children.append(None)
             else:
-                child = load_bound(e.bound)
+                child = load_bound_from_native(e.bound)
                 child.composite_transform = from_native_mat34(e.matrix)
                 child.composite_collision_type_flags = CollisionFlags(e.type_flags.value)
                 child.composite_collision_include_flags = CollisionFlags(e.include_flags.value)
@@ -131,19 +127,7 @@ def load_bound(b: pm.Bound) -> AssetBound:
     return result
 
 
-def _to_mat34(m) -> pma.Matrix34:
-    """Convert a 4x4 matrix (numpy array or similar) to native Matrix34 without using .col/.row."""
-    return pma.Matrix34(
-        pma.Vector4f(float(m[0][0]), float(m[0][1]), float(m[0][2]), float(m[0][3])),
-        pma.Vector4f(float(m[1][0]), float(m[1][1]), float(m[1][2]), float(m[1][3])),
-        pma.Vector4f(float(m[2][0]), float(m[2][1]), float(m[2][2]), float(m[2][3])),
-        pma.Vector4f(float(m[3][0]), float(m[3][1]), float(m[3][2]), float(m[3][3])),
-    )
-
-
 def save_bound_to_native(asset: AssetBound) -> pm.Bound:
-    from ....types import Vector
-
     match asset.bound_type:
         case BoundType.COMPOSITE:
             b = pm.BoundComposite()
@@ -252,7 +236,7 @@ def save_bound_to_native(asset: AssetBound) -> pm.Bound:
                 child_b = save_bound_to_native(child)
                 e = pm.BoundCompositeElement()
                 e.bound = child_b
-                e.matrix = _to_mat34(child.composite_transform)
+                e.matrix = to_native_mat34(child.composite_transform)
                 e.type_flags = pm.CollisionFlags(child.composite_collision_type_flags.value)
                 e.include_flags = pm.CollisionFlags(child.composite_collision_include_flags.value)
                 new_bounds.append(e)

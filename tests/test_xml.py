@@ -2,8 +2,8 @@ from xml.etree import ElementTree as ET
 
 import pytest
 
-from szio.xml.element import get_str_type, ElementTree, TextProperty, ValueProperty, VectorProperty
 from szio.gta5.cwxml.ymap import HexColorProperty
+from szio.xml.element import ElementTree, TextProperty, ValueProperty, VectorProperty, get_str_type
 
 
 @pytest.mark.parametrize("string, expected", (

@@ -3,16 +3,9 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from functools import cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, NamedTuple, Protocol, overload, runtime_checkable
+from typing import Literal, NamedTuple, Protocol, overload, runtime_checkable
 
 from ..assets import AssetGame
-
-if TYPE_CHECKING:
-    from .archetypes import AssetMapTypes
-    from .bounds import AssetBound, BoundType
-    from .cloths import AssetClothDictionary
-    from .drawables import AssetDrawable, AssetDrawableDictionary, AssetFragDrawable
-    from .fragments import AssetFragment
 
 
 class AssetFormat(Enum):
@@ -58,6 +51,7 @@ class AssetType(Enum):
 class SaveOptions:
     gen8_directory: Path | None = None
     gen9_directory: Path | None = None
+    tool_metadata: tuple[str, str] | None = None
 
 
 @runtime_checkable
@@ -81,30 +75,6 @@ class AssetProvider(Protocol):
     def supports_file(self, path: Path) -> bool: ...
 
     def load_file(self, path: Path) -> Asset: ...
-
-    def create_asset_bound(self, bound_type: "BoundType") -> "AssetBound": ...
-
-    @overload
-    def create_asset_drawable(
-        self, is_frag: Literal[True], parent_drawable: "AssetDrawable | None" = None
-    ) -> "AssetFragDrawable": ...
-
-    @overload
-    def create_asset_drawable(
-        self, is_frag: bool = ..., parent_drawable: "AssetDrawable | None" = None
-    ) -> "AssetDrawable": ...
-
-    def create_asset_drawable(
-        self, is_frag: bool = False, parent_drawable: "AssetDrawable | None" = None
-    ) -> "AssetDrawable": ...
-
-    def create_asset_drawable_dictionary(self) -> "AssetDrawableDictionary": ...
-
-    def create_asset_fragment(self) -> "AssetFragment": ...
-
-    def create_asset_cloth_dictionary(self) -> "AssetClothDictionary": ...
-
-    def create_asset_map_types(self) -> "AssetMapTypes": ...
 
     def save_asset(self, asset: Asset, directory: Path, name: str, tool_metadata: tuple[str, str] | None = None): ...
 
@@ -131,76 +101,27 @@ def is_provider_available(target_or_format: AssetTarget | AssetFormat) -> bool:
     return target in get_providers()
 
 
-def try_load_asset(path: Path) -> Asset | None:
-    for p in get_providers().values():
+@overload
+def try_load_asset(path: Path, *, return_target: Literal[False] = ...) -> Asset | None: ...
+@overload
+def try_load_asset(path: Path, *, return_target: Literal[True]) -> tuple[Asset, AssetTarget] | None: ...
+
+
+def try_load_asset(path: Path, *, return_target: bool = False) -> Asset | tuple[Asset, AssetTarget] | None:
+    for t, p in get_providers().items():
         if p.supports_file(path):
-            return p.load_file(path)
+            asset = p.load_file(path)
+            return (asset, t) if return_target else asset
 
     return None
 
 
-def create_asset_bound(targets: Sequence[AssetTarget], bound_type: "BoundType") -> "AssetBound":
-    from .bounds import AssetBound as AssetBoundCls
-
-    return AssetBoundCls(bound_type=bound_type)
-
-
-@overload
-def create_asset_drawable(
-    targets: Sequence[AssetTarget], is_frag: Literal[True], parent_drawable: "AssetDrawable | None" = None
-) -> "AssetFragDrawable": ...
-
-
-@overload
-def create_asset_drawable(
-    targets: Sequence[AssetTarget], is_frag: bool = ..., parent_drawable: "AssetDrawable | None" = None
-) -> "AssetDrawable": ...
-
-
-def create_asset_drawable(
-    targets: Sequence[AssetTarget], is_frag: bool = False, parent_drawable: "AssetDrawable | None" = None
-) -> "AssetDrawable":
-    if is_frag:
-        from .drawables import AssetFragDrawable as AssetFragDrawableCls
-
-        return AssetFragDrawableCls()
-
-    from .drawables import AssetDrawable as AssetDrawableCls
-
-    return AssetDrawableCls()
-
-
-def create_asset_drawable_dictionary(targets: Sequence[AssetTarget]) -> "AssetDrawableDictionary":
-    from .drawables import AssetDrawableDictionary as AssetDrawableDictionaryCls
-
-    return AssetDrawableDictionaryCls()
-
-
-def create_asset_fragment(targets: Sequence[AssetTarget]) -> "AssetFragment":
-    from .fragments import AssetFragment as AssetFragmentCls
-
-    return AssetFragmentCls()
-
-
-def create_asset_cloth_dictionary(targets: Sequence[AssetTarget]) -> "AssetClothDictionary":
-    from .cloths import AssetClothDictionary as AssetClothDictionaryCls
-
-    return AssetClothDictionaryCls()
-
-
-def create_asset_map_types(targets: Sequence[AssetTarget]) -> "AssetMapTypes":
-    from .archetypes import AssetMapTypes as AssetMapTypesCls
-
-    return AssetMapTypesCls()
-
-
 def save_asset(
     asset: Asset,
+    targets: Sequence[AssetTarget],
     directory: Path,
     name: str,
-    tool_metadata: tuple[str, str] | None = None,
     options: SaveOptions | None = None,
-    targets: Sequence[AssetTarget] = (),
 ):
     providers = get_providers()
     asset_directories = {t.version: directory for t in targets}
@@ -215,6 +136,6 @@ def save_asset(
 
     for t in targets:
         if provider := providers.get(t, None):
-            provider.save_asset(asset, asset_directories[t.version], name, tool_metadata)
+            provider.save_asset(asset, asset_directories[t.version], name, options.tool_metadata if options else None)
         else:
             raise ValueError(f"Unsupported target '{t}'")

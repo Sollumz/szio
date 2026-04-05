@@ -12,7 +12,7 @@ from ...cloths import (
 )
 from .. import cloth as cw
 from .bound import (
-    load_bound,
+    load_bound_from_cw,
     save_bound_to_cw,
 )
 
@@ -109,9 +109,6 @@ def to_cw_morph_controller(controller: ClothController) -> cw.MorphController | 
     return c
 
 
-# --- Standalone load/save functions ---
-
-
 def _load_verlet_cloth_cw(c: cw.VerletCloth) -> VerletCloth:
     return VerletCloth(
         bb_min=c.bb_min,
@@ -125,7 +122,7 @@ def _load_verlet_cloth_cw(c: cw.VerletCloth) -> VerletCloth:
         edges=[from_cw_verlet_cloth_edge(e) for e in c.edges],
         custom_edges=[from_cw_verlet_cloth_edge(e) for e in c.custom_edges],
         flags=c.flags,
-        bounds=load_bound(c.bounds) if c.bounds is not None else None,
+        bounds=load_bound_from_cw(c.bounds) if c.bounds is not None else None,
     )
 
 
@@ -147,7 +144,7 @@ def _load_char_controller_cw(c: cw.CharacterClothController) -> CharacterClothCo
     )
 
 
-def load_cloth_dictionary(d: cw.ClothDictionary) -> AssetClothDictionary:
+def load_cloth_dictionary_from_cw(d: cw.ClothDictionary) -> AssetClothDictionary:
     def _load_cloth(c: cw.CharacterCloth) -> CharacterCloth:
         return CharacterCloth(
             name=jenkhash.try_resolve_maybe_hashed_name(c.name),
@@ -156,7 +153,7 @@ def load_cloth_dictionary(d: cw.ClothDictionary) -> AssetClothDictionary:
             bounds_bone_ids=c.bounds_bone_ids,
             bounds_bone_indices=c.bounds_bone_indices,
             controller=_load_char_controller_cw(c.controller),
-            bounds=load_bound(c.bounds) if c.bounds else None,
+            bounds=load_bound_from_cw(c.bounds) if c.bounds else None,
         )
 
     cloths = {jenkhash.try_resolve_maybe_hashed_name(cloth.name): _load_cloth(cloth) for cloth in d}

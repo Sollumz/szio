@@ -4,37 +4,28 @@ from pathlib import Path
 from ...xml import get_xml_root_tag
 from ..archetypes import AssetMapTypes
 from ..assets import Asset, AssetFormat, AssetGame, AssetVersion
-from ..bounds import AssetBound, BoundType
+from ..bounds import AssetBound
 from ..cloths import AssetClothDictionary
-from ..drawables import AssetDrawable, AssetDrawableDictionary, AssetFragDrawable
+from ..drawables import AssetDrawable, AssetDrawableDictionary
 from ..fragments import AssetFragment
-from . import bound as cw
+from . import bound as cwbnd
 from . import cloth as cwcloth
 from . import drawable as cwdr
 from . import fragment as cwfr
 from . import ytyp as cwtyp
-from .adapters.archetype import (
-    load_map_types,
-    save_map_types_to_cw,
-)
-from .adapters.bound import (
-    load_bound,
+from .adapters import (
+    load_bound_from_cw,
+    load_cloth_dictionary_from_cw,
+    load_drawable_dictionary_from_cw,
+    load_drawable_from_cw,
+    load_fragment_from_cw,
+    load_map_types_from_cw,
     save_bound_to_cw,
-)
-from .adapters.cloth import (
-    load_cloth_dictionary,
     save_cloth_dictionary_to_cw,
-)
-from .adapters.drawable import (
-    load_drawable,
-    load_drawable_dictionary,
-    load_frag_drawable,
     save_drawable_dictionary_to_cw,
     save_drawable_to_cw,
-)
-from .adapters.fragment import (
-    load_fragment,
     save_fragment_to_cw,
+    save_map_types_to_cw,
 )
 
 
@@ -68,47 +59,24 @@ class CWProvider(ABC):
         suffixes = path.suffixes
         match suffixes[-2].lower():
             case ".ybn":
-                return load_bound(cw.BoundFile.from_xml_file(path).composite)
+                return load_bound_from_cw(cwbnd.BoundFile.from_xml_file(path).composite)
             case ".ydr":
-                return load_drawable(cwdr.Drawable.from_xml_file(path))
+                return load_drawable_from_cw(cwdr.Drawable.from_xml_file(path))
             case ".ydd":
-                return load_drawable_dictionary(cwdr.DrawableDictionary.from_xml_file(path))
+                return load_drawable_dictionary_from_cw(cwdr.DrawableDictionary.from_xml_file(path))
             case ".yft":
-                return load_fragment(cwfr.Fragment.from_xml_file(path))
+                return load_fragment_from_cw(cwfr.Fragment.from_xml_file(path))
             case ".yld":
-                return load_cloth_dictionary(cwcloth.ClothDictionary.from_xml_file(path))
+                return load_cloth_dictionary_from_cw(cwcloth.ClothDictionary.from_xml_file(path))
             case ".ytyp":
-                return load_map_types(cwtyp.CMapTypes.from_xml_file(path))
+                return load_map_types_from_cw(cwtyp.CMapTypes.from_xml_file(path))
             case _:
                 raise ValueError(f"Unsupported file '{str(path)}'")
-
-    def create_asset_bound(self, bound_type: BoundType) -> AssetBound:
-        return AssetBound(bound_type=bound_type)
-
-    def create_asset_drawable(
-        self, is_frag: bool = False, parent_drawable: AssetDrawable | None = None
-    ) -> AssetDrawable:
-        if is_frag:
-            return AssetFragDrawable()
-        else:
-            return AssetDrawable()
-
-    def create_asset_drawable_dictionary(self) -> AssetDrawableDictionary:
-        return AssetDrawableDictionary()
-
-    def create_asset_fragment(self) -> AssetFragment:
-        return AssetFragment()
-
-    def create_asset_cloth_dictionary(self) -> AssetClothDictionary:
-        return AssetClothDictionary()
-
-    def create_asset_map_types(self) -> AssetMapTypes:
-        return AssetMapTypes()
 
     def save_asset(self, asset: Asset, directory: Path, name: str, tool_metadata: tuple[str, str] | None = None):
         if isinstance(asset, AssetBound):
             path = directory / f"{name}.ybn.xml"
-            bound_file = cw.BoundFile()
+            bound_file = cwbnd.BoundFile()
             bound_file.composite = save_bound_to_cw(asset)
             bound_file.write_xml(path)
         elif isinstance(asset, AssetDrawable):

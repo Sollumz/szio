@@ -23,7 +23,7 @@ from ._utils import (
     to_native_vec3,
 )
 from .bound import (
-    load_bound,
+    load_bound_from_native,
     save_bound_to_native,
 )
 
@@ -81,9 +81,6 @@ def to_native_morph_controller(controller: ClothController) -> pm.MorphControlle
     return c
 
 
-# --- Standalone load/save functions ---
-
-
 def _load_verlet_cloth_native(c: pm.VerletCloth) -> VerletCloth:
     return VerletCloth(
         bb_min=Vector(c.bb_min),
@@ -97,7 +94,7 @@ def _load_verlet_cloth_native(c: pm.VerletCloth) -> VerletCloth:
         edges=[from_native_verlet_cloth_edge(e) for e in c.edge_data],
         custom_edges=[from_native_verlet_cloth_edge(e) for e in c.custom_edge_data],
         flags=c.flags,
-        bounds=load_bound(c.custom_bound) if c.custom_bound else None,
+        bounds=load_bound_from_native(c.custom_bound) if c.custom_bound else None,
     )
 
 
@@ -119,7 +116,7 @@ def _load_char_controller_native(c: pm.CharacterClothController) -> CharacterClo
     )
 
 
-def load_cloth_dictionary(d: pm.ClothDictionary) -> AssetClothDictionary:
+def load_cloth_dictionary_from_native(d: pm.ClothDictionary) -> AssetClothDictionary:
     def _load_cloth(c: pm.CharacterCloth, name: str) -> CharacterCloth:
         return CharacterCloth(
             name=name,
@@ -128,7 +125,7 @@ def load_cloth_dictionary(d: pm.ClothDictionary) -> AssetClothDictionary:
             bounds_bone_ids=c.bone_id,
             bounds_bone_indices=c.bone_index,
             controller=_load_char_controller_native(c.controller),
-            bounds=load_bound(c.composite_bounds) if c.composite_bounds else None,
+            bounds=load_bound_from_native(c.composite_bounds) if c.composite_bounds else None,
         )
 
     cloths = {(name := _h2s(key)): _load_cloth(cloth, name) for key, cloth in d.cloths.items()}

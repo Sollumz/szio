@@ -19,8 +19,8 @@ from szio.gta5 import (
     FragmentTemplateAsset,
     LodLevel,
     RenderBucket,
-    try_load_asset,
     save_asset,
+    try_load_asset,
 )
 from szio.gta5.native import IS_BACKEND_AVAILABLE
 
@@ -535,7 +535,7 @@ class TestRoundtripCWXML:
 
         name = filename.split(".")[0]
         ext = "." + filename.split(".")[1]
-        save_asset(asset, tmp_path, name, targets=self.TARGETS)
+        save_asset(asset, self.TARGETS, tmp_path, name)
 
         reloaded = try_load_asset(tmp_path / f"{name}{ext}.xml")
         assert reloaded is not None
@@ -543,7 +543,7 @@ class TestRoundtripCWXML:
 
     def test_drawable_roundtrip_preserves_data(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "test_drawable.ydr.xml")
-        save_asset(original, tmp_path, "rt", targets=self.TARGETS)
+        save_asset(original, self.TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.ydr.xml")
 
         assert reloaded.name == original.name
@@ -557,7 +557,7 @@ class TestRoundtripCWXML:
 
     def test_bounds_roundtrip_preserves_data(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "test_bounds.ybn.xml")
-        save_asset(original, tmp_path, "rt", targets=self.TARGETS)
+        save_asset(original, self.TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.ybn.xml")
 
         assert reloaded.bound_type == original.bound_type
@@ -571,7 +571,7 @@ class TestRoundtripCWXML:
 
     def test_drawable_dictionary_roundtrip_preserves_data(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "test_drawable_dictionary.ydd.xml")
-        save_asset(original, tmp_path, "rt", targets=self.TARGETS)
+        save_asset(original, self.TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.ydd.xml")
 
         assert set(reloaded.drawables.keys()) == set(original.drawables.keys())
@@ -581,7 +581,7 @@ class TestRoundtripCWXML:
 
     def test_fragment_roundtrip_preserves_data(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "test_fragment_simple.yft.xml")
-        save_asset(original, tmp_path, "rt", targets=self.TARGETS)
+        save_asset(original, self.TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.yft.xml")
 
         assert reloaded.name == original.name
@@ -594,7 +594,7 @@ class TestRoundtripCWXML:
 
     def test_fragment_damaged_roundtrip_preserves_data(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "test_fragment_damaged.yft.xml")
-        save_asset(original, tmp_path, "rt", targets=self.TARGETS)
+        save_asset(original, self.TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.yft.xml")
 
         assert reloaded.name == original.name
@@ -607,7 +607,7 @@ class TestRoundtripCWXML:
     def test_fragment_cloth_roundtrip_no_physics(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "test_fragment_cloth.yft.xml")
         assert original.physics is None
-        save_asset(original, tmp_path, "rt", targets=self.TARGETS)
+        save_asset(original, self.TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.yft.xml")
         assert reloaded.physics is None
 
@@ -622,7 +622,7 @@ class TestRoundtripNative:
     def test_drawable_gen8_roundtrip(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "gen8" / "test_drawable.ydr")
         assert original is not None
-        save_asset(original, tmp_path, "rt", targets=self.GEN8_TARGETS)
+        save_asset(original, self.GEN8_TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.ydr")
         assert reloaded is not None
 
@@ -636,7 +636,7 @@ class TestRoundtripNative:
         original = try_load_asset(DATA_DIR / "gen9" / "test_drawable.ydr")
         assert original is not None
         orig_geom = original.models[LodLevel.HIGH][0].geometries[0] # note: pymateria FVF dtype breaks after export so get geometry here
-        save_asset(original, tmp_path, "rt", targets=self.GEN9_TARGETS)
+        save_asset(original, self.GEN9_TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.ydr")
         assert reloaded is not None
 
@@ -648,7 +648,7 @@ class TestRoundtripNative:
     def test_bounds_native_roundtrip(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "test_bounds.ybn")
         assert original is not None
-        save_asset(original, tmp_path, "rt", targets=self.GEN8_TARGETS)
+        save_asset(original, self.GEN8_TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.ybn")
         assert reloaded is not None
 
@@ -659,7 +659,7 @@ class TestRoundtripNative:
     def test_drawable_dictionary_gen8_roundtrip(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "gen8" / "test_drawable_dictionary.ydd")
         assert original is not None
-        save_asset(original, tmp_path, "rt", targets=self.GEN8_TARGETS)
+        save_asset(original, self.GEN8_TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.ydd")
         assert reloaded is not None
 
@@ -668,7 +668,7 @@ class TestRoundtripNative:
     def test_drawable_dictionary_gen9_roundtrip(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "gen9" / "test_drawable_dictionary.ydd")
         assert original is not None
-        save_asset(original, tmp_path, "rt", targets=self.GEN9_TARGETS)
+        save_asset(original, self.GEN9_TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.ydd")
         assert reloaded is not None
 
@@ -678,7 +678,7 @@ class TestRoundtripNative:
         """Load fragment from CWXML, save as native gen8, reload and verify."""
         original = try_load_asset(DATA_DIR / "test_fragment_simple.yft.xml")
         assert original is not None
-        save_asset(original, tmp_path, "rt", targets=self.GEN8_TARGETS)
+        save_asset(original, self.GEN8_TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.yft")
         assert reloaded is not None
 
@@ -691,7 +691,7 @@ class TestRoundtripNative:
         """Load fragment from CWXML, save as native gen9, reload and verify."""
         original = try_load_asset(DATA_DIR / "test_fragment_simple.yft.xml")
         assert original is not None
-        save_asset(original, tmp_path, "rt", targets=self.GEN9_TARGETS)
+        save_asset(original, self.GEN9_TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.yft")
         assert reloaded is not None
 
@@ -703,7 +703,7 @@ class TestRoundtripNative:
     def test_fragment_simple_gen8_roundtrip(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "gen8" / "test_fragment_simple.yft")
         assert original is not None
-        save_asset(original, tmp_path, "rt", targets=self.GEN8_TARGETS)
+        save_asset(original, self.GEN8_TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.yft")
         assert reloaded is not None
 
@@ -714,7 +714,7 @@ class TestRoundtripNative:
     def test_fragment_simple_gen9_roundtrip(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "gen9" / "test_fragment_simple.yft")
         assert original is not None
-        save_asset(original, tmp_path, "rt", targets=self.GEN9_TARGETS)
+        save_asset(original, self.GEN9_TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.yft")
         assert reloaded is not None
 
@@ -725,7 +725,7 @@ class TestRoundtripNative:
     def test_fragment_damaged_gen8_roundtrip(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "gen8" / "test_fragment_damaged.yft")
         assert original is not None
-        save_asset(original, tmp_path, "rt", targets=self.GEN8_TARGETS)
+        save_asset(original, self.GEN8_TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.yft")
         assert reloaded is not None
 
@@ -736,7 +736,7 @@ class TestRoundtripNative:
     def test_fragment_damaged_gen9_roundtrip(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "gen9" / "test_fragment_damaged.yft")
         assert original is not None
-        save_asset(original, tmp_path, "rt", targets=self.GEN9_TARGETS)
+        save_asset(original, self.GEN9_TARGETS, tmp_path, "rt")
         reloaded = try_load_asset(tmp_path / "rt.yft")
         assert reloaded is not None
 

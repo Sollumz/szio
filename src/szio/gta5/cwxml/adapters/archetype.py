@@ -68,7 +68,7 @@ _CW_ASSET_TYPE_MAP = {
 _CW_ASSET_TYPE_INVERSE_MAP = {v: k for k, v in _CW_ASSET_TYPE_MAP.items()}
 
 
-def load_map_types(t: cw.CMapTypes) -> AssetMapTypes:
+def load_map_types_from_cw(t: cw.CMapTypes) -> AssetMapTypes:
     def _text_list_to_vec(tl):
         return Vector([float(v) for v in tl])
 

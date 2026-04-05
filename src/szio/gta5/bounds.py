@@ -203,7 +203,7 @@ class AssetBound:
     ASSET_TYPE: AssetType = AssetType.BOUND
 
     bound_type: BoundType = BoundType.COMPOSITE
-    material: CollisionMaterial = None
+    material: CollisionMaterial | None = None
     centroid: Vector = field(default_factory=Vector)
     radius_around_centroid: float = 0.0
     cg: Vector = field(default_factory=Vector)

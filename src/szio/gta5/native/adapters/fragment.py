@@ -1,8 +1,13 @@
 import pymateria as pma
 import pymateria.gta5 as pm
 import pymateria.gta5.gen8 as pmg8
+import pymateria.gta5.gen9 as pmg9
 
 from ....types import Vector
+from ...cloths import (
+    ClothController,
+    VerletCloth,
+)
 from ...drawables import (
     VertexDataType,
 )
@@ -13,7 +18,6 @@ from ...fragments import (
     FragGlassWindow,
     FragmentTemplateAsset,
     FragVehicleWindow,
-    MatrixSet,
     PhysArchetype,
     PhysChild,
     PhysGroup,
@@ -25,18 +29,34 @@ from ...shattermaps import (
     decompress_shattermap,
 )
 from ._utils import (
+    _h2s,
+    _s2h,
     from_native_mat34,
+    to_native_mat34,
     to_native_sphere,
     to_native_uv,
     to_native_vec3,
 )
+from .bound import (
+    load_bound_from_native,
+    save_bound_to_native,
+)
+from .cloth import (
+    from_native_bridge,
+    from_native_verlet_cloth_edge,
+    to_native_bridge,
+    to_native_morph_controller,
+    to_native_verlet_cloth_edge,
+)
 from .drawable import (
     _map_light_from_native,
     _map_light_to_native,
+    load_frag_drawable_from_native_g8,
+    save_frag_drawable_to_native_g8,
 )
 
 
-def _get_vehicle_windows(vw: pmg8.VehicleWindow) -> list[FragVehicleWindow]:
+def _get_vehicle_windows(vw: pmg8.VehicleWindow | pmg9.VehicleWindow) -> list[FragVehicleWindow]:
     def _map_window(w: pm.Window) -> FragVehicleWindow:
         return FragVehicleWindow(
             basis=from_native_mat34(w.basis).transposed(),
@@ -54,34 +74,15 @@ def _get_vehicle_windows(vw: pmg8.VehicleWindow) -> list[FragVehicleWindow]:
     return [_map_window(p.window) for p in vw.window_proxies] if vw else []
 
 
-# --- Standalone load/save functions ---
-
-
-def _to_mat34(m) -> pma.Matrix34:
-    """Convert a 4x4 matrix (numpy array or similar) to native Matrix34 without using .col/.row."""
-    return pma.Matrix34(
-        pma.Vector4f(float(m[0][0]), float(m[0][1]), float(m[0][2]), float(m[0][3])),
-        pma.Vector4f(float(m[1][0]), float(m[1][1]), float(m[1][2]), float(m[1][3])),
-        pma.Vector4f(float(m[2][0]), float(m[2][1]), float(m[2][2]), float(m[2][3])),
-        pma.Vector4f(float(m[3][0]), float(m[3][1]), float(m[3][2]), float(m[3][3])),
-    )
-
-
-def load_fragment(f: pmg8.Fragment) -> AssetFragment:
-    """Convert a native gen8 Fragment to an AssetFragment dataclass."""
-    from .bound import load_bound
-    from .cloth import (
-        from_native_bridge,
-        from_native_verlet_cloth_edge,
-    )
-    from .drawable import _map_light_from_native, load_frag_drawable
+def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_drawable) -> AssetFragment:
+    """Convert a native Fragment to an AssetFragment dataclass."""
 
     def _load_archetype(a: pm.FragmentPhArchetypeDamp | None) -> PhysArchetype | None:
         if not a:
             return None
         return PhysArchetype(
             name=a.filename,
-            bounds=load_bound(a.bounds),
+            bounds=load_bound_from_native(a.bounds),
             gravity_factor=a.gravity_factor,
             max_speed=a.max_speed,
             max_ang_speed=a.max_ang_speed,
@@ -92,7 +93,11 @@ def load_fragment(f: pmg8.Fragment) -> AssetFragment:
             inertia_inv=Vector(a.inv_ang_inertia),
         )
 
-    def _load_child(c: pmg8.FragmentTypeChild, idx: int, lod: pmg8.FragmentPhysicsLod) -> PhysChild:
+    def _load_child(
+        c: pmg8.FragmentTypeChild | pmg9.FragmentTypeChild,
+        idx: int,
+        lod: pmg8.FragmentPhysicsLod | pmg9.FragmentPhysicsLod,
+    ) -> PhysChild:
         return PhysChild(
             bone_tag=c.bone_id,
             group_index=c.owner_group_pointer_index,
@@ -138,7 +143,7 @@ def load_fragment(f: pmg8.Fragment) -> AssetFragment:
             glass_window_index=g.glass_pane_model_info_index,
         )
 
-    def _load_lod(lod: pmg8.FragmentPhysicsLod) -> PhysLod:
+    def _load_lod(lod: pmg8.FragmentPhysicsLod | pmg9.FragmentPhysicsLod) -> PhysLod:
         d = lod.damping_constant
         return PhysLod(
             archetype=_load_archetype(lod.phys_damp_undamaged),
@@ -160,7 +165,7 @@ def load_fragment(f: pmg8.Fragment) -> AssetFragment:
             link_attachments=[from_native_mat34(a) for a in lod.link_attachments],
         )
 
-    def _load_glass_window(g: pmg8.BGPaneModelInfoBase) -> FragGlassWindow:
+    def _load_glass_window(g: pmg8.BGPaneModelInfoBase | pmg9.BGPaneModelInfoBase) -> FragGlassWindow:
         return FragGlassWindow(
             glass_type=g.glass_type,
             shader_index=g.shader_index,
@@ -190,10 +195,8 @@ def load_fragment(f: pmg8.Fragment) -> AssetFragment:
             non_pin_vert1=t.non_pin_vert1,
         )
 
-    def _load_verlet_cloth(c: pm.VerletCloth) -> "VerletCloth":
-        from ...cloths import VerletCloth as VerletClothCls
-
-        return VerletClothCls(
+    def _load_verlet_cloth(c: pm.VerletCloth) -> VerletCloth:
+        return VerletCloth(
             bb_min=Vector(c.bb_min),
             bb_max=Vector(c.bb_max),
             vertex_positions=[Vector(p) for p in c.vert_positions],
@@ -205,13 +208,10 @@ def load_fragment(f: pmg8.Fragment) -> AssetFragment:
             edges=[from_native_verlet_cloth_edge(e) for e in c.edge_data],
             custom_edges=[from_native_verlet_cloth_edge(e) for e in c.custom_edge_data],
             flags=c.flags,
-            bounds=load_bound(c.custom_bound) if c.custom_bound else None,
+            bounds=load_bound_from_native(c.custom_bound) if c.custom_bound else None,
         )
 
-    def _load_controller(c: pm.ClothController) -> "ClothController":
-        from ...cloths import ClothController
-        from ._utils import _h2s
-
+    def _load_controller(c: pm.ClothController) -> ClothController:
         return ClothController(
             # TODO: investigate why c.name has null padding — bad asset or pymateria bug?
             name=_h2s(c.name).rstrip("\x00"),
@@ -221,7 +221,7 @@ def load_fragment(f: pmg8.Fragment) -> AssetFragment:
             morph_high_poly_count=c.morph_controller.map_data[0].count if c.morph_controller else None,
         )
 
-    def _load_cloth(c: pmg8.FragmentEnvCloth) -> EnvCloth:
+    def _load_cloth(c: pmg8.FragmentEnvCloth | pmg9.FragmentEnvCloth) -> EnvCloth:
         return EnvCloth(
             drawable=load_frag_drawable(c.referenced_drawable),
             controller=_load_controller(c.controller),
@@ -276,16 +276,10 @@ def load_fragment(f: pmg8.Fragment) -> AssetFragment:
     )
 
 
-def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
-    """Convert an AssetFragment dataclass to a native gen8 Fragment."""
-    from .bound import save_bound_to_native
-    from .cloth import (
-        to_native_bridge,
-        to_native_morph_controller,
-    )
-    from .drawable import _map_light_to_native, save_frag_drawable_to_native
+def _save_fragment_to_native(asset: AssetFragment, *, gen, save_frag_drawable, create_glass_fvf) -> pmg8.Fragment | pmg9.Fragment:
+    """Convert an AssetFragment dataclass to a native Fragment."""
 
-    f = pmg8.Fragment()
+    f = gen.Fragment()
     f.tune_name = asset.name
     f.flags = asset.flags
     f.unbroken_elasticity = asset.unbroken_elasticity
@@ -296,7 +290,7 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
 
     # Save main drawable
     if asset.drawable is not None:
-        f.drawable = save_frag_drawable_to_native(asset.drawable)
+        f.drawable = save_frag_drawable(asset.drawable)
         d = f.drawable
         aabb = d.calculate_aabbs()
         bbmin = Vector(aabb.min)
@@ -311,7 +305,7 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
     if asset.extra_drawables:
         parent_sg = f.drawable.shader_group if f.drawable else None
 
-        f.extra_drawables = [save_frag_drawable_to_native(d, parent_shader_group=parent_sg) for d in asset.extra_drawables]
+        f.extra_drawables = [save_frag_drawable(d, parent_shader_group=parent_sg) for d in asset.extra_drawables]
         f.extra_drawable_names = [d.name for d in asset.extra_drawables]
         f.damaged_object_index = 0
 
@@ -343,15 +337,21 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
 
         parent_sg = f.drawable.shader_group if f.drawable else None
 
-        def _save_child(child: PhysChild) -> pmg8.FragmentTypeChild:
-            c = pmg8.FragmentTypeChild()
+        def _save_child(child: PhysChild) -> pmg8.FragmentTypeChild | pmg9.FragmentTypeChild:
+            c = gen.FragmentTypeChild()
             c.bone_id = child.bone_tag
             c.owner_group_pointer_index = child.group_index
             c.undamaged_mass = child.pristine_mass
             c.damaged_mass = child.damaged_mass
             c.flags = 0
-            c.undamaged_entity = save_frag_drawable_to_native(child.drawable, parent_shader_group=parent_sg) if child.drawable else None
-            c.damaged_entity = save_frag_drawable_to_native(child.damaged_drawable, parent_shader_group=parent_sg) if child.damaged_drawable else None
+            c.undamaged_entity = (
+                save_frag_drawable(child.drawable, parent_shader_group=parent_sg) if child.drawable else None
+            )
+            c.damaged_entity = (
+                save_frag_drawable(child.damaged_drawable, parent_shader_group=parent_sg)
+                if child.damaged_drawable
+                else None
+            )
             return c
 
         def _save_group(group: PhysGroup) -> pm.FragmentTypeGroup:
@@ -389,7 +389,10 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
             g.glass_model_and_type = 0xFF
             return g
 
-        def _link_group_indices(groups: list[pm.FragmentTypeGroup], children: list[pmg8.FragmentTypeChild]) -> int:
+        def _link_group_indices(
+            groups: list[pm.FragmentTypeGroup],
+            children: list[pmg8.FragmentTypeChild | pmg9.FragmentTypeChild],
+        ) -> int:
             if not groups or not children:
                 return 0
 
@@ -424,7 +427,7 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
             return num_root_groups
 
         def _link_child_collisions(
-            children: list[pmg8.FragmentTypeChild],
+            children: list[pmg8.FragmentTypeChild | pmg9.FragmentTypeChild],
             collisions: pm.BoundComposite | None,
             damaged_collisions: pm.BoundComposite | None,
         ):
@@ -442,7 +445,7 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
                     d.skeleton = skel
 
         lod_data = asset.physics.lod1
-        l = pmg8.FragmentPhysicsLod()
+        l = gen.FragmentPhysicsLod()
         l.smallest_ang_inertia = lod_data.smallest_ang_inertia
         l.largest_ang_inertia = lod_data.largest_ang_inertia
         l.min_move_force = lod_data.min_move_force
@@ -472,24 +475,20 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
         _link_child_collisions(
             children, l.phys_damp_undamaged.bounds, l.phys_damp_damaged.bounds if l.phys_damp_damaged else None
         )
-        l.link_attachments = [_to_mat34(a) for a in lod_data.link_attachments]
+        l.link_attachments = [to_native_mat34(a) for a in lod_data.link_attachments]
         l.root_group_count = num_root_groups
         l.num_root_damage_regions = 1
         l.num_bony_children = len(lod_data.children)
         l.body_type = None
 
-        g = pmg8.FragmentPhysicsLodGroup()
+        g = gen.FragmentPhysicsLodGroup()
         g.high_lod = l
         f.physics_lod_group = g
 
     # Save glass windows
-    def _save_glass_window(gw: FragGlassWindow) -> pmg8.BGPaneModelInfoBase:
-        C = pmg8.FvfChannel
-        fvf = pmg8.Fvf(
-            {C.POSITION, C.NORMAL, C.DIFFUSE, C.TEXTURE0, C.TEXTURE1},
-            size_signature=VertexDataType.BREAKABLE_GLASS.value,
-        )
-        p = pmg8.BGPaneModelInfoBase()
+    def _save_glass_window(gw: FragGlassWindow) -> pmg8.BGPaneModelInfoBase | pmg9.BGPaneModelInfoBase:
+        fvf = create_glass_fvf()
+        p = gen.BGPaneModelInfoBase()
         p.fvf = fvf
         p.glass_type = gw.glass_type
         p.shader_index = gw.shader_index
@@ -518,7 +517,7 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
             w.scale = window.scale
             w.geom_index = window.geometry_index
             basis_t = window.basis.transposed()
-            w.basis = _to_mat34(basis_t)
+            w.basis = to_native_mat34(basis_t)
             w.data_rows = window.height
             w.data_cols = window.width
             w.data_rle = compress_shattermap(window.shattermap)
@@ -528,7 +527,7 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
             p.window = w
             return p
 
-        vw = pmg8.VehicleWindow()
+        vw = gen.VehicleWindow()
         vw.window_proxies = [_save_vehicle_window(w) for w in asset.vehicle_windows]
         f.vehicle_window = vw
     else:
@@ -561,8 +560,6 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
         c.cloth_weight = cloth.cloth_weight
         c.switch_distance_up = cloth.switch_distance_up
         c.switch_distance_down = cloth.switch_distance_down
-        from .cloth import to_native_verlet_cloth_edge
-
         c.edge_data = [to_native_verlet_cloth_edge(e) for e in cloth.edges]
         c.custom_edge_data = [to_native_verlet_cloth_edge(e) for e in cloth.custom_edges]
         c.flags = cloth.flags
@@ -570,8 +567,6 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
         return c
 
     def _save_controller(controller) -> pm.ClothController:
-        from ._utils import _s2h
-
         c = pm.ClothController()
         c.name = _s2h(controller.name)
         c.bridge_sim_gfx = to_native_bridge(controller.bridge)
@@ -580,9 +575,9 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
         c.flags = controller.flags
         return c
 
-    def _save_cloth(cloth: EnvCloth) -> pmg8.FragmentEnvCloth:
-        c = pmg8.FragmentEnvCloth()
-        c.referenced_drawable = save_frag_drawable_to_native(cloth.drawable) if cloth.drawable else None
+    def _save_cloth(cloth: EnvCloth) -> pmg8.FragmentEnvCloth | pmg9.FragmentEnvCloth:
+        c = gen.FragmentEnvCloth()
+        c.referenced_drawable = save_frag_drawable(cloth.drawable) if cloth.drawable else None
         c.controller = _save_controller(cloth.controller)
         c.tuning = _save_tuning(cloth.tuning)
         c.user_data = cloth.user_data
@@ -611,9 +606,32 @@ def save_fragment_to_native(asset: AssetFragment) -> pmg8.Fragment:
     return f
 
 
+def _create_glass_fvf_g8():
+    C = pmg8.FvfChannel
+    return pmg8.Fvf(
+        {C.POSITION, C.NORMAL, C.DIFFUSE, C.TEXTURE0, C.TEXTURE1},
+        size_signature=VertexDataType.BREAKABLE_GLASS.value,
+    )
+
+
+def load_fragment_from_native_g8(f: pmg8.Fragment) -> AssetFragment:
+    """Convert a native gen8 Fragment to an AssetFragment dataclass."""
+    return _load_fragment_from_native(f, load_frag_drawable=load_frag_drawable_from_native_g8)
+
+
+def save_fragment_to_native_g8(asset: AssetFragment) -> pmg8.Fragment:
+    """Convert an AssetFragment dataclass to a native gen8 Fragment."""
+    return _save_fragment_to_native(
+        asset,
+        gen=pmg8,
+        save_frag_drawable=save_frag_drawable_to_native_g8,
+        create_glass_fvf=_create_glass_fvf_g8,
+    )
+
+
 def generate_vehicle_windows(asset: AssetFragment) -> list[FragVehicleWindow]:
     """Auto-generate vehicle windows from a fragment. Requires pymateria."""
-    native_frag = save_fragment_to_native(asset)
+    native_frag = save_fragment_to_native_g8(asset)
     vw = pmg8.VehicleWindow()
     vw.generate_vehicle_windows(
         native_frag.drawable,

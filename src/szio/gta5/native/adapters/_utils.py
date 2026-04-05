@@ -62,21 +62,21 @@ def from_native_quat(v: pm.Quaternion) -> Quaternion:
 
 
 def to_native_mat34(m: Matrix) -> pm.Matrix34:
-    shape = (len(m.col), len(m.row))
+    shape = (len(m[0]), len(m))
     match shape:
         case (4, 4):
             return pm.Matrix34(
-                to_native_vec4(m.row[0]),
-                to_native_vec4(m.row[1]),
-                to_native_vec4(m.row[2]),
-                to_native_vec4(m.row[3]),
+                to_native_vec4(m[0]),
+                to_native_vec4(m[1]),
+                to_native_vec4(m[2]),
+                to_native_vec4(m[3]),
             )
         case (3, 4):
             return pm.Matrix34(
-                to_native_vec3(m.row[0]).to_vector4(math.nan),
-                to_native_vec3(m.row[1]).to_vector4(math.nan),
-                to_native_vec3(m.row[2]).to_vector4(math.nan),
-                to_native_vec3(m.row[3]).to_vector4(math.nan),
+                to_native_vec3(m[0]).to_vector4(math.nan),
+                to_native_vec3(m[1]).to_vector4(math.nan),
+                to_native_vec3(m[2]).to_vector4(math.nan),
+                to_native_vec3(m[3]).to_vector4(math.nan),
             )
         case _:
             raise ValueError(f"Unsupported matrix shape {shape}")

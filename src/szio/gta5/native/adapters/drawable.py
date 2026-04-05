@@ -44,7 +44,7 @@ from ._utils import (
     to_native_vec4,
 )
 from .bound import (
-    load_bound,
+    load_bound_from_native,
     save_bound_to_native,
 )
 
@@ -405,10 +405,10 @@ def _load_lights_native(d: pmg8.Drawable) -> list[Light]:
 
 
 def _load_bounds_native(d: pmg8.Drawable):
-    return load_bound(d.bound) if d.bound else None
+    return load_bound_from_native(d.bound) if d.bound else None
 
 
-def load_drawable(d: pmg8.Drawable) -> AssetDrawable:
+def load_drawable_from_native_g8(d: pmg8.Drawable) -> AssetDrawable:
     """Convert a native gen8 Drawable to an AssetDrawable dataclass."""
     return AssetDrawable(
         name=d.name,
@@ -421,7 +421,7 @@ def load_drawable(d: pmg8.Drawable) -> AssetDrawable:
     )
 
 
-def load_frag_drawable(
+def load_frag_drawable_from_native_g8(
     d: pmg8.FragmentDrawable,
     parent_shader_group: pmg8.ShaderGroup | None = None,
 ) -> AssetFragDrawable:
@@ -439,10 +439,13 @@ def load_frag_drawable(
     )
 
 
-def load_drawable_dictionary(d: pmg8.DrawableDictionary) -> AssetDrawableDictionary:
+def load_drawable_dictionary_from_native_g8(d: pmg8.DrawableDictionary) -> AssetDrawableDictionary:
     """Convert a native gen8 DrawableDictionary to an AssetDrawableDictionary dataclass."""
     return AssetDrawableDictionary(
-        drawables={jenkhash.hash_to_name(key.hash): load_drawable(drawable) for key, drawable in d.drawables.items()}
+        drawables={
+            jenkhash.hash_to_name(key.hash): load_drawable_from_native_g8(drawable)
+            for key, drawable in d.drawables.items()
+        }
     )
 
 
@@ -582,7 +585,9 @@ def _save_models_g8(
     sg = d.shader_group or parent_shader_group
     has_models = any(models for models in asset_models.values())
     if has_models:
-        assert sg and sg.shaders, "Need to assign the shader group or have a parent drawable with shaders before the models"
+        assert sg and sg.shaders, (
+            "Need to assign the shader group or have a parent drawable with shaders before the models"
+        )
 
     def _map_geometry(geom: Geometry) -> pmg8.Geometry:
         g = pmg8.Geometry()
@@ -648,7 +653,7 @@ def _save_bounds_native(bounds, d: pmg8.Drawable):
     d.bound = save_bound_to_native(bounds) if bounds else None
 
 
-def save_drawable_to_native(asset: AssetDrawable) -> pmg8.Drawable:
+def save_drawable_to_native_g8(asset: AssetDrawable) -> pmg8.Drawable:
     """Convert an AssetDrawable dataclass to a native gen8 Drawable."""
     d = pmg8.Drawable()
     d.name = asset.name
@@ -660,8 +665,9 @@ def save_drawable_to_native(asset: AssetDrawable) -> pmg8.Drawable:
     return d
 
 
-def save_frag_drawable_to_native(
-    asset: AssetFragDrawable, parent_shader_group: pmg8.ShaderGroup | None = None,
+def save_frag_drawable_to_native_g8(
+    asset: AssetFragDrawable,
+    parent_shader_group: pmg8.ShaderGroup | None = None,
 ) -> pmg8.FragmentDrawable:
     """Convert an AssetFragDrawable dataclass to a native gen8 FragmentDrawable."""
     d = pmg8.FragmentDrawable()
@@ -692,9 +698,9 @@ def save_frag_drawable_to_native(
     return d
 
 
-def save_drawable_dictionary_to_native(asset: AssetDrawableDictionary) -> pmg8.DrawableDictionary:
+def save_drawable_dictionary_to_native_g8(asset: AssetDrawableDictionary) -> pmg8.DrawableDictionary:
     """Convert an AssetDrawableDictionary dataclass to a native gen8 DrawableDictionary."""
     dwd = pmg8.DrawableDictionary()
     for name, drawable in asset.drawables.items():
-        dwd.drawables[pm.HashString(jenkhash.name_to_hash(name))] = save_drawable_to_native(drawable)
+        dwd.drawables[pm.HashString(jenkhash.name_to_hash(name))] = save_drawable_to_native_g8(drawable)
     return dwd

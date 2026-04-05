@@ -4,7 +4,9 @@ from ....types import Matrix, Vector
 from ...assets import (
     AssetVersion,
 )
+from ...cloths import ClothBridgeSimGfx, ClothController, VerletCloth, VerletClothEdge
 from ...fragments import (
+    AssetFragment,
     EnvCloth,
     EnvClothTuning,
     FragGlassWindow,
@@ -22,24 +24,23 @@ from ...shattermaps import (
 )
 from .. import cloth as cwcloth
 from .. import fragment as cw
+from .bound import load_bound_from_cw, save_bound_to_cw
+from .cloth import to_cw_bridge, to_cw_morph_controller, to_cw_verlet_cloth_edge
 from .drawable import (
     _map_light_from_cw,
     _map_light_to_cw,
+    load_frag_drawable_from_cw,
+    save_frag_drawable_to_cw,
 )
 
 
-def load_fragment(f: cw.Fragment) -> "AssetFragment":
-    from ...fragments import AssetFragment
-    from .bound import load_bound
-    from .cloth import _load_char_controller_cw
-    from .drawable import load_frag_drawable
-
+def load_fragment_from_cw(f: cw.Fragment) -> AssetFragment:
     def _load_archetype(a: cw.Archetype | None) -> PhysArchetype | None:
         if not a or not a.name:
             return None
         return PhysArchetype(
             name=a.name,
-            bounds=load_bound(a.bounds),
+            bounds=load_bound_from_cw(a.bounds),
             gravity_factor=a.unknown_48,
             max_speed=a.unknown_4c,
             max_ang_speed=a.unknown_50,
@@ -56,8 +57,8 @@ def load_fragment(f: cw.Fragment) -> "AssetFragment":
             group_index=g.group_index,
             pristine_mass=g.pristine_mass,
             damaged_mass=g.damaged_mass,
-            drawable=load_frag_drawable(g.drawable) if g.drawable else None,
-            damaged_drawable=load_frag_drawable(g.damaged_drawable) if g.damaged_drawable else None,
+            drawable=load_frag_drawable_from_cw(g.drawable) if g.drawable else None,
+            damaged_drawable=load_frag_drawable_from_cw(g.damaged_drawable) if g.damaged_drawable else None,
             min_breaking_impulse=g.unk_float,
             inertia=Vector(g.inertia_tensor),
             damaged_inertia=Vector(g.damaged_inertia_tensor),
@@ -162,7 +163,6 @@ def load_fragment(f: cw.Fragment) -> "AssetFragment":
         )
 
     def _load_verlet_cloth(vc: cwcloth.VerletCloth) -> "VerletCloth":
-        from ...cloths import VerletCloth, VerletClothEdge
 
         return VerletCloth(
             bb_min=vc.bb_min,
@@ -181,11 +181,10 @@ def load_fragment(f: cw.Fragment) -> "AssetFragment":
                 for e in vc.custom_edges
             ],
             flags=vc.flags,
-            bounds=load_bound(vc.bounds) if vc.bounds is not None else None,
+            bounds=load_bound_from_cw(vc.bounds) if vc.bounds is not None else None,
         )
 
     def _load_controller(c: cwcloth.ClothController) -> "ClothController":
-        from ...cloths import ClothBridgeSimGfx, ClothController
 
         return ClothController(
             name=c.name,
@@ -203,7 +202,7 @@ def load_fragment(f: cw.Fragment) -> "AssetFragment":
 
     def _load_cloth(c: cwcloth.EnvironmentCloth) -> EnvCloth:
         return EnvCloth(
-            drawable=load_frag_drawable(c.drawable) if c.drawable else None,
+            drawable=load_frag_drawable_from_cw(c.drawable) if c.drawable else None,
             controller=_load_controller(c.controller),
             tuning=_load_tuning(c.tuning),
             user_data=list(np.fromstring(c.user_data or "", dtype=int, sep=" ")),
@@ -217,8 +216,8 @@ def load_fragment(f: cw.Fragment) -> "AssetFragment":
     return AssetFragment(
         name=f.name,
         flags=f.flags,
-        drawable=load_frag_drawable(f.drawable) if f.drawable else None,
-        extra_drawables=[load_frag_drawable(d) for d in f.extra_drawables],
+        drawable=load_frag_drawable_from_cw(f.drawable) if f.drawable else None,
+        extra_drawables=[load_frag_drawable_from_cw(d) for d in f.extra_drawables],
         physics=physics,
         template_asset=FragmentTemplateAsset((f.unknown_c0 >> 8) & 0xFF),
         unbroken_elasticity=f.unknown_cc,
@@ -232,10 +231,6 @@ def load_fragment(f: cw.Fragment) -> "AssetFragment":
 
 
 def save_fragment_to_cw(asset: "AssetFragment", version: AssetVersion = AssetVersion.GEN8) -> cw.Fragment:
-    from .bound import save_bound_to_cw
-    from .cloth import to_cw_bridge, to_cw_morph_controller, to_cw_verlet_cloth_edge
-    from .drawable import save_frag_drawable_to_cw
-
     f = cw.Fragment()
     f.name = asset.name
     f.flags = asset.flags
@@ -414,7 +409,6 @@ def save_fragment_to_cw(asset: "AssetFragment", version: AssetVersion = AssetVer
         return t
 
     def _save_verlet_cloth(cloth) -> cwcloth.VerletCloth:
-        from ...cloths import VerletCloth
 
         vc = cwcloth.VerletCloth("VerletCloth1")
         vc.bb_min = cloth.bb_min

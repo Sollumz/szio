@@ -7,7 +7,7 @@ from ..types import Matrix, Vector
 from .assets import AssetGame, AssetType
 from .bounds import AssetBound
 from .cloths import ClothController
-from .drawables import AssetDrawable, Light
+from .drawables import AssetFragDrawable, Light
 
 
 class FragmentTemplateAsset(Enum):
@@ -39,8 +39,8 @@ class PhysChild:
     group_index: int
     pristine_mass: float
     damaged_mass: float
-    drawable: AssetDrawable | None
-    damaged_drawable: AssetDrawable | None
+    drawable: AssetFragDrawable | None
+    damaged_drawable: AssetFragDrawable | None
     min_breaking_impulse: float  # TODO(io): import/export phys child min breaking impulse
     inertia: Vector
     damaged_inertia: Vector
@@ -149,7 +149,7 @@ class EnvClothTuning:
 
 @dataclass(slots=True)
 class EnvCloth:
-    drawable: AssetDrawable | None
+    drawable: AssetFragDrawable | None
     controller: ClothController
     tuning: EnvClothTuning | None
     user_data: list[int]
@@ -169,8 +169,8 @@ class AssetFragment:
 
     name: str = ""
     flags: int = 0
-    drawable: AssetDrawable | None = None
-    extra_drawables: list[AssetDrawable] = field(default_factory=list)
+    drawable: AssetFragDrawable | None = None
+    extra_drawables: list[AssetFragDrawable] = field(default_factory=list)
     matrix_set: MatrixSet | None = None
     physics: PhysLodGroup | None = None
     template_asset: FragmentTemplateAsset = FragmentTemplateAsset.NONE
@@ -183,7 +183,7 @@ class AssetFragment:
     lights: list[Light] = field(default_factory=list)
 
     @property
-    def base_drawable(self) -> AssetDrawable:
+    def base_drawable(self) -> AssetFragDrawable:
         """Get the drawable containing the shader group and skeleton of this fragment. This is only different from the
         main ``AssetFragment.drawable`` on fragments that only have a environment cloth drawable, and no main drawable.
         """

@@ -31,7 +31,10 @@ from ...drawables import (
     VertexDataType,
 )
 from .. import drawable as cw
-from .bound import load_bound, save_bound_to_cw
+from .bound import (
+    load_bound_from_cw,
+    save_bound_to_cw,
+)
 
 CW_BONE_FLAGS_MAP = {
     "None": SkelBoneFlags(0),
@@ -223,11 +226,6 @@ CW_VERTEX_DATA_TYPE_MAP = {
 CW_VERTEX_DATA_TYPE_INVERSE_MAP = {v: k for k, v in CW_VERTEX_DATA_TYPE_MAP.items()}
 
 
-# ---------------------------------------------------------------------------
-# Standalone load/save functions (format-agnostic dataclass ↔ CW XML)
-# ---------------------------------------------------------------------------
-
-
 def _load_skeleton(d: cw.Drawable) -> Skeleton | None:
     if not d.skeleton or not d.skeleton.bones:
         return None
@@ -341,10 +339,10 @@ def _load_lights(d: cw.Drawable) -> list[Light]:
 
 
 def _load_bounds(d: cw.Drawable):
-    return load_bound(d.bounds) if d.bounds else None
+    return load_bound_from_cw(d.bounds) if d.bounds else None
 
 
-def load_drawable(d: cw.Drawable) -> AssetDrawable:
+def load_drawable_from_cw(d: cw.Drawable) -> AssetDrawable:
     """Load a CW XML Drawable into an AssetDrawable dataclass."""
     return AssetDrawable(
         name=jenkhash.try_resolve_maybe_hashed_name(d.name),
@@ -357,7 +355,7 @@ def load_drawable(d: cw.Drawable) -> AssetDrawable:
     )
 
 
-def load_frag_drawable(d: cw.Drawable) -> AssetFragDrawable:
+def load_frag_drawable_from_cw(d: cw.Drawable) -> AssetFragDrawable:
     """Load a CW XML Drawable (from a fragment) into an AssetFragDrawable dataclass."""
     return AssetFragDrawable(
         name=jenkhash.try_resolve_maybe_hashed_name(d.name),
@@ -372,10 +370,10 @@ def load_frag_drawable(d: cw.Drawable) -> AssetFragDrawable:
     )
 
 
-def load_drawable_dictionary(d: cw.DrawableDictionary) -> AssetDrawableDictionary:
+def load_drawable_dictionary_from_cw(d: cw.DrawableDictionary) -> AssetDrawableDictionary:
     """Load a CW XML DrawableDictionary into an AssetDrawableDictionary dataclass."""
     return AssetDrawableDictionary(
-        drawables={jenkhash.try_resolve_maybe_hashed_name(drawable.name): load_drawable(drawable) for drawable in d}
+        drawables={jenkhash.try_resolve_maybe_hashed_name(drawable.name): load_drawable_from_cw(drawable) for drawable in d}
     )
 
 
@@ -623,27 +621,3 @@ def save_drawable_dictionary_to_cw(
         dwd.append(d)
     dwd.sort(key=lambda d: jenkhash.name_to_hash(d.name))
     return dwd
-
-
-def load_drawable_from_file(path: Path) -> AssetDrawable:
-    """Load an AssetDrawable from a CW XML file."""
-    return load_drawable(cw.Drawable.from_xml_file(path))
-
-
-def save_drawable_to_file(asset: AssetDrawable, path: Path, asset_version: AssetVersion = AssetVersion.GEN8):
-    """Save an AssetDrawable to a CW XML file."""
-    d = save_drawable_to_cw(asset, asset_version)
-    d.write_xml(path)
-
-
-def load_drawable_dictionary_from_file(path: Path) -> AssetDrawableDictionary:
-    """Load an AssetDrawableDictionary from a CW XML file."""
-    return load_drawable_dictionary(cw.DrawableDictionary.from_xml_file(path))
-
-
-def save_drawable_dictionary_to_file(
-    asset: AssetDrawableDictionary, path: Path, asset_version: AssetVersion = AssetVersion.GEN8
-):
-    """Save an AssetDrawableDictionary to a CW XML file."""
-    dwd = save_drawable_dictionary_to_cw(asset, asset_version)
-    dwd.write_xml(path)

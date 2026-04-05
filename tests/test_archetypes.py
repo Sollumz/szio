@@ -5,10 +5,10 @@ from szio.gta5 import (
     ArchetypeAssetType,
     ArchetypeType,
     AssetFormat,
+    AssetMapTypes,
     AssetTarget,
     AssetVersion,
     ExtensionAudioEmitter,
-    create_asset_map_types,
     save_asset,
     try_load_asset,
 )
@@ -16,7 +16,7 @@ from szio.types import Quaternion, Vector
 
 
 def test_archetypes_extension_audio_emitter_effect_hash_is_saved_correctly(tmp_path):
-    typ = create_asset_map_types((AssetTarget(AssetFormat.CWXML, AssetVersion.GEN8),))
+    typ = AssetMapTypes()
 
     expected_effect_hash_str = "test_effect"
     expected_effect_hash = 0x2CA1BFAB
@@ -47,7 +47,7 @@ def test_archetypes_extension_audio_emitter_effect_hash_is_saved_correctly(tmp_p
         extensions=[audio_emitter],
     )
     typ.archetypes = [arch]
-    save_asset(typ, tmp_path, "test", targets=(AssetTarget(AssetFormat.CWXML, AssetVersion.GEN8),))
+    save_asset(typ, (AssetTarget(AssetFormat.CWXML, AssetVersion.GEN8),), tmp_path, "test")
 
     root = ET.parse(tmp_path / "test.ytyp.xml")
     elem = root.find("./archetypes/Item/extensions/Item/effectHash")

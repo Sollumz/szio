@@ -1,7 +1,6 @@
 import sys
 from dataclasses import dataclass, field
 from enum import Enum, IntEnum, IntFlag
-from pathlib import Path
 from typing import NamedTuple
 
 import numpy as np
@@ -14,18 +13,18 @@ from .bounds import AssetBound
 
 
 class SkelBoneFlags(IntFlag):
-    ROTATE_X = (1 << 0,)
-    ROTATE_Y = (1 << 1,)
-    ROTATE_Z = (1 << 2,)
-    HAS_ROTATE_LIMITS = (1 << 3,)
-    TRANSLATE_X = (1 << 4,)
-    TRANSLATE_Y = (1 << 5,)
-    TRANSLATE_Z = (1 << 6,)
-    HAS_TRANSLATE_LIMITS = (1 << 7,)
-    SCALE_X = (1 << 8,)
-    SCALE_Y = (1 << 9,)
-    SCALE_Z = (1 << 10,)
-    HAS_SCALE_LIMITS = (1 << 11,)
+    ROTATE_X = 1 << 0
+    ROTATE_Y = 1 << 1
+    ROTATE_Z = 1 << 2
+    HAS_ROTATE_LIMITS = 1 << 3
+    TRANSLATE_X = 1 << 4
+    TRANSLATE_Y = 1 << 5
+    TRANSLATE_Z = 1 << 6
+    HAS_TRANSLATE_LIMITS = 1 << 7
+    SCALE_X = 1 << 8
+    SCALE_Y = 1 << 9
+    SCALE_Z = 1 << 10
+    HAS_SCALE_LIMITS = 1 << 11
     HAS_CHILD = 1 << 12
 
     if sys.version_info < (3, 11):
@@ -171,7 +170,7 @@ class Model:
     flags: int
 
 
-class LightFlashiness(IntEnum):
+class LightFlashiness(Enum):
     CONSTANT = 0
     RANDOM = 1
     RANDOM_OVERRIDE_IF_WET = 2
@@ -195,13 +194,14 @@ class LightFlashiness(IntEnum):
     STROBE = 20
 
 
-class LightType(IntEnum):
+class LightType(Enum):
     POINT = 1
     SPOT = 2
     CAPSULE = 4
 
 
-class Light(NamedTuple):
+@dataclass(slots=True)
+class Light:
     light_type: LightType
     position: Vector
     direction: Vector
@@ -254,7 +254,7 @@ class AssetDrawable:
 
 @dataclass(slots=True)
 class AssetFragDrawable(AssetDrawable):
-    frag_bound_matrix: Matrix = None
+    frag_bound_matrix: Matrix = field(default_factory=Matrix)
     frag_extra_bound_matrices: list[Matrix] = field(default_factory=list)
 
 

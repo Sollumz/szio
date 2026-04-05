@@ -10,6 +10,7 @@ if IS_BACKEND_AVAILABLE:
     from .hash_resolver import NativeHashResolver
     from .provider_gen8 import NativeProviderG8
     from .provider_gen9 import NativeProviderG9
+    from .adapters import generate_vehicle_windows
 
 else:
 
@@ -32,3 +33,4 @@ else:
     NativeProviderG8 = _UnavailableProxy()
     NativeProviderG9 = _UnavailableProxy()
     NativeHashResolver = _UnavailableProxy()
+    generate_vehicle_windows = _UnavailableProxy()

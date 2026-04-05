@@ -123,7 +123,7 @@ def _bound_type_from_cw(b: cw.Bound) -> BoundType:
 _PRIMITIVE_TYPES = {"Box", "Sphere", "Cylinder", "Capsule", "Disc"}
 
 
-def load_bound(b: cw.Bound | None) -> AssetBound | None:
+def load_bound_from_cw(b: cw.Bound | None) -> AssetBound | None:
     if b is None:
         return None
 
@@ -168,7 +168,7 @@ def load_bound(b: cw.Bound | None) -> AssetBound | None:
             if child_b is None:
                 result.children.append(None)
             else:
-                child = load_bound(child_b)
+                child = load_bound_from_cw(child_b)
                 child.composite_transform = Matrix(child_b.composite_transform)
                 child.composite_collision_type_flags = collision_flags_from_cw(child_b.composite_flags1)
                 child.composite_collision_include_flags = collision_flags_from_cw(child_b.composite_flags2)

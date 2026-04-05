@@ -227,7 +227,7 @@ def _load_models_g9(
     return {LodLevel(lod_level.value): [_map_model(m) for m in lod.models] for lod_level, lod in d.lods.items()}
 
 
-def load_drawable(d: pmg9.Drawable) -> AssetDrawable:
+def load_drawable_from_native_g9(d: pmg9.Drawable) -> AssetDrawable:
     """Convert a native gen9 Drawable to an AssetDrawable dataclass."""
     return AssetDrawable(
         name=d.name,
@@ -240,7 +240,7 @@ def load_drawable(d: pmg9.Drawable) -> AssetDrawable:
     )
 
 
-def load_frag_drawable(
+def load_frag_drawable_from_native_g9(
     d: pmg9.FragmentDrawable,
     parent_shader_group: pmg9.ShaderGroup | None = None,
 ) -> AssetFragDrawable:
@@ -258,10 +258,10 @@ def load_frag_drawable(
     )
 
 
-def load_drawable_dictionary(d: pmg9.DrawableDictionary) -> AssetDrawableDictionary:
+def load_drawable_dictionary_from_native_g9(d: pmg9.DrawableDictionary) -> AssetDrawableDictionary:
     """Convert a native gen9 DrawableDictionary to an AssetDrawableDictionary dataclass."""
     return AssetDrawableDictionary(
-        drawables={jenkhash.hash_to_name(key.hash): load_drawable(drawable) for key, drawable in d.drawables.items()}
+        drawables={jenkhash.hash_to_name(key.hash): load_drawable_from_native_g9(drawable) for key, drawable in d.drawables.items()}
     )
 
 
@@ -361,7 +361,9 @@ def _save_models_g9(
     sg = d.shader_group or parent_shader_group
     has_models = any(models for models in asset_models.values())
     if has_models:
-        assert sg and sg.shaders, "Need to assign the shader group or have a parent drawable with shaders before the models"
+        assert sg and sg.shaders, (
+            "Need to assign the shader group or have a parent drawable with shaders before the models"
+        )
 
     def _map_geometry(geom: Geometry) -> pmg9.Geometry:
         g = pmg9.Geometry()
@@ -412,7 +414,7 @@ def _save_models_g9(
         d.lods[pm.LodType(lod_level.value)] = lod
 
 
-def save_drawable_to_native(asset: AssetDrawable) -> pmg9.Drawable:
+def save_drawable_to_native_g9(asset: AssetDrawable) -> pmg9.Drawable:
     """Convert an AssetDrawable dataclass to a native gen9 Drawable."""
     d = pmg9.Drawable()
     d.name = asset.name
@@ -425,8 +427,9 @@ def save_drawable_to_native(asset: AssetDrawable) -> pmg9.Drawable:
     return d
 
 
-def save_frag_drawable_to_native(
-    asset: AssetFragDrawable, parent_shader_group: pmg9.ShaderGroup | None = None,
+def save_frag_drawable_to_native_g9(
+    asset: AssetFragDrawable,
+    parent_shader_group: pmg9.ShaderGroup | None = None,
 ) -> pmg9.FragmentDrawable:
     """Convert an AssetFragDrawable dataclass to a native gen9 FragmentDrawable."""
     d = pmg9.FragmentDrawable()
@@ -457,9 +460,9 @@ def save_frag_drawable_to_native(
     return d
 
 
-def save_drawable_dictionary_to_native(asset: AssetDrawableDictionary) -> pmg9.DrawableDictionary:
+def save_drawable_dictionary_to_native_g9(asset: AssetDrawableDictionary) -> pmg9.DrawableDictionary:
     """Convert an AssetDrawableDictionary dataclass to a native gen9 DrawableDictionary."""
     dwd = pmg9.DrawableDictionary()
     for name, drawable in asset.drawables.items():
-        dwd.drawables[pm.HashString(jenkhash.name_to_hash(name))] = save_drawable_to_native(drawable)
+        dwd.drawables[pm.HashString(jenkhash.name_to_hash(name))] = save_drawable_to_native_g9(drawable)
     return dwd

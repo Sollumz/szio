@@ -1,4 +1,4 @@
-"""Jenkins One-At-A-Time (JOAAT) hash. Used by both GTA5 and RDR2."""
+"""Jenkins One-At-A-Time (JOAAT) hash."""
 
 import hashlib
 import logging
@@ -66,11 +66,6 @@ class HashResolver:
     def __init__(self):
         self._dict = {}
         self._cache = None
-
-    def _get_cache_path(self) -> Path:
-        from ...sollumz_preferences import get_config_directory_path
-
-        return Path(get_config_directory_path()) / "nametable.cache"
 
     def load_cache(self, path: os.PathLike):
         if self._cache is not None:
