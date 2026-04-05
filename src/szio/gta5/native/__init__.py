@@ -7,10 +7,10 @@ __all__ = ["IS_BACKEND_AVAILABLE", "NativeProviderG8", "NativeProviderG9"]
 IS_BACKEND_AVAILABLE = importlib.util.find_spec("pymateria") is not None
 
 if IS_BACKEND_AVAILABLE:
+    from .adapters import generate_vehicle_windows
     from .hash_resolver import NativeHashResolver
     from .provider_gen8 import NativeProviderG8
     from .provider_gen9 import NativeProviderG9
-    from .adapters import generate_vehicle_windows
 
 else:
 

@@ -104,8 +104,12 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
             group_index=c.owner_group_pointer_index,
             pristine_mass=c.undamaged_mass,
             damaged_mass=c.damaged_mass,
-            drawable=load_frag_drawable(c.undamaged_entity, parent_shader_group=parent_shader_group) if c.undamaged_entity else None,
-            damaged_drawable=load_frag_drawable(c.damaged_entity, parent_shader_group=parent_shader_group) if c.damaged_entity else None,
+            drawable=load_frag_drawable(c.undamaged_entity, parent_shader_group=parent_shader_group)
+            if c.undamaged_entity
+            else None,
+            damaged_drawable=load_frag_drawable(c.damaged_entity, parent_shader_group=parent_shader_group)
+            if c.damaged_entity
+            else None,
             min_breaking_impulse=lod.min_breaking_impulses[idx],
             inertia=Vector(lod.damaged_ang_inertia[idx]),
             damaged_inertia=Vector(lod.undamaged_ang_inertia[idx]),
@@ -280,7 +284,9 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
     )
 
 
-def _save_fragment_to_native(asset: AssetFragment, *, gen, save_frag_drawable, create_glass_fvf) -> pmg8.Fragment | pmg9.Fragment:
+def _save_fragment_to_native(
+    asset: AssetFragment, *, gen, save_frag_drawable, create_glass_fvf
+) -> pmg8.Fragment | pmg9.Fragment:
     """Convert an AssetFragment dataclass to a native Fragment."""
 
     f = gen.Fragment()

@@ -261,7 +261,10 @@ def load_frag_drawable_from_native_g9(
 def load_drawable_dictionary_from_native_g9(d: pmg9.DrawableDictionary) -> AssetDrawableDictionary:
     """Convert a native gen9 DrawableDictionary to an AssetDrawableDictionary dataclass."""
     return AssetDrawableDictionary(
-        drawables={jenkhash.hash_to_name(key.hash): load_drawable_from_native_g9(drawable) for key, drawable in d.drawables.items()}
+        drawables={
+            jenkhash.hash_to_name(key.hash): load_drawable_from_native_g9(drawable)
+            for key, drawable in d.drawables.items()
+        }
     )
 
 

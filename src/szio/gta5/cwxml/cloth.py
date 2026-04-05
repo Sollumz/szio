@@ -334,6 +334,7 @@ class EnvironmentCloth(ElementTree):
         self.tuning = ClothInstanceTuning()
         self.drawable = Drawable()
 
+
 class EnvironmentClothList(ListProperty):
     list_type = EnvironmentCloth
     tag_name = "Cloths"

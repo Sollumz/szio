@@ -31,9 +31,9 @@ from .drawable_gen9 import (
     save_frag_drawable_to_native_g9,
 )
 from .fragment import (
+    generate_vehicle_windows,
     load_fragment_from_native_g8,
     save_fragment_to_native_g8,
-    generate_vehicle_windows,
 )
 from .fragment_gen9 import (
     load_fragment_from_native_g9,

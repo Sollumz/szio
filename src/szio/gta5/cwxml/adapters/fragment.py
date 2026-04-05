@@ -163,7 +163,6 @@ def load_fragment_from_cw(f: cw.Fragment) -> AssetFragment:
         )
 
     def _load_verlet_cloth(vc: cwcloth.VerletCloth) -> "VerletCloth":
-
         return VerletCloth(
             bb_min=vc.bb_min,
             bb_max=vc.bb_max,
@@ -185,7 +184,6 @@ def load_fragment_from_cw(f: cw.Fragment) -> AssetFragment:
         )
 
     def _load_controller(c: cwcloth.ClothController) -> "ClothController":
-
         return ClothController(
             name=c.name,
             flags=c.flags,
@@ -409,7 +407,6 @@ def save_fragment_to_cw(asset: "AssetFragment", version: AssetVersion = AssetVer
         return t
 
     def _save_verlet_cloth(cloth) -> cwcloth.VerletCloth:
-
         vc = cwcloth.VerletCloth("VerletCloth1")
         vc.bb_min = cloth.bb_min
         vc.bb_max = cloth.bb_max

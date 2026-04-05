@@ -373,7 +373,9 @@ def load_frag_drawable_from_cw(d: cw.Drawable) -> AssetFragDrawable:
 def load_drawable_dictionary_from_cw(d: cw.DrawableDictionary) -> AssetDrawableDictionary:
     """Load a CW XML DrawableDictionary into an AssetDrawableDictionary dataclass."""
     return AssetDrawableDictionary(
-        drawables={jenkhash.try_resolve_maybe_hashed_name(drawable.name): load_drawable_from_cw(drawable) for drawable in d}
+        drawables={
+            jenkhash.try_resolve_maybe_hashed_name(drawable.name): load_drawable_from_cw(drawable) for drawable in d
+        }
     )
 
 

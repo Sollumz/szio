@@ -300,4 +300,3 @@ class Fragment(ElementTree, AbstractClass):
 
     def get_lods_by_id(self):
         return {1: self.physics.lod1, 2: self.physics.lod2, 3: self.physics.lod3}
-
