@@ -10,6 +10,7 @@ from ...bounds import (
     BoundVertex,
     CollisionFlags,
     CollisionMaterial,
+    create_bound,
 )
 from ._utils import (
     from_native_mat34,
@@ -22,7 +23,7 @@ from ._utils import (
 
 def load_bound_from_native(b: pm.Bound) -> AssetBound:
     bound_type = BoundType[b.type.name]
-    result = AssetBound.create(bound_type)
+    result = create_bound(bound_type)
 
     result.material = CollisionMaterial.from_packed(b.material_id_packed)
     result.centroid = Vector(b.position)

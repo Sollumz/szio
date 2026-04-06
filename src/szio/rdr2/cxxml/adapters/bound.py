@@ -1,18 +1,48 @@
 from typing import Sequence
 
 from ....types import Matrix, Vector
-from .. import bound as cx
-
-# TODO: TEMPORARY
-from ....gta5.bounds import (
-    BoundType,
+from ...bounds import (
     AssetBound,
-    CollisionMaterial,
-    CollisionFlags,
-    BoundVertex,
     BoundPrimitive,
     BoundPrimitiveType,
+    BoundType,
+    BoundVertex,
+    CollisionFlags,
+    CollisionMaterial,
+    CollisionMaterialFlags,
+    create_bound,
 )
+from .. import bound as cx
+
+
+def _collision_flags_to_cx(flags: CollisionFlags) -> list[str]:
+    converted_flags = []
+    for flag in flags:
+        converted_flags.append(f"CF_{flag.name}")
+    return converted_flags if converted_flags else ["NONE"]
+
+
+def _collision_flags_from_cx(flags: Sequence[str]) -> CollisionFlags:
+    converted_flags = CollisionFlags(0)
+    for flag in flags:
+        if flag.startswith("CF_") and (flag_name := flag[3:]) in CollisionFlags.__members__:
+            converted_flags |= CollisionFlags[flag_name]
+    return converted_flags
+
+
+def _collision_material_flags_to_cx(flags: CollisionMaterialFlags) -> set[str]:
+    converted_flags = []
+    for flag in flags:
+        converted_flags.append(f"FLAG_{flag.name}")
+    return converted_flags if converted_flags else ["NONE"]
+
+
+def _collision_material_flags_from_cx(flags: set[str]) -> CollisionMaterialFlags:
+    converted_flags = CollisionMaterialFlags(0)
+    for flag in flags:
+        if flag.startswith("FLAG_") and (flag_name := flag[5:]) in CollisionMaterialFlags.__members__:
+            converted_flags |= CollisionMaterialFlags[flag_name]
+    return converted_flags
 
 
 def _primitive_type_from_cx(p: cx.Polygon) -> BoundPrimitiveType:
@@ -41,6 +71,8 @@ def _bound_type_from_cx(b: cx.Bound) -> BoundType:
             return BoundType.SPHERE
         case "Capsule":
             return BoundType.CAPSULE
+        case "TaperedCapsule":
+            return BoundType.TAPERED_CAPSULE
         case "Cylinder":
             return BoundType.CYLINDER
         case "Disc":
@@ -53,20 +85,25 @@ def _bound_type_from_cx(b: cx.Bound) -> BoundType:
             raise ValueError(f"Unknown CXXML bound type '{b.type}'")
 
 
-_PRIMITIVE_TYPES = {"Box", "Sphere", "Cylinder", "Capsule", "Disc"}
+_BOUND_PRIMITIVE_TYPES = {"Box", "Sphere", "Cylinder", "Capsule", "Disc", "TaperedCapsule"}
 
 
-def load_bound_from_cx(b: cx.Bound | None) -> None:
+def load_bound_from_cx(b: cx.Bound | None) -> AssetBound | None:
     if b is None:
         return None
 
     bound_type = _bound_type_from_cx(b)
-    is_primitive = b.type in _PRIMITIVE_TYPES
+    is_primitive = b.type in _BOUND_PRIMITIVE_TYPES
 
-    result = AssetBound.create(bound_type)
+    result = create_bound(bound_type)
 
-    # TODO: Material
-    result.material = CollisionMaterial.from_packed(0)
+    result.material = CollisionMaterial(
+        material_name=b.material_name,
+        procedural_id=b.material_procedural_id,
+        room_id=b.material_room_id,
+        ped_density=b.material_ped_density,
+        material_flags=_collision_material_flags_from_cx(b.material_flags),
+    )
 
     result.centroid = Vector(b.box_center)
     result.radius_around_centroid = b.sphere_radius
@@ -92,12 +129,8 @@ def load_bound_from_cx(b: cx.Bound | None) -> None:
             else:
                 child = load_bound_from_cx(child_b)
                 child.composite_transform = Matrix(child_b.composite_transform)
-                child.composite_collision_type_flags = CollisionFlags(
-                    0
-                )  # collision_flags_from_cw(child_b.composite_flags1)
-                child.composite_collision_include_flags = CollisionFlags(
-                    0
-                )  # collision_flags_from_cw(child_b.composite_flags2)
+                # child.composite_collision_type_flags = _collision_flags_from_cx(child_b.composite_type_flags)
+                # child.composite_collision_include_flags = _collision_flags_from_cx(child_b.composite_include_flags)
                 result.children.append(child)
     elif bound_type == BoundType.SPHERE:
         result.sphere_radius = b.sphere_radius
@@ -111,22 +144,22 @@ def load_bound_from_cx(b: cx.Bound | None) -> None:
         radius = extent.x * 0.5
         length = extent.y
         result.cylinder_radius_length = (radius, length)
+    elif bound_type == BoundType.TAPERED_CAPSULE:
+        # TODO: load TaperedCapsule
+        pass
     elif bound_type == BoundType.DISC:
         result.disc_radius = b.sphere_radius
     elif bound_type == BoundType.PLANE:
         result.plane_normal = Vector(b.normal)
     elif bound_type in (BoundType.GEOMETRY, BoundType.BVH):
-        # Inline geometry_primitives getter
         materials = [
-            CollisionMaterial.from_packed(0)
-            # CollisionMaterial(
-            #     material_index=m.type,
-            #     procedural_id=m.procedural_id,
-            #     room_id=m.room_id,
-            #     ped_density=m.ped_density,
-            #     material_flags=collision_material_flags_from_cx(m.flags),
-            #     material_color_index=m.material_color_index,
-            # )
+            CollisionMaterial(
+                material_name=m.name,
+                procedural_id=m.procedural_id,
+                room_id=m.room_id,
+                ped_density=m.ped_density,
+                material_flags=_collision_material_flags_from_cx(m.flags),
+            )
             for m in b.materials
         ]
         polys = b.polygons

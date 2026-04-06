@@ -65,6 +65,8 @@ class BoundAny(Bound):
                 return BoundCylinder.from_xml(element)
             elif bound_type == BoundDisc.type_tag:
                 return BoundDisc.from_xml(element)
+            elif bound_type == BoundTaperedCapsule.type_tag:
+                return BoundTaperedCapsule.from_xml(element)
             # elif bound_type == "Cloth":
             #     return BoundPlane.from_xml(element)
             elif bound_type == BoundGeometry.type_tag:
@@ -113,6 +115,14 @@ class BoundCylinder(Bound):
 
 class BoundDisc(Bound):
     type_tag = "Disc"
+
+
+class BoundTaperedCapsule(Bound):
+    type_tag = "TaperedCapsule"
+
+    def __init__(self):
+        super().__init__()
+        # TODO: extra fields from TaperedCapsule
 
 
 class Material(ElementTree):

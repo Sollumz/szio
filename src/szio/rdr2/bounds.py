@@ -1,6 +1,4 @@
-import sys
 from dataclasses import dataclass
-from enum import IntFlag
 
 from ..assets import AssetGame
 from .. import bounds as _base
@@ -17,11 +15,11 @@ from ..bounds import (  # noqa: F401
 
 class CollisionFlags(_base.CollisionFlags):
     NONE = 0
-    DEFAULT_TYPE = 1 << 0
+    VOID_TYPE_BIT = 1 << 0
     MAP_TYPE_WEAPON = 1 << 1
     MAP_TYPE_MOVER = 1 << 2
     MAP_TYPE_HORSE = 1 << 3
-    MAP_TYPE_COVER = 1 << 4
+    COVER_TYPE = 1 << 4
     MAP_TYPE_VEHICLE = 1 << 5
     VEHICLE_NON_BVH_TYPE = 1 << 6
     VEHICLE_BVH_TYPE = 1 << 7
@@ -49,9 +47,14 @@ class CollisionFlags(_base.CollisionFlags):
     UNSMASHED_TYPE = 1 << 29
     STAIR_SLOPE_TYPE = 1 << 30
     DEEP_SURFACE_TYPE = 1 << 31
+    NO_HORSE_WALKABLE_TYPE = 1 << 32
+    MAP_TYPE_AI_MOVER = 1 << 33
+    HORSE_AVOIDANCE = 1 << 34
+    MAP_TYPE_CAMERA = 1 << 35
 
 
 class CollisionMaterialFlags(_base.CollisionMaterialFlags):
+    # TODO: verify RDR2 CollisionMaterialFlags, copied from GTA5
     NONE = 0
     STAIRS = 1 << 0
     NOT_CLIMBABLE = 1 << 1
@@ -71,73 +74,56 @@ class CollisionMaterialFlags(_base.CollisionMaterialFlags):
     NO_CAM_COLLISION_ALLOW_CLIPPING = 1 << 15
 
 
-@dataclass(slots=True, eq=False)
+@dataclass(slots=True, unsafe_hash=True)
 class CollisionMaterial(_base.CollisionMaterial):
-    material_index: int = 0
-    material_color_index: int = 0
+    material_name: str = ""
 
-    @staticmethod
-    def from_packed(material_packed: int) -> "CollisionMaterial":
-        return CollisionMaterial(
-            material_index=((material_packed >> 0) & 0xFF),
-            procedural_id=((material_packed >> 8) & 0xFF),
-            room_id=((material_packed >> 16) & 0x1F),
-            ped_density=((material_packed >> 21) & 0x7),
-            material_flags=CollisionMaterialFlags((material_packed >> 24) & 0xFFFF),
-            material_color_index=((material_packed >> 40) & 0xFF),
-        )
-
-    def to_packed(self) -> int:
-        return (
-            (self.material_index & 0xFF)
-            | ((self.procedural_id & 0xFF) << 8)
-            | ((self.room_id & 0x1F) << 16)
-            | ((self.ped_density & 0x7) << 21)
-            | ((self.material_flags.value & 0xFFFF) << 24)
-            | ((self.material_color_index & 0xFF) << 40)
-        )
-
-    def __hash__(self) -> int:
-        return self.to_packed()
-
-    def __eq__(self, o: object) -> int:
-        return isinstance(o, CollisionMaterial) and self.to_packed() == o.to_packed()
+    # TODO: verify this type is property hashable, added unsafe_hash for now
+    # def __hash__(self) -> int:
+    #     return self.to_packed()
+    #
+    # def __eq__(self, o: object) -> int:
+    #     return isinstance(o, CollisionMaterial) and self.to_packed() == o.to_packed()
 
 
 # Game-specific bound subclasses (thin wrappers that tag ASSET_GAME via __init_subclass__)
-class AssetBoundSphere(_base.AssetBoundSphere, game=AssetGame.GTA5):
+class AssetBoundSphere(_base.AssetBoundSphere, game=AssetGame.RDR2):
     __slots__ = ()
 
 
-class AssetBoundCapsule(_base.AssetBoundCapsule, game=AssetGame.GTA5):
+class AssetBoundCapsule(_base.AssetBoundCapsule, game=AssetGame.RDR2):
     __slots__ = ()
 
 
-class AssetBoundBox(_base.AssetBoundBox, game=AssetGame.GTA5):
+class AssetBoundBox(_base.AssetBoundBox, game=AssetGame.RDR2):
     __slots__ = ()
 
 
-class AssetBoundGeometry(_base.AssetBoundGeometry, game=AssetGame.GTA5):
+class AssetBoundGeometry(_base.AssetBoundGeometry, game=AssetGame.RDR2):
     __slots__ = ()
 
 
-class AssetBoundBvh(_base.AssetBoundBvh, game=AssetGame.GTA5):
+class AssetBoundBvh(_base.AssetBoundBvh, game=AssetGame.RDR2):
     __slots__ = ()
 
 
-class AssetBoundComposite(_base.AssetBoundComposite, game=AssetGame.GTA5):
+class AssetBoundComposite(_base.AssetBoundComposite, game=AssetGame.RDR2):
     __slots__ = ()
 
 
-class AssetBoundDisc(_base.AssetBoundDisc, game=AssetGame.GTA5):
+class AssetBoundDisc(_base.AssetBoundDisc, game=AssetGame.RDR2):
     __slots__ = ()
 
 
-class AssetBoundCylinder(_base.AssetBoundCylinder, game=AssetGame.GTA5):
+class AssetBoundCylinder(_base.AssetBoundCylinder, game=AssetGame.RDR2):
     __slots__ = ()
 
 
-class AssetBoundPlane(_base.AssetBoundPlane, game=AssetGame.GTA5):
+class AssetBoundPlane(_base.AssetBoundPlane, game=AssetGame.RDR2):
+    __slots__ = ()
+
+
+class AssetBoundTaperedCapsule(_base.AssetBoundTaperedCapsule, game=AssetGame.RDR2):
     __slots__ = ()
 
 
@@ -151,6 +137,7 @@ _BOUND_MAP: dict[BoundType, type[AssetBound]] = {
     BoundType.DISC: AssetBoundDisc,
     BoundType.CYLINDER: AssetBoundCylinder,
     BoundType.PLANE: AssetBoundPlane,
+    BoundType.TAPERED_CAPSULE: AssetBoundTaperedCapsule,
 }
 
 

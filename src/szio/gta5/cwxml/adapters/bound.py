@@ -10,6 +10,7 @@ from ...bounds import (
     CollisionFlags,
     CollisionMaterial,
     CollisionMaterialFlags,
+    create_bound,
 )
 from .. import bound as cw
 
@@ -120,7 +121,7 @@ def _bound_type_from_cw(b: cw.Bound) -> BoundType:
             raise ValueError(f"Unknown CWXML bound type '{b.type}'")
 
 
-_PRIMITIVE_TYPES = {"Box", "Sphere", "Cylinder", "Capsule", "Disc"}
+_BOUND_PRIMITIVE_TYPES = {"Box", "Sphere", "Cylinder", "Capsule", "Disc"}
 
 
 def load_bound_from_cw(b: cw.Bound | None) -> AssetBound | None:
@@ -128,9 +129,9 @@ def load_bound_from_cw(b: cw.Bound | None) -> AssetBound | None:
         return None
 
     bound_type = _bound_type_from_cw(b)
-    is_primitive = b.type in _PRIMITIVE_TYPES
+    is_primitive = b.type in _BOUND_PRIMITIVE_TYPES
 
-    result = AssetBound.create(bound_type)
+    result = create_bound(bound_type)
 
     # Material
     lo = b.unk_flags & 0xFF
