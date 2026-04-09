@@ -30,6 +30,7 @@ class NativeProvider(ABC):
         ".yft",
         ".yld",
         ".ytyp",
+        ".ytd",
     }
 
     def supports_file(self, path: Path) -> bool:

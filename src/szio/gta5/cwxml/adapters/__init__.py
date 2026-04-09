@@ -17,9 +17,11 @@ from .drawable import (
     load_drawable_dictionary_from_cw,
     load_drawable_from_cw,
     load_frag_drawable_from_cw,
+    load_txd_from_cw,
     save_drawable_dictionary_to_cw,
     save_drawable_to_cw,
     save_frag_drawable_to_cw,
+    save_txd_to_cw,
 )
 from .fragment import (
     load_fragment_from_cw,

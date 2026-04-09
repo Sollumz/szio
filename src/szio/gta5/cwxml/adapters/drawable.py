@@ -30,6 +30,7 @@ from ...drawables import (
     Skeleton,
     VertexDataType,
 )
+from ...textures import AssetTextureDictionary
 from .. import drawable as cw
 from .bound import (
     load_bound_from_cw,
@@ -379,6 +380,12 @@ def load_drawable_dictionary_from_cw(d: cw.DrawableDictionary) -> AssetDrawableD
     )
 
 
+def load_txd_from_cw(txd: cw.TextureDictionaryList) -> AssetTextureDictionary:
+    return AssetTextureDictionary(
+        textures={t.name: EmbeddedTexture(t.name, t.width, t.height, None) for t in txd.value}
+    )
+
+
 def _save_skeleton(skel: Skeleton | None, d: cw.Drawable):
     if skel is None:
         d.skeleton = None
@@ -624,3 +631,16 @@ def save_drawable_dictionary_to_cw(
         dwd.append(d)
     dwd.sort(key=lambda d: jenkhash.name_to_hash(d.name))
     return dwd
+
+
+def save_txd_to_cw(asset: AssetTextureDictionary) -> cw.TextureDictionaryList:
+    txd = cw.TextureDictionaryList()
+    for tex in asset.textures.values():
+        t = cw.Texture()
+        t.name = tex.name
+        t.width = tex.width
+        t.height = tex.height
+        t.filename = tex.name + ".dds"
+        txd.value.append(t)
+
+    return txd

@@ -10,6 +10,7 @@ from ..assets import AssetGame
 from ..types import DataSource, Matrix, Quaternion, Vector
 from .assets import AssetType
 from .bounds import AssetBound
+from .textures import EmbeddedTexture
 
 
 class SkelBoneFlags(IntFlag):
@@ -102,13 +103,6 @@ class ShaderInst:
     # Hash to be able to use an instance as key in dicts
     def __hash__(self):
         return hash((self.name, self.preset_filename, self.render_bucket, tuple(self.parameters)))
-
-
-class EmbeddedTexture(NamedTuple):
-    name: str
-    width: int
-    height: int
-    data: DataSource | None
 
 
 @dataclass(slots=True)

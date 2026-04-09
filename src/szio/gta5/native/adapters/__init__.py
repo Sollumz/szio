@@ -39,3 +39,11 @@ from .fragment_gen9 import (
     load_fragment_from_native_g9,
     save_fragment_to_native_g9,
 )
+from .texture import (
+    load_txd_from_native_g8,
+    save_txd_to_native_g8,
+)
+from .texture_gen9 import (
+    load_txd_from_native_g9,
+    save_txd_to_native_g9,
+)

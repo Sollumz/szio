@@ -45,6 +45,7 @@ class AssetType(Enum):
     FRAGMENT = auto()
     CLOTH_DICTIONARY = auto()
     MAP_TYPES = auto()
+    TEXTURE_DICTIONARY = auto()
 
 
 @dataclass(slots=True)

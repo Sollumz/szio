@@ -6,14 +6,17 @@ from ..archetypes import AssetMapTypes
 from ..assets import Asset, AssetFormat, AssetVersion
 from ..drawables import AssetDrawable, AssetDrawableDictionary, AssetFragDrawable
 from ..fragments import AssetFragment
+from ..textures import AssetTextureDictionary
 from .adapters import (
     load_drawable_dictionary_from_native_g9,
     load_drawable_from_native_g9,
     load_fragment_from_native_g9,
+    load_txd_from_native_g9,
     save_drawable_dictionary_to_native_g9,
     save_drawable_to_native_g9,
     save_fragment_to_native_g9,
     save_map_types_to_native_g9,
+    save_txd_to_native_g9,
 )
 from .provider import NativeProvider
 
@@ -30,6 +33,8 @@ class NativeProviderG9(NativeProvider):
                 return pmg9.DrawableDictionary.RSC_VERSION
             case ".yft":
                 return pmg9.Fragment.RSC_VERSION
+            case ".ytd":
+                return pmg9.TextureDictionary.RSC_VERSION
             case _:
                 return super().get_supported_rsc_version(file_ext)
 
@@ -44,6 +49,9 @@ class NativeProviderG9(NativeProvider):
             case ".yft":
                 fragment = pmg9.Fragment.import_rsc(path).result
                 return load_fragment_from_native_g9(fragment)
+            case ".ytd":
+                txd = pmg9.TextureDictionary.import_rsc(path).result
+                return load_txd_from_native_g9(txd)
             case _:
                 return super().load_file(path)
 
@@ -62,5 +70,8 @@ class NativeProviderG9(NativeProvider):
         elif isinstance(asset, AssetMapTypes):
             path = directory / f"{name}.ytyp"
             pmg9.MapTypes.export_rsc(save_map_types_to_native_g9(asset), path, self._export_settings(tool_metadata))
+        elif isinstance(asset, AssetTextureDictionary):
+            path = directory / f"{name}.ytd"
+            pmg9.TextureDictionary.export_rsc(save_txd_to_native_g9(asset), path, self._export_settings(tool_metadata))
         else:
             super().save_asset(asset, directory, name, tool_metadata)

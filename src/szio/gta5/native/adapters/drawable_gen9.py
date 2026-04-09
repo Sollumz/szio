@@ -9,14 +9,10 @@ import pymateria.gta5.gen9 as pmg9
 
 from ....types import DataSource, Matrix, Vector
 from ... import jenkhash
-from ...assets import (
-    AssetVersion,
-)
 from ...drawables import (
     AssetDrawable,
     AssetDrawableDictionary,
     AssetFragDrawable,
-    EmbeddedTexture,
     Geometry,
     LodLevel,
     Model,
@@ -31,18 +27,19 @@ from ._utils import (
     _h2s,
     _s2h,
     from_native_mat34,
-    make_checkerboard_texture_data,
-    to_native_mat34,
 )
 from .bound import save_bound_to_native
 from .drawable import (
     _DEFAULT_LOD_THRESHOLDS,
-    _import_dds_g8,
     _load_lights_native,
     _load_lod_thresholds_native,
     _load_skeleton_native,
     _save_lights_native,
     _save_skeleton_native,
+)
+from .texture_gen9 import (
+    load_textures_from_native_g9,
+    save_textures_to_native_g9,
 )
 
 _VB_CHANNEL_NAMES_MAP = {
@@ -82,32 +79,6 @@ _VERTEX_FORMATS = {
     pmg9.FvfChannel.TEXCOORD6: pmg9.BufferFormat.R32G32_FLOAT,
     pmg9.FvfChannel.TEXCOORD7: pmg9.BufferFormat.R32G32_FLOAT,
 }
-
-
-def _is_texture_compressed_g9(tex: pmg9.Texture) -> bool:
-    f = tex.format.value
-    return 70 <= f <= 84 or 94 <= f <= 99  # BC1 through BC7
-
-
-def _extract_embedded_texture_dds_g9(tex: pmg9.Texture) -> bytes:
-    import io
-    import math
-
-    if _is_texture_compressed_g9(tex):
-        mips = tex.mips
-        w = tex.width
-        h = tex.height
-        max_mips_w = math.ceil(math.log2(w / 2))
-        max_mips_h = math.ceil(math.log2(h / 2))
-        max_mips = min(max_mips_w, max_mips_h)
-        if len(mips) > max_mips:
-            num_mips_to_remove = len(mips) - max_mips
-            for _ in range(num_mips_to_remove):
-                mips.pop()
-
-    tex_dds = io.BytesIO()
-    tex.export_dds(tex_dds)
-    return tex_dds.getvalue()
 
 
 def _load_shader_group_g9(d: pmg9.Drawable) -> ShaderGroup | None:
@@ -176,18 +147,8 @@ def _load_shader_group_g9(d: pmg9.Drawable) -> ShaderGroup | None:
             parameters=_map_parameters(shader),
         )
 
-    def _map_embedded_texture(tex: pmg9.Texture) -> EmbeddedTexture:
-        tex_data_bytes = _extract_embedded_texture_dds_g9(tex)
-        tex_data = DataSource.create(tex_data_bytes, f"{tex.name}.dds")
-        return EmbeddedTexture(tex.name, tex.width, tex.height, tex_data)
-
-    def _map_embedded_textures(txd: pmg9.TextureDictionary | None) -> dict[str, EmbeddedTexture]:
-        if txd is None:
-            return {}
-        return {t.name: _map_embedded_texture(t) for t in txd.textures.values()}
-
     sg = d.shader_group
-    return ShaderGroup([_map_shader(s) for s in sg.shaders], _map_embedded_textures(sg.texture_dictionary))
+    return ShaderGroup([_map_shader(s) for s in sg.shaders], load_textures_from_native_g9(sg.texture_dictionary))
 
 
 def _load_models_g9(
@@ -278,24 +239,7 @@ def _save_shader_group_g9(shader_group: ShaderGroup | None, d: pmg9.Drawable):
 
     sg = pmg9.ShaderGroup()
     if shader_group.embedded_textures:
-        txd = pmg9.TextureDictionary()
-        for embedded_tex in shader_group.embedded_textures.values():
-            tex = pmg9.Texture()
-            tex.name = embedded_tex.name
-            tex.dimension = pmg9.ImageDimension.DIM_2D
-            if not _import_dds_g8(tex, embedded_tex.data):
-                texture_data = make_checkerboard_texture_data()
-                h, w, _ = texture_data.shape
-                mip = pm.TextureMip()
-                mip.layers.append(texture_data)
-                tex.mips.append(mip)
-                tex.format = pmg9.BufferFormat.R8G8B8A8_UNORM
-                tex.width = w
-                tex.height = h
-                tex.depth = 1
-
-            txd.textures[pm.HashString(tex.name)] = tex
-
+        txd = save_textures_to_native_g9(shader_group.embedded_textures)
         sg.texture_dictionary = txd
 
     for shader in shader_group.shaders:

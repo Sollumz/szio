@@ -82,7 +82,6 @@ from .drawables import (
     AssetDrawable,
     AssetDrawableDictionary,
     AssetFragDrawable,
-    EmbeddedTexture,
     Geometry,
     Light,
     LightFlashiness,
@@ -116,4 +115,8 @@ from .fragments import (
 )
 from .shader import (
     ShaderManager,
+)
+from .textures import (
+    AssetTextureDictionary,
+    EmbeddedTexture,
 )
