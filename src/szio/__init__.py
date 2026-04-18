@@ -6,6 +6,7 @@ from .assets import (
     AssetType,
     Asset,
     AssetWithDependencies,
+    AssetTarget,
     save_asset,
     try_load_asset,
 )

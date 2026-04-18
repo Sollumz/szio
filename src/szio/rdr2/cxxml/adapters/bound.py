@@ -185,5 +185,8 @@ def load_bound_from_cx(b: cx.Bound | None) -> AssetBound | None:
     return result
 
 
-def save_bound_to_cx(asset: None) -> cx.Bound:
-    return cx.BoundBox()
+def save_bound_to_cx(asset: AssetBound) -> cx.Bound:
+    b = cx.BoundComposite()
+
+    b.tag_name = "RDR2Bounds"
+    return b

@@ -257,7 +257,7 @@ def _create_cw_bound(bound_type: BoundType) -> cw.Bound:
 
 def save_bound_to_cw(asset: AssetBound) -> cw.Bound:
     b = _create_cw_bound(asset.bound_type)
-    is_primitive = b.type in _PRIMITIVE_TYPES
+    is_primitive = b.type in _BOUND_PRIMITIVE_TYPES
 
     # Set common properties directly on the CW object
     b.box_center = Vector(asset.centroid[:3])

@@ -6,7 +6,7 @@ from ...assets import AssetGame, Asset
 from ..assets import AssetFormat, AssetVersion
 
 # from ..archetypes import AssetMapTypes
-# from ..bounds import AssetBound
+from ..bounds import AssetBound
 # from ..cloths import AssetClothDictionary
 # from ..drawables import AssetDrawable, AssetDrawableDictionary
 # from ..fragments import AssetFragment
@@ -91,11 +91,9 @@ class CXProvider:
         raise ValueError(f"Unsupported file '{str(path)}'")
 
     def save_asset(self, asset: Asset, directory: Path, name: str, tool_metadata: tuple[str, str] | None = None):
-        # if isinstance(asset, AssetBound):
-        #     path = directory / f"{name}.ybn.xml"
-        #     bound_file = cxbnd.BoundFile()
-        #     bound_file.composite = save_bound_to_cx(asset)
-        #     bound_file.write_xml(path)
+        if isinstance(asset, AssetBound):
+            path = directory / f"{name}.ybn.xml"
+            save_bound_to_cx(asset).write_xml(path)
         # elif isinstance(asset, AssetDrawable):
         #     path = directory / f"{name}.ydr.xml"
         #     save_drawable_to_cw(asset, self.ASSET_VERSION).write_xml(path)
@@ -111,5 +109,5 @@ class CXProvider:
         # elif isinstance(asset, AssetMapTypes):
         #     path = directory / f"{name}.ytyp.rsc.xml"
         #     save_map_types_to_cw(asset).write_xml(path)
-        # else:
-        raise ValueError(f"Unsupported asset '{asset}' (name: '{name}', directory: '{str(directory)}')")
+        else:
+            raise ValueError(f"Unsupported asset '{type(asset)}' (name: '{name}', directory: '{str(directory)}')")

@@ -18,3 +18,23 @@ from .assets import (
     save_asset,
     try_load_asset,
 )
+from .bounds import (
+    AssetBound,
+    AssetBoundBox,
+    AssetBoundBvh,
+    AssetBoundCapsule,
+    AssetBoundComposite,
+    AssetBoundCylinder,
+    AssetBoundDisc,
+    AssetBoundGeometry,
+    AssetBoundPlane,
+    AssetBoundSphere,
+    AssetBoundTaperedCapsule,
+    BoundPrimitive,
+    BoundPrimitiveType,
+    BoundType,
+    BoundVertex,
+    CollisionFlags,
+    CollisionMaterial,
+    CollisionMaterialFlags,
+)
