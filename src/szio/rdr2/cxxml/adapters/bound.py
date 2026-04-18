@@ -30,7 +30,7 @@ def _collision_flags_from_cx(flags: Sequence[str]) -> CollisionFlags:
     return converted_flags
 
 
-def _collision_material_flags_to_cx(flags: CollisionMaterialFlags) -> set[str]:
+def _collision_material_flags_to_cx(flags: CollisionMaterialFlags) -> list[str]:
     converted_flags = []
     for flag in flags:
         converted_flags.append(f"FLAG_{flag.name}")
@@ -129,8 +129,8 @@ def load_bound_from_cx(b: cx.Bound | None) -> AssetBound | None:
             else:
                 child = load_bound_from_cx(child_b)
                 child.composite_transform = Matrix(child_b.composite_transform)
-                # child.composite_collision_type_flags = _collision_flags_from_cx(child_b.composite_type_flags)
-                # child.composite_collision_include_flags = _collision_flags_from_cx(child_b.composite_include_flags)
+                child.composite_collision_type_flags = _collision_flags_from_cx(child_b.composite_type_flags)
+                child.composite_collision_include_flags = _collision_flags_from_cx(child_b.composite_include_flags)
                 result.children.append(child)
     elif bound_type == BoundType.SPHERE:
         result.sphere_radius = b.sphere_radius
@@ -185,8 +185,123 @@ def load_bound_from_cx(b: cx.Bound | None) -> AssetBound | None:
     return result
 
 
-def save_bound_to_cx(asset: AssetBound) -> cx.Bound:
-    b = cx.BoundComposite()
+def _create_cx_bound(bound_type: BoundType) -> cx.Bound:
+    match bound_type:
+        case BoundType.COMPOSITE:
+            return cx.BoundComposite()
+        case BoundType.BOX:
+            return cx.BoundBox()
+        case BoundType.SPHERE:
+            return cx.BoundSphere()
+        case BoundType.CAPSULE:
+            return cx.BoundCapsule()
+        case BoundType.CYLINDER:
+            return cx.BoundCylinder()
+        case BoundType.DISC:
+            return cx.BoundDisc()
+        case BoundType.GEOMETRY:
+            return cx.BoundGeometry()
+        case BoundType.BVH:
+            return cx.BoundGeometryBVH()
+        case _:
+            raise ValueError(f"Unsupported CXXML bound type '{bound_type.name}'")
 
+
+def _save_bound_to_cx_inner(asset: AssetBound) -> cx.Bound:
+    b = _create_cx_bound(asset.bound_type)
+    is_primitive = b.type in _BOUND_PRIMITIVE_TYPES
+
+    b.box_center = Vector(asset.centroid[:3])
+    b.sphere_center = Vector(asset.cg[:3])
+    b.sphere_radius = asset.radius_around_centroid
+    b.margin = asset.margin
+    b.mass = asset.volume
+    b.inertia = Vector(asset.inertia)
+
+    if asset.material:
+        b.material_name = asset.material.material_name
+        b.material_procedural_id = asset.material.procedural_id
+        b.material_room_id = asset.material.room_id
+        b.material_ped_density = asset.material.ped_density
+        b.material_flags = _collision_material_flags_to_cx(asset.material.material_flags)
+
+    b.box_min = Vector(asset.bb_min)
+    b.box_max = Vector(asset.bb_max)
+    if is_primitive:
+        b.box_min = b.box_min + b.box_center
+        b.box_max = b.box_max + b.box_center
+
+    bt = asset.bound_type
+    if bt == BoundType.COMPOSITE:
+        composite: cx.BoundComposite = b
+        children_cx: list[cx.Bound | None] = []
+        for child in asset.children or []:
+            if child is None:
+                children_cx.append(None)
+            else:
+                child_cx = _save_bound_to_cx_inner(child)
+                child_cx.composite_transform = Matrix(child.composite_transform)
+                child_cx.composite_type_flags = _collision_flags_to_cx(child.composite_collision_type_flags)
+                child_cx.composite_include_flags = _collision_flags_to_cx(child.composite_collision_include_flags)
+                children_cx.append(child_cx)
+        composite.children = children_cx
+    elif bt == BoundType.SPHERE:
+        b.sphere_radius = asset.sphere_radius
+    elif bt == BoundType.DISC:
+        b.sphere_radius = asset.disc_radius
+    elif bt in (BoundType.CAPSULE, BoundType.CYLINDER, BoundType.BOX):
+        pass
+    elif bt in (BoundType.GEOMETRY, BoundType.BVH):
+        geom_center = (b.box_min + b.box_max) * 0.5
+        b.vertices = [v.co - geom_center for v in (asset.geometry_vertices or [])]
+
+        materials: list[cx.Material] = []
+        materials_index_map: dict[int, int] = {}
+
+        def _get_material_index(material: CollisionMaterial) -> int:
+            key = hash(material)
+            if (i := materials_index_map.get(key)) is None:
+                i = len(materials)
+                m = cx.Material()
+                m.name = material.material_name
+                m.procedural_id = material.procedural_id
+                m.room_id = material.room_id
+                m.ped_density = material.ped_density
+                m.flags = _collision_material_flags_to_cx(material.material_flags)
+                materials.append(m)
+                materials_index_map[key] = i
+            return i
+
+        def _map_primitive(prim: BoundPrimitive) -> cx.Polygon:
+            mi = _get_material_index(prim.material)
+            match prim.primitive_type:
+                case BoundPrimitiveType.BOX:
+                    v1, v2, v3, v4 = prim.vertices
+                    return cx.PolyBox(mi, v1, v2, v3, v4)
+                case BoundPrimitiveType.SPHERE:
+                    (v,) = prim.vertices
+                    return cx.PolySphere(mi, v, prim.radius)
+                case BoundPrimitiveType.CAPSULE:
+                    v1, v2 = prim.vertices
+                    return cx.PolyCapsule(mi, v1, v2, prim.radius)
+                case BoundPrimitiveType.CYLINDER:
+                    v1, v2 = prim.vertices
+                    return cx.PolyCylinder(mi, v1, v2, prim.radius)
+                case BoundPrimitiveType.TRIANGLE:
+                    v1, v2, v3 = prim.vertices
+                    return cx.PolyTriangle(mi, v1, v2, v3)
+                case _:
+                    raise ValueError(f"Unknown primitive type '{prim.primitive_type}'")
+
+        b.polygons = [_map_primitive(p) for p in (asset.geometry_primitives or [])]
+        b.materials = materials
+    else:
+        raise ValueError(f"Unsupported CXXML bound type '{bt.name}'")
+
+    return b
+
+
+def save_bound_to_cx(asset: AssetBound) -> cx.Bound:
+    b = _save_bound_to_cx_inner(asset)
     b.tag_name = "RDR2Bounds"
     return b

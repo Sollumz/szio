@@ -88,10 +88,17 @@ class BoundComposite(Bound):
 
 
 class BoundList(ListProperty):
-    list_type = BoundAny
+    list_type = Bound
     tag_name = "Bounds"
     item_tag_name = "Item"
     allow_none_items = True
+
+    @classmethod
+    def from_xml(cls, element: ET.Element) -> "BoundList":
+        new = cls(element.tag)
+        for child in element.findall(new.item_tag_name):
+            new.value.append(BoundAny.from_xml(child))
+        return new
 
     def create_element_for_none_item(self) -> ET.Element:
         return ET.Element(self.item_tag_name, attrib={"type": "null"})
