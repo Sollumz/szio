@@ -168,7 +168,8 @@ def save_bound_to_native(asset: AssetBound) -> pm.Bound:
     elif bt == BoundType.SPHERE:
         b.radius = asset.sphere_radius
     elif bt == BoundType.CAPSULE:
-        b.radius, b.length = asset.capsule_radius_length
+        radius, length = asset.capsule_radius_length
+        b.radius, b.length = radius, length + (radius * 2.0)
     elif bt == BoundType.CYLINDER:
         b.radius, b.length = asset.cylinder_radius_length
     elif bt == BoundType.DISC:

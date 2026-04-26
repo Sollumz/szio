@@ -284,7 +284,10 @@ class AssetBoundCapsule(AssetBound):
 
     def _apply_extent(self, v: tuple[Vector, Vector]):
         size = v[1] - v[0]
-        self.capsule_radius_length = size.x * 0.5, size.y
+        radius = size.x * 0.5
+        length = size.y - (radius * 2.0)
+        self.capsule_radius_length = radius, length
+        print(f"apply_extent {self.capsule_radius_length=}")
 
 
 @dataclass
@@ -345,7 +348,9 @@ class AssetBoundCylinder(AssetBound):
 
     def _apply_extent(self, v: tuple[Vector, Vector]):
         size = v[1] - v[0]
-        self.cylinder_radius_length = size.x * 0.5, size.y
+        radius = size.x * 0.5
+        length = size.y
+        self.cylinder_radius_length = radius, length
 
 
 @dataclass
