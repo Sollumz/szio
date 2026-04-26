@@ -633,8 +633,8 @@ def save_drawable_dictionary_to_cw(
     return dwd
 
 
-def save_txd_to_cw(asset: AssetTextureDictionary) -> cw.TextureDictionaryList:
-    txd = cw.TextureDictionaryList()
+def save_txd_to_cw(asset: AssetTextureDictionary) -> cw.TextureDictionaryListRequired:
+    txd = cw.TextureDictionaryListRequired()
     for tex in asset.textures.values():
         t = cw.Texture()
         t.name = tex.name

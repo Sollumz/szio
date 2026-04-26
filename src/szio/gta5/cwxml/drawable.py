@@ -17,6 +17,7 @@ from ...xml import (
     ElementTree,
     FlagsProperty,
     ListProperty,
+    ListPropertyRequired,
     MatrixProperty,
     QuaternionProperty,
     TextProperty,
@@ -80,6 +81,11 @@ class Texture(ElementTree):
 
 
 class TextureDictionaryList(ListProperty):
+    list_type = Texture
+    tag_name = "TextureDictionary"
+
+
+class TextureDictionaryListRequired(ListPropertyRequired):
     list_type = Texture
     tag_name = "TextureDictionary"
 
