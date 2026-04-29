@@ -214,7 +214,7 @@ class AssetBound(ABC):
     bb_max: Vector = field(default_factory=Vector)
 
     # Composite child properties (set by parent composite)
-    composite_transform: Matrix = None
+    composite_transform: Matrix = field(default_factory=lambda: Matrix())
     composite_collision_type_flags: CollisionFlags = field(default_factory=lambda: CollisionFlags(0))
     composite_collision_include_flags: CollisionFlags = field(default_factory=lambda: CollisionFlags(0))
 
