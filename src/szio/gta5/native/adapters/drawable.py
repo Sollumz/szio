@@ -5,6 +5,7 @@ import numpy as np
 import pymateria as pma
 import pymateria.gta5 as pm
 import pymateria.gta5.gen8 as pmg8
+import pymateria.gta5.gen9 as pmg9
 
 from ....types import DataSource, Matrix, Quaternion, Vector
 from ... import jenkhash
@@ -369,10 +370,7 @@ def load_drawable_dictionary_from_native_g8(d: pmg8.DrawableDictionary) -> Asset
     )
 
 
-# --- Save functions ---
-
-
-def _save_skeleton_native(skel: Skeleton | None, d: pmg8.Drawable):
+def _save_skeleton_native(skel: Skeleton | None, d: pmg8.Drawable | pmg9.Drawable):
     if skel is None:
         d.skeleton = None
         d.include_joint_data = False
@@ -547,11 +545,11 @@ def _save_models_g8(
         d.lods[pm.LodType(lod_level.value)] = lod
 
 
-def _save_lights_native(lights: list[Light], d: pmg8.Drawable):
+def _save_lights_native(lights: list[Light], d: pmg8.Drawable | pmg9.Drawable):
     d.lights = [_map_light_to_native(li) for li in lights]
 
 
-def _save_bounds_native(bounds, d: pmg8.Drawable):
+def _save_bounds_native(bounds, d: pmg8.Drawable | pmg9.Drawable):
     d.bound = save_bound_to_native(bounds) if bounds else None
 
 

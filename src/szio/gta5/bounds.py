@@ -287,7 +287,6 @@ class AssetBoundCapsule(AssetBound):
         radius = size.x * 0.5
         length = size.y - (radius * 2.0)
         self.capsule_radius_length = radius, length
-        print(f"apply_extent {self.capsule_radius_length=}")
 
 
 @dataclass

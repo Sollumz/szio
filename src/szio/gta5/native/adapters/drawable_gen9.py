@@ -31,11 +31,13 @@ from ._utils import (
 from .bound import save_bound_to_native
 from .drawable import (
     _DEFAULT_LOD_THRESHOLDS,
+    _load_bounds_native,
     _load_lights_native,
     _load_lod_thresholds_native,
     _load_skeleton_native,
     _save_lights_native,
     _save_skeleton_native,
+    _save_bounds_native,
 )
 from .texture_gen9 import (
     load_textures_from_native_g9,
@@ -192,7 +194,7 @@ def load_drawable_from_native_g9(d: pmg9.Drawable) -> AssetDrawable:
     """Convert a native gen9 Drawable to an AssetDrawable dataclass."""
     return AssetDrawable(
         name=d.name,
-        bounds=None,  # gen9 bound loading handled separately
+        bounds=_load_bounds_native(d),
         skeleton=_load_skeleton_native(d),
         shader_group=_load_shader_group_g9(d),
         models=_load_models_g9(d),
@@ -369,8 +371,7 @@ def save_drawable_to_native_g9(asset: AssetDrawable) -> pmg9.Drawable:
     _save_shader_group_g9(asset.shader_group, d)
     _save_models_g9(asset.models, asset.lod_thresholds, d)
     _save_lights_native(asset.lights, d)
-    if asset.bounds:
-        d.bound = save_bound_to_native(asset.bounds)
+    _save_bounds_native(asset.bounds, d)
     return d
 
 
