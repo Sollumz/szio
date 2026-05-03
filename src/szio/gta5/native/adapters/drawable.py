@@ -90,7 +90,7 @@ _VB_CHANNEL_NAMES_INVERSE_MAP = {v: k for k, v in _VB_CHANNEL_NAMES_MAP.items()}
 
 def _map_light_from_native(light: pm.Light) -> Light:
     culling_plane = light.culling_plane
-    culling_plane_normal = culling_plane.normal if culling_plane else Vector((0.0, 0.0, 0.0))
+    culling_plane_normal = Vector(culling_plane.normal) if culling_plane else Vector((0.0, 0.0, 0.0))
     culling_plane_offset = culling_plane.distance if culling_plane else 0.0
     projected_texture_hash = jenkhash.hash_to_name(light.projected_texture_key)
     return Light(
