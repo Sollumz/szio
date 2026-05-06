@@ -275,6 +275,12 @@ def _load_models_g8(
             and fvf.get_channel_size_type(pmg8.FvfChannel.NORMAL) == pmg8.FvfDataType.PACKED_NORMAL
         ):
             packed_normals = vb["Normal"]
+
+            # Temporary fix for NumPy>=2.0 and current pymateria, channels with a single element per vertex end up
+            # with shape (N, 1) instead of (N,). Packed normals is the only case where we have a single-element
+            # channel. Reshape to avoid broadcasting errors.
+            packed_normals = packed_normals.ravel()
+
             x = (packed_normals & 0xFF).astype(dtype=np.int8) / 127
             y = ((packed_normals >> 8) & 0xFF).astype(dtype=np.int8) / 127
             z = ((packed_normals >> 16) & 0xFF).astype(dtype=np.int8) / 127
@@ -515,6 +521,11 @@ def _save_models_g8(
                     | ((z * 127.0).astype(dtype=np.uint8).astype(dtype=np.uint32) << 16)
                 )
                 channel_data = packed_normals
+
+                # Temporary fix for NumPy>=2.0 and current pymateria, channels with a single element per vertex end up
+                # with shape (N, 1) instead of (N,). Packed normals is the only case where we have a single-element
+                # channel. Reshape to avoid broadcasting errors.
+                channel_data = channel_data.reshape(g.vb.buffer["NORMAL"].shape)
             else:
                 channel_data = geom.vertex_buffer[channel]
 
