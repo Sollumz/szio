@@ -1,3 +1,5 @@
+import numpy as np
+
 import pymateria as pma
 import pymateria.gta5 as pm
 
@@ -112,19 +114,51 @@ def load_bound_from_native(b: pm.Bound) -> AssetBound:
         else:
             result.geometry_center = Vector((0.0, 0.0, 0.0))
     elif bound_type == BoundType.COMPOSITE:
-        composite: pm.BoundComposite = b
         result.children = []
-        for e in composite.bounds:
+        inf_pos = float("+inf")
+        inf_neg = float("-inf")
+        bb_min = np.array([inf_pos, inf_pos, inf_pos])
+        bb_max = np.array([inf_neg, inf_neg, inf_neg])
+        any_child = False
+        for e in b.bounds:
             if e is None or e.bound is None:
                 result.children.append(None)
             else:
+                any_child = True
                 child = load_bound_from_native(e.bound)
                 child.composite_transform = from_native_mat34(e.matrix)
                 child.composite_collision_type_flags = CollisionFlags(e.type_flags.value)
                 child.composite_collision_include_flags = CollisionFlags(e.include_flags.value)
                 result.children.append(child)
+                corners = _get_corners_from_extents(child.bb_min, child.bb_max)
+                m = np.array(child.composite_transform).T
+                for c in corners:
+                    c_transformed = m[:3, :3] @ c + m[:3, 3]
+                    bb_min = np.minimum(c_transformed, bb_min)
+                    bb_max = np.maximum(c_transformed, bb_max)
+
+        if not any_child:
+            bb_min = (0.0, 0.0, 0.0)
+            bb_max = (0.0, 0.0, 0.0)
+
+        result.bb_min = Vector(bb_min)
+        result.bb_max = Vector(bb_max)
 
     return result
+
+
+def _get_corners_from_extents(bbmin: Vector, bbmax: Vector):
+    return [
+        bbmin,
+        Vector((bbmin.x, bbmin.y, bbmax.z)),
+        Vector((bbmin.x, bbmax.y, bbmax.z)),
+        Vector((bbmin.x, bbmax.y, bbmin.z)),
+
+        Vector((bbmax.x, bbmin.y, bbmax.z)),
+        Vector((bbmax.x, bbmin.y, bbmin.z)),
+        Vector((bbmax.x, bbmax.y, bbmin.z)),
+        bbmax
+    ]
 
 
 def save_bound_to_native(asset: AssetBound) -> pm.Bound:
