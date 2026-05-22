@@ -429,6 +429,8 @@ def save_fragment_to_cw(asset: "AssetFragment", version: AssetVersion = AssetVer
         cc.flags = controller.flags
         cc.bridge = to_cw_bridge(controller.bridge)
         cc.cloth_high = _save_verlet_cloth(controller.cloth_high)
+        cc.cloth_med = None
+        cc.cloth_low = None
         cc.morph_controller = to_cw_morph_controller(controller)
         return cc
 
