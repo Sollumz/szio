@@ -61,7 +61,7 @@ def to_native_verlet_cloth_edge(edge: VerletClothEdge) -> pm.EdgeData:
 
 def to_native_bridge(bridge: ClothBridgeSimGfx) -> pm.ClothBridgeSimGFX:
     b = pm.ClothBridgeSimGFX()
-    b.verts = [bridge.vertex_count_high]
+    b.verts = [bridge.vertex_count_high, 0, 0, 0]
     b.pin_radius = {0: bridge.pin_radius_high}
     b.vertex_weight = {0: bridge.vertex_weights_high}
     b.inflation_scale = {0: bridge.inflation_scale_high}
