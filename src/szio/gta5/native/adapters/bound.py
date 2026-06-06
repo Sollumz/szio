@@ -205,7 +205,7 @@ def save_bound_to_native(asset: AssetBound) -> pm.Bound:
         radius, length = asset.capsule_radius_length
         b.radius, b.length = radius, length + (radius * 2.0)
     elif bt == BoundType.CYLINDER:
-        b.radius, b.length = asset.cylinder_radius_length
+        b.radius, b.height = asset.cylinder_radius_length
     elif bt == BoundType.DISC:
         b.radius = asset.disc_radius - b.margin
     elif bt == BoundType.PLANE:
