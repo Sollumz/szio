@@ -27,3 +27,7 @@ from .fragment import (
     load_fragment_from_cw,
     save_fragment_to_cw,
 )
+from .map import (
+    load_map_data_from_cw,
+    save_map_data_to_cw,
+)

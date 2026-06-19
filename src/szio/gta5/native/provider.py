@@ -9,13 +9,16 @@ from ..archetypes import AssetMapTypes
 from ..assets import Asset, AssetGame
 from ..bounds import AssetBound
 from ..cloths import AssetClothDictionary
+from ..maps import AssetMapData
 from .adapters import (
     load_bound_from_native,
     load_cloth_dictionary_from_native,
     load_map_types_from_native,
+    load_map_data_from_native,
     save_bound_to_native,
     save_cloth_dictionary_to_native,
     save_map_types_to_native_g8,
+    save_map_data_to_native,
 )
 
 
@@ -30,6 +33,7 @@ class NativeProvider(ABC):
         ".yft",
         ".yld",
         ".ytyp",
+        ".ymap",
         ".ytd",
     }
 
@@ -51,6 +55,8 @@ class NativeProvider(ABC):
                 return pm.ClothDictionary.RSC_VERSION
             case ".ytyp":
                 return pm.gen8.MapTypes.RSC_VERSION
+            case ".ymap":
+                return pm.MapData.RSC_VERSION
             case _:
                 raise ValueError(f"Unsupported file extension '{file_ext}'")
 
@@ -64,6 +70,8 @@ class NativeProvider(ABC):
                 # gen9 map types has some minimal differences (made some padding explicit fields, doesn't really affect anything)
                 # gen8 import can read both
                 return load_map_types_from_native(pm.gen8.MapTypes.import_rsc(path).result)
+            case ".ymap":
+                return load_map_data_from_native(pm.MapData.import_rsc(path).result)
             case _:
                 raise ValueError(f"Unsupported file '{str(path)}'")
 
@@ -79,6 +87,9 @@ class NativeProvider(ABC):
         elif isinstance(asset, AssetMapTypes):
             path = directory / f"{name}.ytyp"
             pm.gen8.MapTypes.export_rsc(save_map_types_to_native_g8(asset), path, self._export_settings(tool_metadata))
+        elif isinstance(asset, AssetMapData):
+            path = directory / f"{name}.ymap"
+            pm.MapData.export_rsc(save_map_data_to_native(asset), path, self._export_settings(tool_metadata))
         else:
             raise ValueError(f"Unsupported asset '{asset}' (name: '{name}', directory: '{str(directory)}')")
 

@@ -45,6 +45,7 @@ class AssetType(Enum):
     FRAGMENT = auto()
     CLOTH_DICTIONARY = auto()
     MAP_TYPES = auto()
+    MAP_DATA = auto()
     TEXTURE_DICTIONARY = auto()
 
 

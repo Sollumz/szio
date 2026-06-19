@@ -9,8 +9,21 @@ from ...archetypes import (
     ArchetypeAssetType,
     ArchetypeType,
     AssetMapTypes,
+    MloEntitySet,
+    MloPortal,
+    MloRoom,
+    MloTimeCycleModifier,
+)
+from ...entities import (
+    Entity,
+    EntityFlags,
     EntityLodLevel,
+    EntityMloInstance,
+    EntityMloInstanceFlags,
     EntityPriorityLevel,
+    MloEntity,
+)
+from ...extensions import (
     Extension,
     ExtensionAudioCollisionSettings,
     ExtensionAudioEmitter,
@@ -26,11 +39,6 @@ from ...archetypes import (
     ExtensionSpawnPoint,
     ExtensionSpawnPointOverride,
     ExtensionWindDisturbance,
-    MloEntity,
-    MloEntitySet,
-    MloPortal,
-    MloRoom,
-    MloTimeCycleModifier,
     ScenarioPointFlags,
 )
 from ...drawables import LightFlashiness
@@ -71,196 +79,380 @@ def _native_scenario_flags_from_str(flags_str: str) -> int:
     return flags.value
 
 
-def _load_archetypes_native(t) -> list[Archetype]:
-    def _map_extension(extension: pm.Extension) -> Extension | None:
-        base_kwargs = {
-            "name": _h2s(extension.name),
-            "offset_position": Vector(extension.offset_position),
+def from_native_extension(extension: pm.Extension) -> Extension | None:
+    base_kwargs = {
+        "name": _h2s(extension.name),
+        "offset_position": Vector(extension.offset_position),
+    }
+    match extension:
+        case pm.ExtensionDoor():
+            enable_limit_angle = extension.limit_angle is not None
+            return ExtensionDoor(
+                enable_limit_angle=enable_limit_angle,
+                limit_angle=extension.limit_angle if enable_limit_angle else 0.0,
+                starts_locked=extension.starts_locked,
+                can_break=extension.can_break,
+                door_target_ratio=extension.door_target_ratio,
+                audio_hash=_h2s(extension.audio_hash),
+                **base_kwargs,
+            )
+        case pm.ExtensionParticleEffect():
+            return ExtensionParticleEffect(
+                offset_rotation=from_native_quat(extension.offset_rotation),
+                fx_name=extension.fx_name,
+                fx_type=extension.fx_type,
+                bone_tag=extension.bone_tag,
+                scale=extension.scale,
+                probability=extension.probability,
+                flags=extension.flags,
+                color=(
+                    from_native_bgraf(extension.tint_color)
+                    if extension.tint_color is not None
+                    else (1.0, 1.0, 1.0, 1.0)
+                ),
+                **base_kwargs,
+            )
+        case pm.ExtensionAudioCollisionSettings():
+            return ExtensionAudioCollisionSettings(
+                settings=_h2s(extension.settings),
+                **base_kwargs,
+            )
+        case pm.ExtensionAudioEmitter():
+            return ExtensionAudioEmitter(
+                offset_rotation=from_native_quat(extension.offset_rotation),
+                effect_hash=_h2s(extension.effect_hash),
+                **base_kwargs,
+            )
+        case pm.ExtensionExplosionEffect():
+            return ExtensionExplosionEffect(
+                offset_rotation=from_native_quat(extension.offset_rotation),
+                explosion_name=extension.explosion_name,
+                bone_tag=extension.bone_tag,
+                explosion_tag=extension.explosion_tag,
+                explosion_type=extension.explosion_type,
+                flags=extension.flags,
+                **base_kwargs,
+            )
+        case pm.ExtensionLadder():
+            return ExtensionLadder(
+                bottom=Vector(extension.bottom),
+                top=Vector(extension.top),
+                normal=Vector(extension.normal),
+                material_type=extension.material_type.name,
+                template=_h2s(extension.template_string),
+                can_get_off_at_top=extension.can_get_off_at_top,
+                can_get_off_at_bottom=extension.can_get_off_at_bottom,
+                **base_kwargs,
+            )
+        case pm.ExtensionBuoyancy():
+            return ExtensionBuoyancy(**base_kwargs)
+        case pm.ExtensionLightShaft():
+            cornerA, cornerB, cornerC, cornerD = extension.corners
+            return ExtensionLightShaft(
+                cornerA=Vector(cornerA),
+                cornerB=Vector(cornerB),
+                cornerC=Vector(cornerC),
+                cornerD=Vector(cornerD),
+                direction=Vector(extension.direction),
+                direction_amount=extension.direction_amount,
+                length=extension.length,
+                fade_in_time_start=extension.fade_in_time_start,
+                fade_in_time_end=extension.fade_in_time_end,
+                fade_out_time_start=extension.fade_out_time_start,
+                fade_out_time_end=extension.fade_out_time_end,
+                fade_distance_start=extension.fade_distance_start,
+                fade_distance_end=extension.fade_distance_end,
+                color=from_native_bgraf(extension.color),
+                intensity=extension.intensity,
+                flashiness=LightFlashiness(extension.flashiness.value),
+                flags=extension.flags,
+                density_type=f"LIGHTSHAFT_DENSITYTYPE_{extension.density_type.name}",
+                volume_type=f"LIGHTSHAFT_VOLUMETYPE_{extension.volume_type.name}",
+                softness=extension.softness,
+                scale_by_sun_intensity=extension.scale_by_sun_intensity,
+                **base_kwargs,
+            )
+        case pm.ExtensionSpawnPoint():
+            return ExtensionSpawnPoint(
+                offset_rotation=from_native_quat(extension.offset_rotation),
+                spawn_type=_h2s(extension.spawn_type),
+                ped_type=_h2s(extension.ped_type),
+                group=_h2s(extension.group),
+                required_imap=_h2s(extension.required_imap),
+                interior=_h2s(extension.interior),
+                available_in_mp_sp=_NATIVE_SPAWN_POINT_AVAILABILITY_MAP[extension.availability],
+                probability=extension.probability,
+                time_till_ped_leaves=extension.time_till_ped_leaves,
+                radius=extension.radius,
+                start=extension.start,
+                end=extension.end,
+                scenario_flags=_native_scenario_flags_to_str(extension.flags),
+                high_pri=extension.high_priority,
+                extended_range=extension.extended_range,
+                short_range=extension.short_range,
+                **base_kwargs,
+            )
+        case pm.ExtensionSpawnPointOverride():
+            return ExtensionSpawnPointOverride(
+                scenario_type=_h2s(extension.scenario_type),
+                itime_start_override=extension.time_start_override,
+                itime_end_override=extension.time_end_override,
+                group=_h2s(extension.group),
+                model_set=_h2s(extension.model_set),
+                available_in_mp_sp=_NATIVE_SPAWN_POINT_AVAILABILITY_MAP[extension.availability],
+                scenario_flags=_native_scenario_flags_to_str(extension.flags),
+                radius=extension.radius,
+                time_till_ped_leaves=extension.time_till_ped_leaves,
+                **base_kwargs,
+            )
+        case pm.ExtensionWindDisturbance():
+            return ExtensionWindDisturbance(
+                offset_rotation=from_native_quat(extension.offset_rotation),
+                disturbance_type=extension.disturbance_type.value,
+                bone_tag=extension.bone_tag,
+                size=Vector(extension.size),
+                strength=extension.strength,
+                flags=extension.flags,
+                **base_kwargs,
+            )
+        case pm.ExtensionProcObject():
+            return ExtensionProcObject(
+                radius_inner=extension.radius_inner,
+                radius_outer=extension.radius_outer,
+                spacing=extension.spacing,
+                min_scale=extension.min_scale,
+                max_scale=extension.max_scale,
+                min_scale_z=extension.min_scale_z,
+                max_scale_z=extension.max_scale_z,
+                min_z_offset=extension.min_z_offset,
+                max_z_offset=extension.max_z_offset,
+                object_hash=extension.object_hash.hash,
+                flags=extension.flags,
+                **base_kwargs,
+            )
+        case pm.ExtensionExpression():
+            return ExtensionExpression(
+                expression_dictionary_name=_h2s(extension.expression_dictionary_name),
+                expression_name=_h2s(extension.expression_name),
+                creature_metadata_name=_h2s(extension.creature_metadata_name),
+                initialize_on_collision=extension.initialize_on_collision,
+                **base_kwargs,
+            )
+        case pm.ExtensionLightEffect():
+            return ExtensionLightEffect(
+                instances=[_map_light_from_native(li) for li in extension.instances],
+                **base_kwargs,
+            )
+
+    logging.getLogger(__name__).warning(f"Unsupported extension type '{extension.type}'")
+    return None
+
+
+def to_native_extension(extension: Extension) -> pm.Extension:
+    match extension:
+        case ExtensionDoor():
+            e = pm.ExtensionDoor()
+            e.limit_angle = extension.limit_angle if extension.enable_limit_angle else None
+            e.starts_locked = extension.starts_locked
+            e.can_break = extension.can_break
+            e.door_target_ratio = extension.door_target_ratio
+            e.audio_hash = _s2h(extension.audio_hash)
+        case ExtensionParticleEffect():
+            e = pm.ExtensionParticleEffect()
+            e.offset_rotation = to_native_quat(extension.offset_rotation)
+            e.fx_name = extension.fx_name
+            e.fx_type = extension.fx_type
+            e.bone_tag = extension.bone_tag
+            e.scale = extension.scale
+            e.probability = extension.probability
+            e.flags = extension.flags
+            e.tint_color = to_native_bgraf(extension.color) if (extension.flags & 1) != 0 else None
+        case ExtensionAudioCollisionSettings():
+            e = pm.ExtensionAudioCollisionSettings()
+            e.settings = _s2h(extension.settings)
+        case ExtensionAudioEmitter():
+            e = pm.ExtensionAudioEmitter()
+            e.offset_rotation = to_native_quat(extension.offset_rotation)
+            e.effect_hash = _s2h(extension.effect_hash)
+        case ExtensionExplosionEffect():
+            e = pm.ExtensionExplosionEffect()
+            e.offset_rotation = to_native_quat(extension.offset_rotation)
+            e.explosion_name = extension.explosion_name
+            e.bone_tag = extension.bone_tag
+            e.explosion_tag = extension.explosion_tag
+            e.explosion_type = extension.explosion_type
+            e.flags = extension.flags
+        case ExtensionLadder():
+            e = pm.ExtensionLadder()
+            e.bottom = to_native_vec3(extension.bottom)
+            e.top = to_native_vec3(extension.top)
+            e.normal = to_native_vec3(extension.normal)
+            e.material_type = pm.LadderMaterialType[extension.material_type]
+            e.template_string = _s2h(extension.template)
+            e.can_get_off_at_top = extension.can_get_off_at_top
+            e.can_get_off_at_bottom = extension.can_get_off_at_bottom
+        case ExtensionBuoyancy():
+            e = pm.ExtensionBuoyancy()
+        case ExtensionLightShaft():
+            e = pm.ExtensionLightShaft()
+            e.corners = (
+                to_native_vec3(extension.cornerA),
+                to_native_vec3(extension.cornerB),
+                to_native_vec3(extension.cornerC),
+                to_native_vec3(extension.cornerD),
+            )
+            e.direction = to_native_vec3(extension.direction)
+            e.direction_amount = extension.direction_amount
+            e.length = extension.length
+            e.fade_in_time_start = extension.fade_in_time_start
+            e.fade_in_time_end = extension.fade_in_time_end
+            e.fade_out_time_start = extension.fade_out_time_start
+            e.fade_out_time_end = extension.fade_out_time_end
+            e.fade_distance_start = extension.fade_distance_start
+            e.fade_distance_end = extension.fade_distance_end
+            e.color = to_native_bgraf(extension.color)
+            e.intensity = extension.intensity
+            e.flashiness = pm.LightFlashiness(extension.flashiness.value)
+            e.flags = extension.flags
+            # [23:] removes 'LIGHTSHAFT_DENSITYTYPE_' prefix
+            e.density_type = pm.LightShaftDensityType[extension.density_type[23:]]
+            # [22:] removes 'LIGHTSHAFT_VOLUMETYPE_' prefix
+            e.volume_type = pm.LightShaftVolumeType[extension.volume_type[22:]]
+            e.softness = extension.softness
+            e.scale_by_sun_intensity = extension.scale_by_sun_intensity
+        case ExtensionSpawnPoint():
+            e = pm.ExtensionSpawnPoint()
+            e.offset_rotation = to_native_quat(extension.offset_rotation)
+            e.spawn_type = _s2h(extension.spawn_type)
+            e.ped_type = _s2h(extension.ped_type)
+            e.group = _s2h(extension.group)
+            e.required_imap = _s2h(extension.required_imap)
+            e.interior = _s2h(extension.interior)
+            e.availability = _NATIVE_SPAWN_POINT_AVAILABILITY_INVERSE_MAP[extension.available_in_mp_sp]
+            e.probability = extension.probability
+            e.time_till_ped_leaves = extension.time_till_ped_leaves
+            e.radius = extension.radius
+            e.start = extension.start
+            e.end = extension.end
+            e.flags = _native_scenario_flags_from_str(extension.scenario_flags)
+            e.high_priority = extension.high_pri
+            e.extended_range = extension.extended_range
+            e.short_range = extension.short_range
+        case ExtensionSpawnPointOverride():
+            e = pm.ExtensionSpawnPointOverride()
+            e.scenario_type = _s2h(extension.scenario_type)
+            e.time_start_override = extension.itime_start_override
+            e.time_end_override = extension.itime_end_override
+            e.group = _s2h(extension.group)
+            e.model_set = _s2h(extension.model_set)
+            e.availability = _NATIVE_SPAWN_POINT_AVAILABILITY_INVERSE_MAP[extension.available_in_mp_sp]
+            e.flags = _native_scenario_flags_from_str(extension.scenario_flags)
+            e.radius = extension.radius
+            e.time_till_ped_leaves = extension.time_till_ped_leaves
+        case ExtensionWindDisturbance():
+            e = pm.ExtensionWindDisturbance()
+            e.offset_rotation = to_native_quat(extension.offset_rotation)
+            e.disturbance_type = pm.WindDisturbanceType(extension.disturbance_type)
+            e.bone_tag = extension.bone_tag
+            e.size = to_native_vec4(extension.size)
+            e.strength = extension.strength
+            e.flags = extension.flags
+        case ExtensionProcObject():
+            e = pm.ExtensionProcObject()
+            e.radius_inner = extension.radius_inner
+            e.radius_outer = extension.radius_outer
+            e.spacing = extension.spacing
+            e.min_scale = extension.min_scale
+            e.max_scale = extension.max_scale
+            e.min_scale_z = extension.min_scale_z
+            e.max_scale_z = extension.max_scale_z
+            e.min_z_offset = extension.min_z_offset
+            e.max_z_offset = extension.max_z_offset
+            e.object_hash = pm.CombinedHashString(extension.object_hash)
+            e.flags = extension.flags
+        case ExtensionExpression():
+            e = pm.ExtensionExpression()
+            e.expression_dictionary_name = _s2h(extension.expression_dictionary_name)
+            e.expression_name = _s2h(extension.expression_name)
+            e.creature_metadata_name = _s2h(extension.creature_metadata_name)
+            e.initialize_on_collision = extension.initialize_on_collision
+        case ExtensionLightEffect():
+            e = pm.ExtensionLightEffect()
+            e.instances = [_map_light_to_native(li, True) for li in extension.instances]
+        case _:
+            raise ValueError(f"Unsupported extension type '{type(extension).__name__}'")
+
+    e.name = _s2h(extension.name)
+    e.offset_position = to_native_vec3(extension.offset_position)
+    return e
+
+
+def from_native_entity(entity: pm.ArchetypeEntityBase) -> Entity:
+    if isinstance(entity, pm.ArchetypeEntityMloInstance):
+        cls = EntityMloInstance
+        extra_kwargs = {
+            "group_id": entity.group_id,
+            "floor_id": entity.floor_id,
+            "default_entity_sets": [_h2s(s) for s in entity.default_entity_sets],
+            "num_exit_portals": entity.num_exit_portals,
+            "mlo_inst_flags": EntityMloInstanceFlags(entity.mlo_inst_flags),
         }
-        match extension:
-            case pm.ExtensionDoor():
-                enable_limit_angle = extension.limit_angle is not None
-                return ExtensionDoor(
-                    enable_limit_angle=enable_limit_angle,
-                    limit_angle=extension.limit_angle if enable_limit_angle else 0.0,
-                    starts_locked=extension.starts_locked,
-                    can_break=extension.can_break,
-                    door_target_ratio=extension.door_target_ratio,
-                    audio_hash=_h2s(extension.audio_hash),
-                    **base_kwargs,
-                )
-            case pm.ExtensionParticleEffect():
-                return ExtensionParticleEffect(
-                    offset_rotation=from_native_quat(extension.offset_rotation),
-                    fx_name=extension.fx_name,
-                    fx_type=extension.fx_type,
-                    bone_tag=extension.bone_tag,
-                    scale=extension.scale,
-                    probability=extension.probability,
-                    flags=extension.flags,
-                    color=(
-                        from_native_bgraf(extension.tint_color)
-                        if extension.tint_color is not None
-                        else (1.0, 1.0, 1.0, 1.0)
-                    ),
-                    **base_kwargs,
-                )
-            case pm.ExtensionAudioCollisionSettings():
-                return ExtensionAudioCollisionSettings(
-                    settings=_h2s(extension.settings),
-                    **base_kwargs,
-                )
-            case pm.ExtensionAudioEmitter():
-                return ExtensionAudioEmitter(
-                    offset_rotation=from_native_quat(extension.offset_rotation),
-                    effect_hash=_h2s(extension.effect_hash),
-                    **base_kwargs,
-                )
-            case pm.ExtensionExplosionEffect():
-                return ExtensionExplosionEffect(
-                    offset_rotation=from_native_quat(extension.offset_rotation),
-                    explosion_name=extension.explosion_name,
-                    bone_tag=extension.bone_tag,
-                    explosion_tag=extension.explosion_tag,
-                    explosion_type=extension.explosion_type,
-                    flags=extension.flags,
-                    **base_kwargs,
-                )
-            case pm.ExtensionLadder():
-                return ExtensionLadder(
-                    bottom=Vector(extension.bottom),
-                    top=Vector(extension.top),
-                    normal=Vector(extension.normal),
-                    material_type=extension.material_type.name,
-                    template=_h2s(extension.template_string),
-                    can_get_off_at_top=extension.can_get_off_at_top,
-                    can_get_off_at_bottom=extension.can_get_off_at_bottom,
-                    **base_kwargs,
-                )
-            case pm.ExtensionBuoyancy():
-                return ExtensionBuoyancy(**base_kwargs)
-            case pm.ExtensionLightShaft():
-                cornerA, cornerB, cornerC, cornerD = extension.corners
-                return ExtensionLightShaft(
-                    cornerA=Vector(cornerA),
-                    cornerB=Vector(cornerB),
-                    cornerC=Vector(cornerC),
-                    cornerD=Vector(cornerD),
-                    direction=Vector(extension.direction),
-                    direction_amount=extension.direction_amount,
-                    length=extension.length,
-                    fade_in_time_start=extension.fade_in_time_start,
-                    fade_in_time_end=extension.fade_in_time_end,
-                    fade_out_time_start=extension.fade_out_time_start,
-                    fade_out_time_end=extension.fade_out_time_end,
-                    fade_distance_start=extension.fade_distance_start,
-                    fade_distance_end=extension.fade_distance_end,
-                    color=from_native_bgraf(extension.color),
-                    intensity=extension.intensity,
-                    flashiness=LightFlashiness(extension.flashiness.value),
-                    flags=extension.flags,
-                    density_type=f"LIGHTSHAFT_DENSITYTYPE_{extension.density_type.name}",
-                    volume_type=f"LIGHTSHAFT_VOLUMETYPE_{extension.volume_type.name}",
-                    softness=extension.softness,
-                    scale_by_sun_intensity=extension.scale_by_sun_intensity,
-                    **base_kwargs,
-                )
-            case pm.ExtensionSpawnPoint():
-                return ExtensionSpawnPoint(
-                    offset_rotation=from_native_quat(extension.offset_rotation),
-                    spawn_type=_h2s(extension.spawn_type),
-                    ped_type=_h2s(extension.ped_type),
-                    group=_h2s(extension.group),
-                    required_imap=_h2s(extension.required_imap),
-                    interior=_h2s(extension.interior),
-                    available_in_mp_sp=_NATIVE_SPAWN_POINT_AVAILABILITY_MAP[extension.availability],
-                    probability=extension.probability,
-                    time_till_ped_leaves=extension.time_till_ped_leaves,
-                    radius=extension.radius,
-                    start=extension.start,
-                    end=extension.end,
-                    scenario_flags=_native_scenario_flags_to_str(extension.flags),
-                    high_pri=extension.high_priority,
-                    extended_range=extension.extended_range,
-                    short_range=extension.short_range,
-                    **base_kwargs,
-                )
-            case pm.ExtensionSpawnPointOverride():
-                return ExtensionSpawnPointOverride(
-                    scenario_type=_h2s(extension.scenario_type),
-                    itime_start_override=extension.time_start_override,
-                    itime_end_override=extension.time_end_override,
-                    group=_h2s(extension.group),
-                    model_set=_h2s(extension.model_set),
-                    available_in_mp_sp=_NATIVE_SPAWN_POINT_AVAILABILITY_MAP[extension.availability],
-                    scenario_flags=_native_scenario_flags_to_str(extension.flags),
-                    radius=extension.radius,
-                    time_till_ped_leaves=extension.time_till_ped_leaves,
-                    **base_kwargs,
-                )
-            case pm.ExtensionWindDisturbance():
-                return ExtensionWindDisturbance(
-                    offset_rotation=from_native_quat(extension.offset_rotation),
-                    disturbance_type=extension.disturbance_type.value,
-                    bone_tag=extension.bone_tag,
-                    size=Vector(extension.size),
-                    strength=extension.strength,
-                    flags=extension.flags,
-                    **base_kwargs,
-                )
-            case pm.ExtensionProcObject():
-                return ExtensionProcObject(
-                    radius_inner=extension.radius_inner,
-                    radius_outer=extension.radius_outer,
-                    spacing=extension.spacing,
-                    min_scale=extension.min_scale,
-                    max_scale=extension.max_scale,
-                    min_scale_z=extension.min_scale_z,
-                    max_scale_z=extension.max_scale_z,
-                    min_z_offset=extension.min_z_offset,
-                    max_z_offset=extension.max_z_offset,
-                    object_hash=extension.object_hash.hash,
-                    flags=extension.flags,
-                    **base_kwargs,
-                )
-            case pm.ExtensionExpression():
-                return ExtensionExpression(
-                    expression_dictionary_name=_h2s(extension.expression_dictionary_name),
-                    expression_name=_h2s(extension.expression_name),
-                    creature_metadata_name=_h2s(extension.creature_metadata_name),
-                    initialize_on_collision=extension.initialize_on_collision,
-                    **base_kwargs,
-                )
-            case pm.ExtensionLightEffect():
-                return ExtensionLightEffect(
-                    instances=[_map_light_from_native(li) for li in extension.instances],
-                    **base_kwargs,
-                )
+    else:
+        cls = Entity
+        extra_kwargs = {}
+    return cls(
+        archetype_name=_h2s(entity.archetype_name),
+        position=Vector(entity.position),
+        rotation=from_native_quat(entity.rotation),
+        scale_xy=entity.scale_xy,
+        scale_z=entity.scale_z,
+        flags=EntityFlags(entity.flags),
+        guid=entity.guid,
+        parent_index=entity.parent_index,
+        lod_dist=entity.lod_distance,
+        child_lod_dist=entity.child_lod_distance,
+        lod_level=EntityLodLevel(entity.lod_level.value),
+        priority_level=EntityPriorityLevel(entity.priority_level.value),
+        num_children=entity.num_children,
+        ambient_occlusion_multiplier=entity.ambient_occlusion_multiplier,
+        artificial_ambient_occlusion=entity.artificial_ambient_occlusion,
+        tint_value=entity.tint_value,
+        extensions=[ext for e in entity.extensions if (ext := from_native_extension(e)) is not None],
+        **extra_kwargs,
+    )
 
-        logging.getLogger(__name__).warning(f"Unsupported extension type '{extension.type}'")
-        return None
 
-    def _map_entity(entity: pm.ArchetypeEntity) -> MloEntity:
-        return MloEntity(
-            archetype_name=_h2s(entity.archetype_name),
-            position=Vector(entity.position),
-            rotation=from_native_quat(entity.rotation),
-            scale_xy=entity.scale_xy,
-            scale_z=entity.scale_z,
-            flags=entity.flags,
-            guid=entity.guid,
-            parent_index=entity.parent_index,
-            lod_dist=entity.lod_distance,
-            child_lod_dist=entity.child_lod_distance,
-            lod_level=EntityLodLevel(entity.lod_level.value),
-            priority_level=EntityPriorityLevel(entity.priority_level.value),
-            num_children=entity.num_children,
-            ambient_occlusion_multiplier=entity.ambient_occlusion_multiplier,
-            artificial_ambient_occlusion=entity.artificial_ambient_occlusion,
-            tint_value=entity.tint_value,
-            extensions=[ext for e in entity.extensions if (ext := _map_extension(e)) is not None],
-        )
+def to_native_entity(entity: Entity) -> pm.ArchetypeEntityBase:
+    if isinstance(entity, EntityMloInstance):
+        e = pm.ArchetypeEntityMloInstance()
+        e.group_id = entity.group_id
+        e.floor_id = entity.floor_id
+        e.default_entity_sets = [_s2h(s) for s in entity.default_entity_sets]
+        e.num_exit_portals = entity.num_exit_portals
+        e.mlo_inst_flags = entity.mlo_inst_flags.value
+    else:
+        e = pm.ArchetypeEntity()
+    e.archetype_name = _s2h(entity.archetype_name)
+    e.position = to_native_vec3(entity.position)
+    e.rotation = to_native_quat(entity.rotation)
+    e.scale_xy = entity.scale_xy
+    e.scale_z = entity.scale_z
+    e.flags = entity.flags.value
+    e.guid = entity.guid
+    e.parent_index = entity.parent_index
+    e.lod_distance = entity.lod_dist
+    e.child_lod_distance = entity.child_lod_dist
+    e.lod_level = pm.ArchetypeLodType(entity.lod_level.value)
+    e.priority_level = pm.PriorityLevel(entity.priority_level.value)
+    e.num_children = entity.num_children
+    e.ambient_occlusion_multiplier = entity.ambient_occlusion_multiplier
+    e.artificial_ambient_occlusion = entity.artificial_ambient_occlusion
+    e.tint_value = entity.tint_value
+    e.extensions = [to_native_extension(ext) for ext in entity.extensions]
+    return e
 
+
+def _load_archetypes_native(t) -> list[Archetype]:
     def _map_room(room: pm.MloRoomDefinition) -> MloRoom:
         return MloRoom(
             name=room.name,
@@ -292,7 +484,7 @@ def _load_archetypes_native(t) -> list[Archetype]:
         return MloEntitySet(
             name=_h2s(entity_set.name),
             locations=entity_set.locations,
-            entities=[_map_entity(e) for e in entity_set.entities],
+            entities=[from_native_entity(e) for e in entity_set.entities],
         )
 
     def _map_tcm(tcm: pm.MloTimeCycleModifier) -> MloTimeCycleModifier:
@@ -322,7 +514,7 @@ def _load_archetypes_native(t) -> list[Archetype]:
             case ArchetypeType.MLO:
                 extra_kwargs = {
                     "mlo_flags": archetype.mlo_flags,
-                    "entities": [_map_entity(e) for e in archetype.entities],
+                    "entities": [from_native_entity(e) for e in archetype.entities],
                     "rooms": [_map_room(r) for r in archetype.rooms],
                     "portals": [_map_portal(p) for p in archetype.portals],
                     "entity_sets": [_map_entity_set(s) for s in archetype.entity_sets],
@@ -348,7 +540,7 @@ def _load_archetypes_native(t) -> list[Archetype]:
             bs_radius=archetype.bounding_sphere.radius,
             asset_name=_h2s(archetype.asset_name),
             asset_type=ArchetypeAssetType(archetype.asset_type.value),
-            extensions=[ext for e in archetype.extensions if (ext := _map_extension(e)) is not None],
+            extensions=[ext for e in archetype.extensions if (ext := from_native_extension(e)) is not None],
             **extra_kwargs,
         )
 
@@ -356,165 +548,6 @@ def _load_archetypes_native(t) -> list[Archetype]:
 
 
 def _save_archetypes_native(archetypes: Sequence[Archetype], t) -> None:
-    def _map_extension(extension: Extension) -> pm.Extension:
-        match extension:
-            case ExtensionDoor():
-                e = pm.ExtensionDoor()
-                e.limit_angle = extension.limit_angle if extension.enable_limit_angle else None
-                e.starts_locked = extension.starts_locked
-                e.can_break = extension.can_break
-                e.door_target_ratio = extension.door_target_ratio
-                e.audio_hash = _s2h(extension.audio_hash)
-            case ExtensionParticleEffect():
-                e = pm.ExtensionParticleEffect()
-                e.offset_rotation = to_native_quat(extension.offset_rotation)
-                e.fx_name = extension.fx_name
-                e.fx_type = extension.fx_type
-                e.bone_tag = extension.bone_tag
-                e.scale = extension.scale
-                e.probability = extension.probability
-                e.flags = extension.flags
-                e.tint_color = to_native_bgraf(extension.color) if (extension.flags & 1) != 0 else None
-            case ExtensionAudioCollisionSettings():
-                e = pm.ExtensionAudioCollisionSettings()
-                e.settings = _s2h(extension.settings)
-            case ExtensionAudioEmitter():
-                e = pm.ExtensionAudioEmitter()
-                e.offset_rotation = to_native_quat(extension.offset_rotation)
-                e.effect_hash = _s2h(extension.effect_hash)
-            case ExtensionExplosionEffect():
-                e = pm.ExtensionExplosionEffect()
-                e.offset_rotation = to_native_quat(extension.offset_rotation)
-                e.explosion_name = extension.explosion_name
-                e.bone_tag = extension.bone_tag
-                e.explosion_tag = extension.explosion_tag
-                e.explosion_type = extension.explosion_type
-                e.flags = extension.flags
-            case ExtensionLadder():
-                e = pm.ExtensionLadder()
-                e.bottom = to_native_vec3(extension.bottom)
-                e.top = to_native_vec3(extension.top)
-                e.normal = to_native_vec3(extension.normal)
-                e.material_type = pm.LadderMaterialType[extension.material_type]
-                e.template_string = _s2h(extension.template)
-                e.can_get_off_at_top = extension.can_get_off_at_top
-                e.can_get_off_at_bottom = extension.can_get_off_at_bottom
-            case ExtensionBuoyancy():
-                e = pm.ExtensionBuoyancy()
-            case ExtensionLightShaft():
-                e = pm.ExtensionLightShaft()
-                e.corners = (
-                    to_native_vec3(extension.cornerA),
-                    to_native_vec3(extension.cornerB),
-                    to_native_vec3(extension.cornerC),
-                    to_native_vec3(extension.cornerD),
-                )
-                e.direction = to_native_vec3(extension.direction)
-                e.direction_amount = extension.direction_amount
-                e.length = extension.length
-                e.fade_in_time_start = extension.fade_in_time_start
-                e.fade_in_time_end = extension.fade_in_time_end
-                e.fade_out_time_start = extension.fade_out_time_start
-                e.fade_out_time_end = extension.fade_out_time_end
-                e.fade_distance_start = extension.fade_distance_start
-                e.fade_distance_end = extension.fade_distance_end
-                e.color = to_native_bgraf(extension.color)
-                e.intensity = extension.intensity
-                e.flashiness = pm.LightFlashiness(extension.flashiness.value)
-                e.flags = extension.flags
-                # [23:] removes 'LIGHTSHAFT_DENSITYTYPE_' prefix
-                e.density_type = pm.LightShaftDensityType[extension.density_type[23:]]
-                # [22:] removes 'LIGHTSHAFT_VOLUMETYPE_' prefix
-                e.volume_type = pm.LightShaftVolumeType[extension.volume_type[22:]]
-                e.softness = extension.softness
-                e.scale_by_sun_intensity = extension.scale_by_sun_intensity
-            case ExtensionSpawnPoint():
-                e = pm.ExtensionSpawnPoint()
-                e.offset_rotation = to_native_quat(extension.offset_rotation)
-                e.spawn_type = _s2h(extension.spawn_type)
-                e.ped_type = _s2h(extension.ped_type)
-                e.group = _s2h(extension.group)
-                e.required_imap = _s2h(extension.required_imap)
-                e.interior = _s2h(extension.interior)
-                e.availability = _NATIVE_SPAWN_POINT_AVAILABILITY_INVERSE_MAP[extension.available_in_mp_sp]
-                e.probability = extension.probability
-                e.time_till_ped_leaves = extension.time_till_ped_leaves
-                e.radius = extension.radius
-                e.start = extension.start
-                e.end = extension.end
-                e.flags = _native_scenario_flags_from_str(extension.scenario_flags)
-                e.high_priority = extension.high_pri
-                e.extended_range = extension.extended_range
-                e.short_range = extension.short_range
-            case ExtensionSpawnPointOverride():
-                e = pm.ExtensionSpawnPointOverride()
-                e.scenario_type = _s2h(extension.scenario_type)
-                e.time_start_override = extension.itime_start_override
-                e.time_end_override = extension.itime_end_override
-                e.group = _s2h(extension.group)
-                e.model_set = _s2h(extension.model_set)
-                e.availability = _NATIVE_SPAWN_POINT_AVAILABILITY_INVERSE_MAP[extension.available_in_mp_sp]
-                e.flags = _native_scenario_flags_from_str(extension.scenario_flags)
-                e.radius = extension.radius
-                e.time_till_ped_leaves = extension.time_till_ped_leaves
-            case ExtensionWindDisturbance():
-                e = pm.ExtensionWindDisturbance()
-                e.offset_rotation = to_native_quat(extension.offset_rotation)
-                e.disturbance_type = pm.WindDisturbanceType(extension.disturbance_type)
-                e.bone_tag = extension.bone_tag
-                e.size = to_native_vec4(extension.size)
-                e.strength = extension.strength
-                e.flags = extension.flags
-            case ExtensionProcObject():
-                e = pm.ExtensionProcObject()
-                e.radius_inner = extension.radius_inner
-                e.radius_outer = extension.radius_outer
-                e.spacing = extension.spacing
-                e.min_scale = extension.min_scale
-                e.max_scale = extension.max_scale
-                e.min_scale_z = extension.min_scale_z
-                e.max_scale_z = extension.max_scale_z
-                e.min_z_offset = extension.min_z_offset
-                e.max_z_offset = extension.max_z_offset
-                e.object_hash = pm.CombinedHashString(extension.object_hash)
-                e.flags = extension.flags
-            case ExtensionExpression():
-                e = pm.ExtensionExpression()
-                e.expression_dictionary_name = _s2h(extension.expression_dictionary_name)
-                e.expression_name = _s2h(extension.expression_name)
-                e.creature_metadata_name = _s2h(extension.creature_metadata_name)
-                e.initialize_on_collision = extension.initialize_on_collision
-            case ExtensionLightEffect():
-                e = pm.ExtensionLightEffect()
-                e.instances = [_map_light_to_native(li, True) for li in extension.instances]
-            case _:
-                raise ValueError(f"Unsupported extension type '{type(extension).__name__}'")
-
-        e.name = _s2h(extension.name)
-        e.offset_position = to_native_vec3(extension.offset_position)
-        return e
-
-    def _map_entity(entity: MloEntity) -> pm.ArchetypeEntity:
-        e = pm.ArchetypeEntity()
-        e.archetype_name = _s2h(entity.archetype_name)
-        e.position = to_native_vec3(entity.position)
-        e.rotation = to_native_quat(entity.rotation)
-        e.scale_xy = entity.scale_xy
-        e.scale_z = entity.scale_z
-        e.flags = entity.flags
-        e.guid = entity.guid
-        e.parent_index = entity.parent_index
-        e.lod_distance = entity.lod_dist
-        e.child_lod_distance = entity.child_lod_dist
-        e.lod_level = pm.ArchetypeLodType(entity.lod_level.value)
-        e.priority_level = pm.PriorityLevel(entity.priority_level.value)
-        e.num_children = entity.num_children
-        e.ambient_occlusion_multiplier = entity.ambient_occlusion_multiplier
-        e.artificial_ambient_occlusion = entity.artificial_ambient_occlusion
-        e.tint_value = entity.tint_value
-        e.extensions = [_map_extension(e) for e in entity.extensions]
-        return e
-
     def _map_room(room: MloRoom) -> pm.MloRoomDefinition:
         r = pm.MloRoomDefinition()
         r.name = room.name
@@ -545,7 +578,7 @@ def _save_archetypes_native(archetypes: Sequence[Archetype], t) -> None:
         s = pm.MloEntitySet()
         s.name = _s2h(entity_set.name)
         s.locations = entity_set.locations
-        s.entities = [_map_entity(e) for e in entity_set.entities]
+        s.entities = [to_native_entity(e) for e in entity_set.entities]
         return s
 
     def _map_tcm(tcm: MloTimeCycleModifier) -> pm.MloTimeCycleModifier:
@@ -579,12 +612,12 @@ def _save_archetypes_native(archetypes: Sequence[Archetype], t) -> None:
         a.bounding_sphere = to_native_sphere(archetype.bs_center, archetype.bs_radius)
         a.asset_name = _s2h(archetype.asset_name)
         a.asset_type = pm.ArchetypeAssetType(archetype.asset_type.value)
-        a.extensions = [_map_extension(e) for e in archetype.extensions]
+        a.extensions = [to_native_extension(e) for e in archetype.extensions]
         if archetype.type == ArchetypeType.TIME:
             a.time_flags = pm.TimeFlags(archetype.time_flags)
         elif archetype.type == ArchetypeType.MLO:
             a.mlo_flags = archetype.mlo_flags
-            a.entities = [_map_entity(e) for e in archetype.entities]
+            a.entities = [to_native_entity(e) for e in archetype.entities]
             a.rooms = [_map_room(r) for r in archetype.rooms]
             a.portals = [_map_portal(r) for r in archetype.portals]
             a.entity_sets = [_map_entity_set(s) for s in archetype.entity_sets]

@@ -7,6 +7,7 @@ from ...xml import (
     AttributeProperty,
     ElementProperty,
     ElementTree,
+    InlineValueListProperty,
     ListProperty,
     ListPropertyRequired,
     QuaternionProperty,
@@ -418,9 +419,47 @@ class Entity(ElementTree):
         self.tint_value = ValueProperty("tintValue", 0)
 
 
+class DefaultEntitySetsList(ListProperty):
+    class Item(TextProperty):
+        tag_name = "Item"
+
+    list_type = Item
+    tag_name = "defaultEntitySets"
+
+
+class EntityMloInstance(Entity):
+    tag_name = "Item"
+
+    def __init__(self):
+        super().__init__()
+        self.type = AttributeProperty("type", "CMloInstanceDef")
+        self.group_id = ValueProperty("groupId", 0)
+        self.floor_id = ValueProperty("floorId", 0)
+        self.default_entity_sets = DefaultEntitySetsList()
+        self.num_exit_portals = ValueProperty("numExitPortals", 0)
+        self.mlo_inst_flags = ValueProperty("MLOInstflags", 0)
+
+
 class EntityList(ListPropertyRequired):
     list_type = Entity
     tag_name = "entities"
+    item_tag_name = "Item"
+
+    @staticmethod
+    def from_xml(element: ET.Element):
+        new = EntityList()
+
+        for child in element:
+            if "type" in child.attrib:
+                entity_type = child.get("type")
+                if entity_type == "CEntityDef":
+                    new.value.append(Entity.from_xml(child))
+                elif entity_type == "CMloInstanceDef":
+                    new.value.append(EntityMloInstance.from_xml(child))
+                else:
+                    raise AssertionError(f"Unknown entity type '{entity_type}'")
+
+        return new
 
 
 class ContainerLodsList(ElementTree):
@@ -536,7 +575,70 @@ class PhysicsDictionariesList(ListProperty):
         return element
 
 
-# TODO: InstancedData
+class GrassInstance(ElementTree):
+    tag_name = "Item"
+
+    def __init__(self):
+        super().__init__()
+        self.position = InlineValueListProperty("Position")
+        self.normal_x = ValueProperty("NormalX")
+        self.normal_y = ValueProperty("NormalY")
+        self.color = InlineValueListProperty("Color")
+        self.scale = ValueProperty("Scale", 255)
+        self.ao = ValueProperty("Ao", 255)
+        # self.pad = InlineValueListProperty("Pad")
+
+
+class GrassInstanceList(ListPropertyRequired):
+    list_type = GrassInstance
+    tag_name = "InstanceList"
+
+    def __init__(self, tag_name=None, value=None):
+        super().__init__(tag_name, value)
+        self.item_type = AttributeProperty("itemType", "rage__fwGrassInstanceListDef__InstanceData")
+
+
+class GrassInstanceListAABB(ElementTree):
+    tag_name = "BatchAABB"
+
+    def __init__(self):
+        super().__init__()
+        self.min = Vector4Property("min")
+        self.max = Vector4Property("max")
+
+
+class GrassInstanceListDef(ElementTree):
+    tag_name = "Item"
+
+    def __init__(self):
+        super().__init__()
+        self.batch_aabb = GrassInstanceListAABB()
+        self.scale_range = VectorProperty("ScaleRange")
+        self.archetype_name = TextProperty("archetypeName")
+        self.lod_dist = ValueProperty("lodDist", 100.0)
+        self.lod_fade_start_dist = ValueProperty("LodFadeStartDist", 20.0)
+        self.lod_inst_fade_range = ValueProperty("LodInstFadeRange", 0.75)
+        self.orient_to_terrain = ValueProperty("OrientToTerrain", 1.0)
+        self.instance_list = GrassInstanceList()
+
+
+class GrassInstanceListDefList(ListPropertyRequired):
+    list_type = GrassInstanceListDef
+    tag_name = "GrassInstanceList"
+
+    def __init__(self, tag_name=None, value=None):
+        super().__init__(tag_name, value)
+        self.item_type = AttributeProperty("itemType", "rage__fwGrassInstanceListDef")
+
+
+class InstancedMapData(ElementTree):
+    tag_name = "instancedData"
+
+    def __init__(self):
+        super().__init__()
+        self.imap_link = TextProperty("ImapLink", "")
+        # self.prop_instance_list = ... # unused
+        self.grass_instance_list = GrassInstanceListDefList()
 
 
 class TimeCycleModifier(ElementTree):
@@ -590,10 +692,49 @@ class CarGeneratorsList(ListPropertyRequired):
         self.item_type = AttributeProperty("itemType", "CCarGen")
 
 
-# TODO: Lod Lights
+class FloatXYZ(ElementTree):
+    tag_name = "Item"
+
+    def __init__(self):
+        super().__init__()
+        self.x = ValueProperty("x")
+        self.y = ValueProperty("y")
+        self.z = ValueProperty("z")
 
 
-# TODO: Distant Lod Lights
+class FloatXYZList(ListPropertyRequired):
+    list_type = FloatXYZ
+    tag_name = "direction"
+
+    def __init__(self, tag_name=None, value=None):
+        super().__init__(tag_name, value)
+        self.item_type = AttributeProperty("itemType", "FloatXYZ")
+
+
+class LODLightsSOA(ElementTree):
+    tag_name = "LODLightsSOA"
+
+    def __init__(self):
+        super().__init__()
+        self.direction = FloatXYZList("direction")
+        self.falloff = InlineValueListProperty("falloff")
+        self.falloff_exponent = InlineValueListProperty("falloffExponent")
+        self.time_and_state_flags = InlineValueListProperty("timeAndStateFlags")
+        self.hash = InlineValueListProperty("hash")
+        self.cone_inner_angle = InlineValueListProperty("coneInnerAngle")
+        self.cone_outer_angle_or_cap_ext = InlineValueListProperty("coneOuterAngleOrCapExt")
+        self.corona_intensity = InlineValueListProperty("coronaIntensity")
+
+
+class DistantLODLightsSOA(ElementTree):
+    tag_name = "DistantLODLightsSOA"
+
+    def __init__(self):
+        super().__init__()
+        self.position = FloatXYZList("position")
+        self.rgbi = InlineValueListProperty("RGBI")
+        self.num_street_lights = ValueProperty("numStreetLights", 0)
+        self.category = ValueProperty("category", 0)
 
 
 class Block(ElementTree):
@@ -627,9 +768,9 @@ class CMapData(ElementTree, AbstractClass):
         self.box_occluders = BoxOccludersList()
         self.occlude_models = OccludeModelsList()
         self.physics_dictionaries = PhysicsDictionariesList()
-        # self.instanced_data = InstancedDataProperty()
+        self.instanced_data = InstancedMapData()
         self.time_cycle_modifiers = TimeCycleModifiersList()
         self.car_generators = CarGeneratorsList()
-        # self.lod_lights = LODLightsSOAProperty()
-        # self.distant_lod_lights = DistantLODLightsSOAProperty()
+        self.lod_lights_soa = LODLightsSOA()
+        self.distant_lod_lights_soa = DistantLODLightsSOA()
         self.block = Block()

@@ -8,11 +8,13 @@ from ..bounds import AssetBound
 from ..cloths import AssetClothDictionary
 from ..drawables import AssetDrawable, AssetDrawableDictionary
 from ..fragments import AssetFragment
+from ..maps import AssetMapData
 from ..textures import AssetTextureDictionary
 from . import bound as cwbnd
 from . import cloth as cwcloth
 from . import drawable as cwdr
 from . import fragment as cwfr
+from . import ymap as cwmap
 from . import ytyp as cwtyp
 from .adapters import (
     load_bound_from_cw,
@@ -20,6 +22,7 @@ from .adapters import (
     load_drawable_dictionary_from_cw,
     load_drawable_from_cw,
     load_fragment_from_cw,
+    load_map_data_from_cw,
     load_map_types_from_cw,
     load_txd_from_cw,
     save_bound_to_cw,
@@ -27,6 +30,7 @@ from .adapters import (
     save_drawable_dictionary_to_cw,
     save_drawable_to_cw,
     save_fragment_to_cw,
+    save_map_data_to_cw,
     save_map_types_to_cw,
     save_txd_to_cw,
 )
@@ -44,6 +48,7 @@ class CWProvider(ABC):
         ".yft": "Fragment",
         ".yld": "ClothDictionary",
         ".ytyp": "CMapTypes",
+        ".ymap": "CMapData",
         ".ytd": "TextureDictionary",
     }
 
@@ -74,6 +79,8 @@ class CWProvider(ABC):
                 return load_cloth_dictionary_from_cw(cwcloth.ClothDictionary.from_xml_file(path))
             case ".ytyp":
                 return load_map_types_from_cw(cwtyp.CMapTypes.from_xml_file(path))
+            case ".ymap":
+                return load_map_data_from_cw(cwmap.CMapData.from_xml_file(path))
             case ".ytd":
                 return load_txd_from_cw(cwdr.TextureDictionaryList.from_xml_file(path))
             case _:
@@ -100,6 +107,9 @@ class CWProvider(ABC):
         elif isinstance(asset, AssetMapTypes):
             path = directory / f"{name}.ytyp.xml"
             save_map_types_to_cw(asset).write_xml(path)
+        elif isinstance(asset, AssetMapData):
+            path = directory / f"{name}.ymap.xml"
+            save_map_data_to_cw(asset).write_xml(path)
         elif isinstance(asset, AssetTextureDictionary):
             path = directory / f"{name}.ytd.xml"
             save_txd_to_cw(asset).write_xml(path)
