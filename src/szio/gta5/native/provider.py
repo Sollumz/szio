@@ -5,8 +5,9 @@ import pymateria as pma
 import pymateria.gta5 as pm
 import pymateria.rsc7 as pmrsc
 
+from .._import_source import import_source
 from ..archetypes import AssetMapTypes
-from ..assets import Asset, AssetGame
+from ..assets import Asset, AssetGame, ProviderPath
 from ..bounds import AssetBound
 from ..cloths import AssetClothDictionary
 from ..maps import AssetMapData
@@ -37,9 +38,9 @@ class NativeProvider(ABC):
         ".ytd",
     }
 
-    def supports_file(self, path: Path) -> bool:
+    def supports_file(self, path: ProviderPath) -> bool:
         ext = path.suffix.lower()
-        if ext in NativeProvider.SUPPORTED_EXTENSIONS:
+        if ext in NativeProvider.SUPPORTED_EXTENSIONS and path.is_file():
             with path.open("rb") as f:
                 if header_data := f.read(pmrsc.Header.HEADER_SIZE):
                     header = pmrsc.Header(header_data) if len(header_data) == pmrsc.Header.HEADER_SIZE else None
@@ -60,18 +61,26 @@ class NativeProvider(ABC):
             case _:
                 raise ValueError(f"Unsupported file extension '{file_ext}'")
 
-    def load_file(self, path: Path) -> Asset:
+    def load_file(self, path: ProviderPath) -> Asset:
         match path.suffix.lower():
             case ".ybn":
-                return load_bound_from_native(pm.Bound.import_rsc(path).result)
+                with import_source(path) as src:
+                    result = pm.Bound.import_rsc(src).result
+                return load_bound_from_native(result)
             case ".yld":
-                return load_cloth_dictionary_from_native(pm.ClothDictionary.import_rsc(path).result)
+                with import_source(path) as src:
+                    result = pm.ClothDictionary.import_rsc(src).result
+                return load_cloth_dictionary_from_native(result)
             case ".ytyp":
                 # gen9 map types has some minimal differences (made some padding explicit fields, doesn't really affect anything)
                 # gen8 import can read both
-                return load_map_types_from_native(pm.gen8.MapTypes.import_rsc(path).result)
+                with import_source(path) as src:
+                    result = pm.gen8.MapTypes.import_rsc(src).result
+                return load_map_types_from_native(result)
             case ".ymap":
-                return load_map_data_from_native(pm.MapData.import_rsc(path).result)
+                with import_source(path) as src:
+                    result = pm.MapData.import_rsc(src).result
+                return load_map_data_from_native(result)
             case _:
                 raise ValueError(f"Unsupported file '{str(path)}'")
 

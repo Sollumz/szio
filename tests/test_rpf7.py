@@ -2,13 +2,18 @@
 through `szio.rpf.open_rpf` directly and through `VPath`."""
 
 import io
+from pathlib import Path
 
 import pytest
 
+import szio
 from szio import VPath
+from szio.assets import AssetGame
 from szio.gta5.native import IS_BACKEND_AVAILABLE
 from szio.rpf import open_rpf
 from szio.vfs import clear_archive_cache
+
+DATA_DIR = Path(__file__).parent / "data" / "gta5"
 
 pytestmark = pytest.mark.skipif(
     not IS_BACKEND_AVAILABLE,
@@ -41,9 +46,6 @@ def _clear_cache():
     clear_archive_cache()
     yield
     clear_archive_cache()
-
-
-# ----- Direct _Rpf7Archive (via open_rpf) -----
 
 
 def test_open_rpf_path_lists_root(tmp_path):
@@ -112,9 +114,6 @@ def test_open_rpf_stream_with_filename(tmp_path):
         arc.close()
 
 
-# ----- VPath integration -----
-
-
 def test_vpath_reads_through_rpf7(tmp_path):
     rpf = tmp_path / "pack.rpf"
     rpf.write_bytes(_build_rpf({"data/foo.xml": b"<root/>"}))
@@ -160,9 +159,6 @@ def test_vpath_missing_in_rpf_raises_file_not_found(tmp_path):
     rpf.write_bytes(_build_rpf({"a.bin": b"x"}))
     with pytest.raises(FileNotFoundError):
         (VPath(rpf) / "nope.bin").read_bytes()
-
-
-# ----- Nested RPF -----
 
 
 def test_vpath_reads_through_nested_rpf(tmp_path):
@@ -222,9 +218,6 @@ def test_cache_reuses_packfile(tmp_path, monkeypatch):
     assert counter["n"] == 1
 
 
-# ----- Backend regressions -----
-
-
 def test_backend_read_dir_raises_is_a_directory(tmp_path):
     rpf = tmp_path / "pack.rpf"
     rpf.write_bytes(_build_rpf({"dir/x.bin": b""}))
@@ -272,3 +265,61 @@ def test_backend_normal_archive_has_no_duplicate_children(tmp_path):
         assert sorted(arc.list_dir("")) == ["a"]
     finally:
         arc.close()
+
+
+# Minimal CWXML stubs; only the root element matters for detection/loading.
+_CWXML_STUBS = {
+    "test.ydr.xml": b"<Drawable />",
+    "test.ydd.xml": b"<DrawableDictionary />",
+    "test.ybn.xml": b'<BoundsFile><Bounds type="Composite" /></BoundsFile>',
+}
+
+
+@pytest.mark.parametrize("entry", sorted(_CWXML_STUBS))
+def test_try_load_asset_cwxml_inside_rpf(entry, tmp_path):
+    rpf = tmp_path / "pack.rpf"
+    rpf.write_bytes(_build_rpf({entry: _CWXML_STUBS[entry]}))
+
+    asset = szio.try_load_asset(VPath(rpf) / entry)
+    assert asset is not None
+    assert asset.ASSET_GAME == AssetGame.GTA5
+
+
+def test_try_load_asset_native_inside_rpf(tmp_path):
+    # Embed a real native resource and import it straight out of the archive.
+    data = (DATA_DIR / "test_bounds.ybn").read_bytes()
+    rpf = tmp_path / "pack.rpf"
+    rpf.write_bytes(_build_rpf({"test_bounds.ybn": data}))
+
+    asset = szio.try_load_asset(VPath(rpf) / "test_bounds.ybn")
+    assert asset is not None
+    assert asset.ASSET_GAME == AssetGame.GTA5
+
+
+def test_try_load_asset_os_backed_vpath_native(tmp_path):
+    # OS-backed VPath exercises the seam's path branch for the native backend.
+    asset = szio.try_load_asset(VPath(DATA_DIR / "test_bounds.ybn"))
+    assert asset is not None
+    assert asset.ASSET_GAME == AssetGame.GTA5
+
+
+def test_try_load_asset_missing_cwxml_entry_returns_none(tmp_path):
+    rpf = tmp_path / "pack.rpf"
+    rpf.write_bytes(_build_rpf({"test.ydr.xml": b"<Drawable />"}))
+
+    assert szio.try_load_asset(VPath(rpf) / "missing.ydr.xml") is None
+
+
+def test_try_load_asset_missing_native_entry_returns_none(tmp_path):
+    rpf = tmp_path / "pack.rpf"
+    rpf.write_bytes(_build_rpf({"a.ybn": b"not a real resource"}))
+
+    # A missing in-archive entry must return None, not raise FileNotFoundError.
+    assert szio.try_load_asset(VPath(rpf) / "missing.ybn") is None
+
+
+def test_try_load_asset_wrong_root_inside_rpf_returns_none(tmp_path):
+    rpf = tmp_path / "pack.rpf"
+    rpf.write_bytes(_build_rpf({"test.ydr.xml": b"<SomethingElse />"}))
+
+    assert szio.try_load_asset(VPath(rpf) / "test.ydr.xml") is None

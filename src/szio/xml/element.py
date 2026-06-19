@@ -4,7 +4,7 @@ from abc import ABC as AbstractClass
 from abc import abstractclassmethod, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional
+from typing import IO, Any, Optional
 from xml.etree import ElementTree as ET
 
 from numpy import float32
@@ -12,11 +12,13 @@ from numpy import float32
 from ..types import Matrix, Quaternion, Vector
 
 
-def get_xml_root_tag(path: Path) -> Optional[str]:
-    """Gets the tag name of the root element without parsing the whole XML."""
-    if not path.is_file():
-        return None
-    for event, elem in ET.iterparse(path, events=("start",)):
+def get_xml_root_tag(source: Path | IO[bytes]) -> Optional[str]:
+    """Gets the tag name of the root element without parsing the whole XML.
+
+    `source` is a path or an open binary stream. Callers are responsible for
+    existence checks (a missing path raises rather than returning None).
+    """
+    for event, elem in ET.iterparse(source, events=("start",)):
         return elem.tag
     return None
 
@@ -90,8 +92,8 @@ class Element(AbstractClass):
         raise NotImplementedError
 
     @classmethod
-    def from_xml_file(cls, filepath):
-        """Read XML from filepath"""
+    def from_xml_file(cls, filepath: Path | IO[bytes]):
+        """Read XML from a path or an open binary stream"""
         element_tree = ET.ElementTree()
         element_tree.parse(filepath)
         return cls.from_xml(element_tree.getroot())

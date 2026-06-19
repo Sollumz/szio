@@ -1,10 +1,12 @@
 """Tests for asset loading, game detection, and the AssetGame enum."""
 
+import io
 from pathlib import Path
 
 import pytest
 
 import szio
+from szio import VPath
 from szio.assets import AssetGame
 from szio.gta5 import AssetFormat, AssetTarget, AssetVersion
 
@@ -93,6 +95,24 @@ class TestTryLoadAsset:
     def test_returns_none_for_missing_file(self, tmp_path: Path):
         assert szio.try_load_asset(tmp_path / "nonexistent.ydr.xml") is None
 
+    @pytest.mark.parametrize("ext", [".ydr", ".ydd", ".ybn"])
+    def test_accepts_str_path(self, ext: str, tmp_path: Path):
+        _, content = GTA5_XMLS[ext]
+        path = _write_xml(tmp_path, ext, content)
+
+        asset = szio.try_load_asset(str(path))
+        assert asset is not None
+        assert asset.ASSET_GAME == AssetGame.GTA5
+
+    @pytest.mark.parametrize("ext", [".ydr", ".ydd", ".ybn"])
+    def test_accepts_os_backed_vpath(self, ext: str, tmp_path: Path):
+        _, content = GTA5_XMLS[ext]
+        path = _write_xml(tmp_path, ext, content)
+
+        asset = szio.try_load_asset(VPath(path))
+        assert asset is not None
+        assert asset.ASSET_GAME == AssetGame.GTA5
+
 
 class TestSaveAsset:
     """Tests for the top-level szio.save_asset dispatch."""
@@ -113,3 +133,72 @@ class TestSaveAsset:
         reloaded = szio.try_load_asset(out_dir / f"roundtrip{ext}.xml")
         assert reloaded is not None
         assert reloaded.ASSET_GAME == AssetGame.GTA5
+
+
+class _InMemoryArchive:
+    """Minimal in-memory RpfArchive double, mirroring tests/test_vfs.py.
+
+    Only the methods VPath needs to resolve and read an in-archive entry
+    are implemented, so the in-archive load path can be tested without the
+    native backend.
+    """
+
+    def __init__(self, entries: dict[str, bytes]):
+        self._files = {p.strip("/"): data for p, data in entries.items()}
+        self._dirs = {""}
+        for p in self._files:
+            parts = p.split("/")
+            for i in range(len(parts)):
+                self._dirs.add("/".join(parts[:i]))
+
+    def close(self):
+        pass
+
+    def exists(self, inner: str) -> bool:
+        inner = inner.strip("/")
+        return inner in self._files or inner in self._dirs
+
+    def is_file(self, inner: str) -> bool:
+        return inner.strip("/") in self._files
+
+    def is_dir(self, inner: str) -> bool:
+        return inner.strip("/") in self._dirs
+
+    def list_dir(self, inner: str) -> list[str]:
+        inner = inner.strip("/")
+        prefix = inner + "/" if inner else ""
+        return sorted({f[len(prefix):].split("/")[0] for f in self._files if f.startswith(prefix)})
+
+    def read_bytes(self, inner: str) -> bytes:
+        return self._files[inner.strip("/")]
+
+    def open_bytes(self, inner: str) -> io.BytesIO:
+        return io.BytesIO(self.read_bytes(inner))
+
+
+class TestTryLoadAssetInsideArchive:
+    """Load assets from inside an RPF archive via VPath, backend-independent."""
+
+    def _vpath_in_archive(self, tmp_path: Path, monkeypatch, entry: str, content: bytes) -> VPath:
+        from szio.vfs import clear_archive_cache
+
+        archive = _InMemoryArchive({entry: content})
+        rpf = tmp_path / "pack.rpf"
+        rpf.write_bytes(b"RPF7stub")
+        monkeypatch.setattr("szio.rpf.open_rpf", lambda *a, **k: archive)
+        clear_archive_cache()
+        return VPath(rpf) / entry
+
+    @pytest.mark.parametrize("ext", [".ydr", ".ydd", ".ybn"])
+    def test_loads_cwxml_asset_from_inside_archive(self, ext: str, tmp_path: Path, monkeypatch):
+        _, content = GTA5_XMLS[ext]
+        vpath = self._vpath_in_archive(tmp_path, monkeypatch, f"test{ext}.xml", content.encode("utf-8"))
+
+        asset = szio.try_load_asset(vpath)
+        assert asset is not None
+        assert asset.ASSET_GAME == AssetGame.GTA5
+
+    def test_wrong_root_inside_archive_returns_none(self, tmp_path: Path, monkeypatch):
+        vpath = self._vpath_in_archive(tmp_path, monkeypatch, "test.ydr.xml", b"<SomethingElse />")
+
+        assert szio.try_load_asset(vpath) is None

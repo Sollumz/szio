@@ -3,10 +3,11 @@ from pathlib import Path
 import pymateria.gta5.gen9 as pmg9
 
 from ..archetypes import AssetMapTypes
-from ..assets import Asset, AssetFormat, AssetVersion
+from ..assets import Asset, AssetFormat, AssetVersion, ProviderPath
 from ..drawables import AssetDrawable, AssetDrawableDictionary, AssetFragDrawable
 from ..fragments import AssetFragment
 from ..textures import AssetTextureDictionary
+from .._import_source import import_source
 from .adapters import (
     load_drawable_dictionary_from_native_g9,
     load_drawable_from_native_g9,
@@ -38,19 +39,23 @@ class NativeProviderG9(NativeProvider):
             case _:
                 return super().get_supported_rsc_version(file_ext)
 
-    def load_file(self, path: Path) -> Asset:
+    def load_file(self, path: ProviderPath) -> Asset:
         match path.suffix.lower():
             case ".ydr":
-                drawable = pmg9.Drawable.import_rsc(path).result
+                with import_source(path) as src:
+                    drawable = pmg9.Drawable.import_rsc(src).result
                 return load_drawable_from_native_g9(drawable)
             case ".ydd":
-                dwd = pmg9.DrawableDictionary.import_rsc(path).result
+                with import_source(path) as src:
+                    dwd = pmg9.DrawableDictionary.import_rsc(src).result
                 return load_drawable_dictionary_from_native_g9(dwd)
             case ".yft":
-                fragment = pmg9.Fragment.import_rsc(path).result
+                with import_source(path) as src:
+                    fragment = pmg9.Fragment.import_rsc(src).result
                 return load_fragment_from_native_g9(fragment)
             case ".ytd":
-                txd = pmg9.TextureDictionary.import_rsc(path).result
+                with import_source(path) as src:
+                    txd = pmg9.TextureDictionary.import_rsc(src).result
                 return load_txd_from_native_g9(txd)
             case _:
                 return super().load_file(path)

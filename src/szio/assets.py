@@ -1,5 +1,13 @@
+import os
 from enum import Enum, auto
 from pathlib import Path
+from typing import TypeAlias
+
+from .vfs import VPath
+
+# A path-like accepted by asset import. `VPath` is listed explicitly because an
+# in-archive VPath is not `os.PathLike` (its `__fspath__` raises).
+AssetPath: TypeAlias = str | os.PathLike | VPath
 
 
 class AssetGame(Enum):
@@ -7,7 +15,7 @@ class AssetGame(Enum):
     RDR2 = auto()
 
 
-def try_load_asset(path: Path, *, return_target: bool = False):
+def try_load_asset(path: AssetPath, *, return_target: bool = False):
     """Try to load a RAGE asset file, auto-detecting the game from the asset format."""
     from .gta5.assets import try_load_asset as _gta5_try_load
 

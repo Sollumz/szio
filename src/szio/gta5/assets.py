@@ -3,9 +3,15 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from functools import cache
 from pathlib import Path
-from typing import Literal, NamedTuple, Protocol, overload, runtime_checkable
+from typing import Literal, NamedTuple, Protocol, TypeAlias, overload, runtime_checkable
 
-from ..assets import AssetGame
+from ..assets import AssetGame, AssetPath
+from ..vfs import VPath
+
+# The path types providers operate on, after `try_load_asset` normalizes its
+# wider public `AssetPath` input to a VPath. Both expose `.suffix`/`.suffixes`/
+# `.is_file()`/`.open()`, which a bare `str`/`os.PathLike` does not.
+ProviderPath: TypeAlias = Path | VPath
 
 
 class AssetFormat(Enum):
@@ -74,9 +80,9 @@ class AssetProvider(Protocol):
     ASSET_FORMAT: AssetFormat
     ASSET_VERSION: AssetVersion
 
-    def supports_file(self, path: Path) -> bool: ...
+    def supports_file(self, path: ProviderPath) -> bool: ...
 
-    def load_file(self, path: Path) -> Asset: ...
+    def load_file(self, path: ProviderPath) -> Asset: ...
 
     def save_asset(self, asset: Asset, directory: Path, name: str, tool_metadata: tuple[str, str] | None = None): ...
 
@@ -104,12 +110,15 @@ def is_provider_available(target_or_format: AssetTarget | AssetFormat) -> bool:
 
 
 @overload
-def try_load_asset(path: Path, *, return_target: Literal[False] = ...) -> Asset | None: ...
+def try_load_asset(path: AssetPath, *, return_target: Literal[False] = ...) -> Asset | None: ...
 @overload
-def try_load_asset(path: Path, *, return_target: Literal[True]) -> tuple[Asset, AssetTarget] | None: ...
+def try_load_asset(path: AssetPath, *, return_target: Literal[True]) -> tuple[Asset, AssetTarget] | None: ...
 
 
-def try_load_asset(path: Path, *, return_target: bool = False) -> Asset | tuple[Asset, AssetTarget] | None:
+def try_load_asset(path: AssetPath, *, return_target: bool = False) -> Asset | tuple[Asset, AssetTarget] | None:
+    # Normalize to VPath: gives providers a uniform type with .suffix/.suffixes
+    # for dispatch, and lets bare str and in-archive paths work identically.
+    path = path if isinstance(path, VPath) else VPath(path)
     for t, p in get_providers().items():
         if p.supports_file(path):
             asset = p.load_file(path)

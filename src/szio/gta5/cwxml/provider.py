@@ -2,8 +2,9 @@ from abc import ABC
 from pathlib import Path
 
 from ...xml import get_xml_root_tag
+from .._import_source import import_source
 from ..archetypes import AssetMapTypes
-from ..assets import Asset, AssetFormat, AssetGame, AssetVersion
+from ..assets import Asset, AssetFormat, AssetGame, AssetVersion, ProviderPath
 from ..bounds import AssetBound
 from ..cloths import AssetClothDictionary
 from ..drawables import AssetDrawable, AssetDrawableDictionary
@@ -52,39 +53,43 @@ class CWProvider(ABC):
         ".ytd": "TextureDictionary",
     }
 
-    def supports_file(self, path: Path) -> bool:
+    def supports_file(self, path: ProviderPath) -> bool:
         suffixes = path.suffixes
         if (
             len(suffixes) >= 2
             and suffixes[-1].lower() == CWProvider.XML_EXTENSION
             and (ext := suffixes[-2].lower()) in CWProvider.SUPPORTED_EXTENSIONS
         ):
+            if not path.is_file():
+                return False
             expected_root_element_name = CWProvider.SUPPORTED_EXTENSIONS[ext]
-            return get_xml_root_tag(path) == expected_root_element_name
+            with import_source(path) as src:
+                return get_xml_root_tag(src) == expected_root_element_name
 
         return False
 
-    def load_file(self, path: Path) -> Asset:
+    def load_file(self, path: ProviderPath) -> Asset:
         suffixes = path.suffixes
-        match suffixes[-2].lower():
-            case ".ybn":
-                return load_bound_from_cw(cwbnd.BoundFile.from_xml_file(path).composite)
-            case ".ydr":
-                return load_drawable_from_cw(cwdr.Drawable.from_xml_file(path))
-            case ".ydd":
-                return load_drawable_dictionary_from_cw(cwdr.DrawableDictionary.from_xml_file(path))
-            case ".yft":
-                return load_fragment_from_cw(cwfr.Fragment.from_xml_file(path))
-            case ".yld":
-                return load_cloth_dictionary_from_cw(cwcloth.ClothDictionary.from_xml_file(path))
-            case ".ytyp":
-                return load_map_types_from_cw(cwtyp.CMapTypes.from_xml_file(path))
-            case ".ymap":
-                return load_map_data_from_cw(cwmap.CMapData.from_xml_file(path))
-            case ".ytd":
-                return load_txd_from_cw(cwdr.TextureDictionaryList.from_xml_file(path))
-            case _:
-                raise ValueError(f"Unsupported file '{str(path)}'")
+        with import_source(path) as src:
+            match suffixes[-2].lower():
+                case ".ybn":
+                    return load_bound_from_cw(cwbnd.BoundFile.from_xml_file(src).composite)
+                case ".ydr":
+                    return load_drawable_from_cw(cwdr.Drawable.from_xml_file(src))
+                case ".ydd":
+                    return load_drawable_dictionary_from_cw(cwdr.DrawableDictionary.from_xml_file(src))
+                case ".yft":
+                    return load_fragment_from_cw(cwfr.Fragment.from_xml_file(src))
+                case ".yld":
+                    return load_cloth_dictionary_from_cw(cwcloth.ClothDictionary.from_xml_file(src))
+                case ".ytyp":
+                    return load_map_types_from_cw(cwtyp.CMapTypes.from_xml_file(src))
+                case ".ymap":
+                    return load_map_data_from_cw(cwmap.CMapData.from_xml_file(src))
+                case ".ytd":
+                    return load_txd_from_cw(cwdr.TextureDictionaryList.from_xml_file(src))
+                case _:
+                    raise ValueError(f"Unsupported file '{str(path)}'")
 
     def save_asset(self, asset: Asset, directory: Path, name: str, tool_metadata: tuple[str, str] | None = None):
         if isinstance(asset, AssetBound):

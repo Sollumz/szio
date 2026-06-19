@@ -2,10 +2,11 @@ from pathlib import Path
 
 import pymateria.gta5.gen8 as pmg8
 
-from ..assets import Asset, AssetFormat, AssetVersion
+from ..assets import Asset, AssetFormat, AssetVersion, ProviderPath
 from ..drawables import AssetDrawable, AssetDrawableDictionary, AssetFragDrawable
 from ..fragments import AssetFragment
 from ..textures import AssetTextureDictionary
+from .._import_source import import_source
 from .adapters import (
     load_drawable_dictionary_from_native_g8,
     load_drawable_from_native_g8,
@@ -36,19 +37,23 @@ class NativeProviderG8(NativeProvider):
             case _:
                 return super().get_supported_rsc_version(file_ext)
 
-    def load_file(self, path: Path) -> Asset:
+    def load_file(self, path: ProviderPath) -> Asset:
         match path.suffix.lower():
             case ".ydr":
-                drawable = pmg8.Drawable.import_rsc(path).result
+                with import_source(path) as src:
+                    drawable = pmg8.Drawable.import_rsc(src).result
                 return load_drawable_from_native_g8(drawable)
             case ".ydd":
-                dwd = pmg8.DrawableDictionary.import_rsc(path).result
+                with import_source(path) as src:
+                    dwd = pmg8.DrawableDictionary.import_rsc(src).result
                 return load_drawable_dictionary_from_native_g8(dwd)
             case ".yft":
-                fragment = pmg8.Fragment.import_rsc(path).result
+                with import_source(path) as src:
+                    fragment = pmg8.Fragment.import_rsc(src).result
                 return load_fragment_from_native_g8(fragment)
             case ".ytd":
-                txd = pmg8.TextureDictionary.import_rsc(path).result
+                with import_source(path) as src:
+                    txd = pmg8.TextureDictionary.import_rsc(src).result
                 return load_txd_from_native_g8(txd)
             case _:
                 return super().load_file(path)
