@@ -430,8 +430,8 @@ def to_cw_extension(extension: Extension) -> cwm.Extension:
         case ExtensionSpawnPointOverride():
             e = cwm.ExtensionSpawnPointOverride()
             e.scenario_type = extension.scenario_type
-            e.time_start_override = extension.itime_start_override
-            e.time_end_override = extension.itime_end_override
+            e.itime_start_override = extension.itime_start_override
+            e.itime_end_override = extension.itime_end_override
             e.group = extension.group
             e.model_set = extension.model_set
             e.available_in_mp_sp = extension.available_in_mp_sp
