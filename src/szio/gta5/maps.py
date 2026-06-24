@@ -198,9 +198,9 @@ class MapBoxOccluder:
 
     @center.setter
     def center(self, v: Vector):
-        self.center_x = int(v.x * 4.0)
-        self.center_y = int(v.y * 4.0)
-        self.center_z = int(v.z * 4.0)
+        self.center_x = round(v.x * 4.0)
+        self.center_y = round(v.y * 4.0)
+        self.center_z = round(v.z * 4.0)
 
     @property
     def size(self) -> Vector:
@@ -208,9 +208,9 @@ class MapBoxOccluder:
 
     @size.setter
     def size(self, v: Vector) -> Vector:
-        self.length = int(v.x * 4.0)
-        self.width = int(v.y * 4.0)
-        self.height = int(v.z * 4.0)
+        self.length = round(v.x * 4.0)
+        self.width = round(v.y * 4.0)
+        self.height = round(v.z * 4.0)
 
     @property
     def cos_sin_z(self) -> tuple[float, float]:
@@ -218,8 +218,8 @@ class MapBoxOccluder:
 
     @cos_sin_z.setter
     def cos_sin_z(self, v: tuple[float, float]):
-        self.cos_z = int(v[0] * 16384.0)
-        self.sin_z = int(v[1] * 16384.0)
+        self.cos_z = round(v[0] * 16384.0)
+        self.sin_z = round(v[1] * 16384.0)
 
 
 class MapModelOccluderFlags(Flag):
