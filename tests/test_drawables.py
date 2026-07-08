@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 import szio.gta5.native
-from szio._dds import DdsFile
+from szio.dds import DdsFile
 from szio.gta5 import (
     AssetTextureDictionary,
     AssetDrawable,

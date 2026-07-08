@@ -70,7 +70,7 @@ def _import_dds(tex: pmg8.Texture | pmg9.Texture, data: DataSource | None) -> bo
         import io
         import math
 
-        from ...._dds import DdsFile
+        from ....dds import DdsFile
 
         data_bytes = bytearray(data.read_bytes())
         try:

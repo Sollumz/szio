@@ -2,7 +2,7 @@ from pathlib import Path
 
 
 def stub_dds(input_path: Path, output_dir: Path | None = None) -> Path:
-    from szio._dds import DdsFile
+    from szio.dds import DdsFile
 
     dummy_data = b"textureforsziotests"
 
