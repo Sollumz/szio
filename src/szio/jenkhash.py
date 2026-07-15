@@ -42,9 +42,12 @@ def name_to_hash(name: str) -> int:
         return 0
 
     if name.startswith("hash_"):
-        return int(name[5:], 16) & 0xFFFFFFFF
-    else:
-        return hash_string(name)
+        try:
+            return int(name[5:], 16) & 0xFFFFFFFF
+        except ValueError:
+            pass
+
+    return hash_string(name)
 
 
 def hash_to_name(hash_value: int) -> str:
