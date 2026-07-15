@@ -472,16 +472,22 @@ class ShaderManager:
     def find_shader(filename: str) -> Optional[ShaderDef]:
         shader = ShaderManager._shaders.get(filename, None)
         if shader is None and filename.startswith("hash_"):
-            filename_hash = int(filename[5:], 16)
-            shader = ShaderManager._shaders_by_hash.get(filename_hash, None)
+            try:
+                filename_hash = int(filename[5:], 16)
+                shader = ShaderManager._shaders_by_hash.get(filename_hash, None)
+            except ValueError:
+                pass
         return shader
 
     @staticmethod
     def find_shader_preset_name(base_name: str, render_bucket: int) -> Optional[str]:
         shader = ShaderManager._shaders_by_base_name_and_rb.get((base_name, render_bucket), None)
         if shader is None and base_name.startswith("hash_"):
-            base_name_hash = int(base_name[5:], 16)
-            shader = ShaderManager._shaders_by_base_name_hash_and_rb.get((base_name_hash, render_bucket), None)
+            try:
+                base_name_hash = int(base_name[5:], 16)
+                shader = ShaderManager._shaders_by_base_name_hash_and_rb.get((base_name_hash, render_bucket), None)
+            except ValueError:
+                pass
 
         return shader.preset_name if shader is not None else None
 

@@ -105,14 +105,23 @@ def _h2s(h: pm.gta5.CombinedHashString | pm.gta5.HashString) -> str:
     return try_resolve_maybe_hashed_name(h.string_or_placeholder.lower()) if h.hash != 0 else ""
 
 
+def _s2h_value(s: str) -> int | str:
+    if s == "":
+        return 0
+    if s.startswith("hash_"):
+        try:
+            return int(s[5:], 16) & 0xFFFFFFFF
+        except ValueError:
+            pass
+    return s
+
+
 def _s2h(s: str) -> pm.gta5.CombinedHashString:
-    h = (int(s[5:], 16) & 0xFFFFFFFF) if s.startswith("hash_") else 0 if s == "" else s
-    return pm.gta5.CombinedHashString(h)
+    return pm.gta5.CombinedHashString(_s2h_value(s))
 
 
 def s2hs(s: str) -> pm.gta5.HashString:
-    h = (int(s[5:], 16) & 0xFFFFFFFF) if s.startswith("hash_") else 0 if s == "" else s
-    return pm.gta5.HashString(h)
+    return pm.gta5.HashString(_s2h_value(s))
 
 
 @cache
