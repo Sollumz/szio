@@ -4,22 +4,27 @@ import struct
 import numpy as np
 
 
-def decompress_row(data_rle_reader: io.BytesIO) -> tuple[int, int, bytes, int, int | None, bytes | None]:
-    start2 = None
+def decompress_row(data_rle_reader: io.BytesIO) -> tuple[int, int | None, bytes | None, int, int | None, bytes | None]:
+    start1 = data_rle_reader.read(1)[0]
+    end1 = None
+    data1 = None
+    start2 = 255
     end2 = None
     data2 = None
-    start1 = data_rle_reader.read(1)[0]
-    end1 = data_rle_reader.read(1)[0]
-    n = (end1 - start1) + 1
-    data1 = data_rle_reader.read(n)
-    if n > 0:
-        start2 = data_rle_reader.read(1)[0]
 
-        if start2 != 255:
-            end2 = data_rle_reader.read(1)[0]
+    if start1 != 255:
+        end1 = data_rle_reader.read(1)[0]
+        n = (end1 - start1) + 1
+        data1 = data_rle_reader.read(n)
 
-            n2 = (end2 - start2) + 1
-            data2 = data_rle_reader.read(n2)
+        if n > 0:
+            start2 = data_rle_reader.read(1)[0]
+
+            if start2 != 255:
+                end2 = data_rle_reader.read(1)[0]
+
+                n2 = (end2 - start2) + 1
+                data2 = data_rle_reader.read(n2)
 
     return start1, end1, data1, start2, end2, data2
 
@@ -33,7 +38,7 @@ def decompress_shattermap(data_rle: bytes, cols: int, rows: int) -> np.ndarray:
 
     out_data = np.empty((rows, cols), dtype=np.float32)
     for row in range(rows):
-        start1, end1, data1, start2, end2, data2 = decompress_row(data_rle_reader)
+        start1, _, data1, start2, _, data2 = decompress_row(data_rle_reader)
 
         p = 0
         out_data_row = out_data[rows - 1 - row]
@@ -59,7 +64,7 @@ def decompress_shattermap(data_rle: bytes, cols: int, rows: int) -> np.ndarray:
     return out_data
 
 
-def compress_row(data_row: np.ndarray) -> tuple[int, int, bytes, int, int | None, bytes | None]:
+def compress_row(data_row: np.ndarray) -> tuple[int, int | None, bytes | None, int, int | None, bytes | None]:
     cols = len(data_row)
     non_zeros = np.where(data_row != 0)[0]
     fulls = np.where(data_row == 255)[0]
@@ -73,22 +78,26 @@ def compress_row(data_row: np.ndarray) -> tuple[int, int, bytes, int, int | None
         longest_fulls_run = np.array([], dtype=np.int64)
     needs_split = len(longest_fulls_run) > 1
 
-    start1 = non_zeros[0]
-    end1 = (longest_fulls_run[0] - 1) if needs_split else non_zeros[-1]
-    if end1 == -1:
-        end1 = 0
-    data1 = bytes(data_row[start1 : end1 + 1])
+    start1 = 255
+    end1 = None
+    data1 = None
+    start2 = 255
+    end2 = None
+    data2 = None
 
-    if needs_split:
-        start2 = longest_fulls_run[-1] + 1
-        if start2 == cols:
-            start2 -= 1
-        end2 = non_zeros[-1]
-        data2 = bytes(data_row[start2 : end2 + 1])
-    else:
-        start2 = 255
-        end2 = None
-        data2 = None
+    if len(non_zeros) > 0:
+        start1 = non_zeros[0]
+        end1 = (longest_fulls_run[0] - 1) if needs_split else non_zeros[-1]
+        if end1 == -1:
+            end1 = 0
+        data1 = bytes(data_row[start1 : end1 + 1])
+
+        if needs_split:
+            start2 = longest_fulls_run[-1] + 1
+            if start2 == cols:
+                start2 -= 1
+            end2 = non_zeros[-1]
+            data2 = bytes(data_row[start2 : end2 + 1])
 
     return start1, end1, data1, start2, end2, data2
 
@@ -97,7 +106,7 @@ def compress_shattermap(shattermap: np.ndarray) -> bytes:
     if shattermap.shape == (0, 0):
         return bytes()
 
-    rows, cols = shattermap.shape
+    rows, _ = shattermap.shape
     data = (shattermap.clip(0.0, 1.0) * 255).astype(np.uint8)
     data_rle_builder = io.BytesIO()
 
@@ -118,13 +127,16 @@ def compress_shattermap(shattermap: np.ndarray) -> bytes:
 
         start1, end1, data1, start2, end2, data2 = compress_row(data_row)
         data_rle_builder.write(_u8(start1))
-        data_rle_builder.write(_u8(end1))
-        if ((end1 - start1) + 1) > 0:
-            data_rle_builder.write(data1)
-            data_rle_builder.write(_u8(start2))
-            if start2 != 255:
-                data_rle_builder.write(_u8(end2))
-                data_rle_builder.write(data2)
+        if start1 != 255:
+            assert end1 is not None and data1 is not None
+            data_rle_builder.write(_u8(end1))
+            if ((end1 - start1) + 1) > 0:
+                data_rle_builder.write(data1)
+                data_rle_builder.write(_u8(start2))
+                if start2 != 255:
+                    assert end2 is not None and data2 is not None
+                    data_rle_builder.write(_u8(end2))
+                    data_rle_builder.write(data2)
 
     # Fill out row offsets
     data_rle_builder.seek(0, io.SEEK_SET)
@@ -166,28 +178,34 @@ def shattermap_from_ascii(data_ascii: list[str], cols: int, rows: int) -> np.nda
 
 
 def row_to_ascii(
-    cols: int, start1: int, end1: int, data1: bytes, start2: int, end2: int | None, data2: bytes | None
+    cols: int, start1: int, end1: int | None, data1: bytes | None, start2: int, end2: int | None, data2: bytes | None
 ) -> str:
-    row_str = "##" * start1
-    row_str += "".join(f"{v:02X}" for v in data1)
-    if start2 != 255:
-        row_str += "--" * (start2 - end1 - 1)
-        row_str += "".join(f"{v:02X}" for v in data2)
-        row_str += "##" * (cols - end2 - 1)
+    if start1 != 255:
+        assert end1 is not None and data1 is not None
+        row_str = "##" * start1
+        row_str += "".join(f"{v:02X}" for v in data1)
+        if start2 != 255:
+            assert end2 is not None and data2 is not None
+            row_str += "--" * (start2 - end1 - 1)
+            row_str += "".join(f"{v:02X}" for v in data2)
+            row_str += "##" * (cols - end2 - 1)
+        else:
+            row_str += "##" * (cols - end1 - 1)
     else:
-        row_str += "##" * (cols - end1 - 1)
+        row_str = "##" * cols
+
     return row_str
 
 
 def shattermap_to_ascii(shattermap: np.ndarray) -> list[str]:
-    rows, cols = shattermap.shape
+    _, cols = shattermap.shape
     data = (shattermap.clip(0.0, 1.0) * 255).astype(np.uint8)
-    rows = [row_to_ascii(cols, *compress_row(data_row)) for data_row in reversed(data)]
-    return rows
+    rows_ascii = [row_to_ascii(cols, *compress_row(data_row)) for data_row in reversed(data)]
+    return rows_ascii
 
 
 def shattermap_compressed_to_ascii(data_rle: bytes, cols: int, rows: int) -> list[str]:
     data_rle_reader = io.BytesIO(data_rle)
     data_rle_reader.seek(2 * rows, io.SEEK_SET)
-    rows = [row_to_ascii(cols, *decompress_row(data_rle_reader)) for _ in range(rows)]
-    return rows
+    rows_ascii = [row_to_ascii(cols, *decompress_row(data_rle_reader)) for _ in range(rows)]
+    return rows_ascii
