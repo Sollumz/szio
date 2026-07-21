@@ -244,7 +244,7 @@ def from_native_extension(extension: pm.Extension) -> Extension | None:
                 **base_kwargs,
             )
 
-    logging.getLogger(__name__).warning(f"Unsupported extension type '{extension.type}'")
+    logging.getLogger(__name__).warning(f"Unsupported extension type '{type(extension).__name__}'")
     return None
 
 
