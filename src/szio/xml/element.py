@@ -464,16 +464,16 @@ class MatrixProperty(ElementProperty):
 
     @staticmethod
     def from_xml(element: ET.Element):
-        s_mtx = element.text.strip().replace("\n", "").split("   ")
-        s_mtx = [s for s in s_mtx if s]  # removes empty strings
+        # One matrix row per line. Split each line on any whitespace (spaces,
+        # tabs, or a mix) so files that delimit values with tabs parse correctly.
+        # Rows may have fewer values than the matrix has columns (e.g. 4x3
+        # fragment bound matrices); the remaining columns keep their defaults.
+        rows = [line.split() for line in (element.text or "").splitlines()]
+        rows = [row for row in rows if row]  # remove empty lines
         m = Matrix()
-        r_idx = 0
-        for item in s_mtx:
-            v_idx = 0
-            for value in item.strip().split(" "):
+        for r_idx, row in enumerate(rows):
+            for v_idx, value in enumerate(row):
                 m[r_idx][v_idx] = float(value)
-                v_idx += 1
-            r_idx += 1
         return MatrixProperty(element.tag, m)
 
     def to_xml(self):
@@ -498,17 +498,15 @@ class Matrix33Property(ElementProperty):
 
     @staticmethod
     def from_xml(element: ET.Element):
-        s_mtx = element.text.strip().replace("\n", "").split("   ")
-        s_mtx = [s for s in s_mtx if s]  # removes empty strings
-        m = Matrix.Diagonal((0, 0, 0))
-        r_idx = 0
-        for item in s_mtx:
-            v_idx = 0
-            for value in item.strip().split(" "):
+        # One matrix row per line. Split each line on any whitespace (spaces,
+        # tabs, or a mix) so files that delimit values with tabs parse correctly.
+        rows = [line.split() for line in (element.text or "").splitlines()]
+        rows = [row for row in rows if row]  # remove empty lines
+        m = Matrix(((0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.0)))
+        for r_idx, row in enumerate(rows):
+            for v_idx, value in enumerate(row):
                 m[r_idx][v_idx] = float(value)
-                v_idx += 1
-            r_idx += 1
-        return MatrixProperty(element.tag, m)
+        return Matrix33Property(element.tag, m)
 
     def to_xml(self):
         if self.value is None:
