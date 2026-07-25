@@ -310,3 +310,18 @@ class AssetMapData:
     lod_lights: MapLodLights | None = None
     distant_lod_lights: MapDistantLodLights | None = None
     description: MapBlockDescription | None = None
+
+
+@dataclass(slots=True)
+class AssetMapParentTxds:
+    """Parent-child texture dictionary relationships, as stored in `gtxd.meta` and `gtxd.ymt`.
+
+    A texture dictionary inherits the textures of its parent, and a parent may itself be the child of another
+    texture dictionary, so the relationships can form a hierarchy of any depth.
+    """
+
+    ASSET_GAME: AssetGame = AssetGame.GTA5
+    ASSET_TYPE: AssetType = AssetType.MAP_PARENT_TXDS
+
+    #: Maps each child texture dictionary to the name of its parent.
+    parents: dict[str, str] = field(default_factory=dict)

@@ -9,7 +9,7 @@ from ..bounds import AssetBound
 from ..cloths import AssetClothDictionary
 from ..drawables import AssetDrawable, AssetDrawableDictionary
 from ..fragments import AssetFragment
-from ..maps import AssetMapData
+from ..maps import AssetMapData, AssetMapParentTxds
 from ..textures import AssetTextureDictionary
 from . import bound as cwbnd
 from . import cloth as cwcloth
@@ -32,6 +32,8 @@ from .adapters import (
     save_drawable_to_cw,
     save_fragment_to_cw,
     save_map_data_to_cw,
+    load_map_parent_txds_from_cw,
+    save_map_parent_txds_to_cw,
     save_map_types_to_cw,
     save_txd_to_cw,
 )
@@ -53,7 +55,21 @@ class CWProvider(ABC):
         ".ytd": "TextureDictionary",
     }
 
+    #: gtxd files are plain XML but do not follow the `<name>.<ext>.xml` convention of the other assets
+    GTXD_EXTENSIONS = (".meta", ".ymt.rbf.xml")
+
+    def _supports_gtxd_file(self, path: ProviderPath) -> bool:
+        name = path.name.lower()
+        if not any(name.endswith(ext) for ext in CWProvider.GTXD_EXTENSIONS) or not path.is_file():
+            return False
+
+        with import_source(path) as src:
+            return get_xml_root_tag(src) == "CMapParentTxds"
+
     def supports_file(self, path: ProviderPath) -> bool:
+        if self._supports_gtxd_file(path):
+            return True
+
         suffixes = path.suffixes
         if (
             len(suffixes) >= 2
@@ -69,6 +85,10 @@ class CWProvider(ABC):
         return False
 
     def load_file(self, path: ProviderPath) -> Asset:
+        if self._supports_gtxd_file(path):
+            with import_source(path) as src:
+                return load_map_parent_txds_from_cw(cwmap.CMapParentTxds.from_xml_file(src))
+
         suffixes = path.suffixes
         with import_source(path) as src:
             match suffixes[-2].lower():
@@ -118,6 +138,9 @@ class CWProvider(ABC):
         elif isinstance(asset, AssetTextureDictionary):
             path = directory / f"{name}.ytd.xml"
             save_txd_to_cw(asset).write_xml(path)
+        elif isinstance(asset, AssetMapParentTxds):
+            path = directory / f"{name}.meta"
+            save_map_parent_txds_to_cw(asset).write_xml(path)
         else:
             raise ValueError(f"Unsupported asset '{asset}' (name: '{name}', directory: '{str(directory)}')")
 
