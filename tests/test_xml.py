@@ -3,7 +3,15 @@ from xml.etree import ElementTree as ET
 import pytest
 
 from szio.gta5.cwxml.ymap import HexColorProperty
-from szio.xml.element import ElementTree, TextProperty, ValueProperty, VectorProperty, get_str_type
+from szio.xml.element import (
+    ElementTree,
+    Matrix33Property,
+    MatrixProperty,
+    TextProperty,
+    ValueProperty,
+    VectorProperty,
+    get_str_type,
+)
 
 
 @pytest.mark.parametrize("string, expected", (
@@ -168,3 +176,82 @@ class TestRoundtripWithNoneChildren:
         assert obj2.inner is not None
         assert obj2.inner.name == "world"
         assert obj2.inner.count == 3
+
+
+IDENTITY_4X4 = (
+    (1.0, 0.0, 0.0, 0.0),
+    (0.0, 1.0, 0.0, 0.0),
+    (0.0, 0.0, 1.0, 0.0),
+    (0.0, 0.0, 0.0, 1.0),
+)
+
+
+@pytest.mark.parametrize("text", (
+    # newline rows with space indentation and space-separated values (CodeWalker style)
+    "\n   1 0 0 0\n   0 1 0 0\n   0 0 1 0\n   0 0 0 1\n",
+    # tab-separated values with tab indentation (#1217)
+    "\n\t1\t0\t0\t0\n\t0\t1\t0\t0\n\t0\t0\t1\t0\n\t0\t0\t0\t1\n",
+    # mixed: spaces and runs of tabs inside a row (#1217)
+    "\n   1 0 0 0\n   0\t\t\t\t\t1 0 0\n   0 0 1 0\n   0 0 0 1\n",
+), ids=("spaces", "tabs", "mixed_tabs"))
+def test_matrix_property_whitespace_tolerant(text):
+    elem = ET.Element("CompositeTransform")
+    elem.text = text
+    prop = MatrixProperty.from_xml(elem)
+    for r in range(4):
+        for c in range(4):
+            assert float(prop.value[r][c]) == IDENTITY_4X4[r][c]
+
+
+@pytest.mark.parametrize("text", (
+    # CodeWalker writes fragment bound matrices as 4 rows x 3 columns;
+    # the 4th column of each row must keep its identity default
+    "\n   1 0 0\n   0 1 0\n   0 0 1\n   5 6 7\n",
+    "\n\t1\t0\t0\n\t0\t1\t0\n\t0\t0\t1\n\t5\t6\t7\n",
+), ids=("spaces", "tabs"))
+def test_matrix_property_4x3_rows_keep_last_column_default(text):
+    elem = ET.Element("Matrix")
+    elem.text = text
+    prop = MatrixProperty.from_xml(elem)
+    expected = ((1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (5, 6, 7, 1))
+    for r in range(4):
+        for c in range(4):
+            assert float(prop.value[r][c]) == expected[r][c]
+
+
+def test_matrix_property_partial_rows_keep_default():
+    # 12 values only fill the first 3 rows; the last identity row is untouched
+    elem = ET.Element("Transform")
+    elem.text = "\n   2 0 0 0\n   0 2 0 0\n   0 0 2 0\n"
+    prop = MatrixProperty.from_xml(elem)
+    expected = ((2, 0, 0, 0), (0, 2, 0, 0), (0, 0, 2, 0), (0, 0, 0, 1))
+    for r in range(4):
+        for c in range(4):
+            assert float(prop.value[r][c]) == expected[r][c]
+
+
+def test_matrix_property_roundtrip():
+    elem = ET.Element("Transform")
+    elem.text = "\n   1 2 3 4\n   5 6 7 8\n   9 10 11 12\n   13 14 15 16\n"
+    prop = MatrixProperty.from_xml(elem)
+    prop.tag_name = "Transform"
+    out = prop.to_xml()
+    prop2 = MatrixProperty.from_xml(out)
+    for r in range(4):
+        for c in range(4):
+            assert float(prop2.value[r][c]) == float(prop.value[r][c])
+
+
+@pytest.mark.parametrize("text", (
+    "\n   1 2 3\n   4 5 6\n   7 8 9\n",
+    "\n\t1\t2\t3\n\t4\t5\t6\n\t7\t8\t9\n",
+), ids=("spaces", "tabs"))
+def test_matrix33_property_whitespace_tolerant(text):
+    elem = ET.Element("Rotation")
+    elem.text = text
+    prop = Matrix33Property.from_xml(elem)
+    assert isinstance(prop, Matrix33Property)
+    expected = ((1, 2, 3), (4, 5, 6), (7, 8, 9))
+    for r in range(3):
+        for c in range(3):
+            assert float(prop.value[r][c]) == expected[r][c]
