@@ -1,3 +1,5 @@
+import numpy as np
+
 import pymateria as pma
 import pymateria.gta5 as pm
 import pymateria.gta5.gen8 as pmg8
@@ -58,17 +60,24 @@ from .drawable import (
 
 def _get_vehicle_windows(vw: pmg8.VehicleWindow | pmg9.VehicleWindow) -> list[FragVehicleWindow]:
     def _map_window(w: pm.Window) -> FragVehicleWindow:
+        width, height = w.data_cols, w.data_rows
+        try:
+            shattermap = decompress_shattermap(w.data_rle, width, height)
+        except Exception:
+            width, height = 1, 1
+            shattermap = np.empty((0, 0), dtype=np.float32)
+
         return FragVehicleWindow(
             basis=from_native_mat34(w.basis).transposed(),
             component_id=w.component_id,
             geometry_index=w.geom_index,
-            width=w.data_cols,
-            height=w.data_rows,
+            width=width,
+            height=height,
             scale=w.scale,
             flags=w.flags,
             data_min=w.min,
             data_max=w.max,
-            shattermap=decompress_shattermap(w.data_rle, w.data_cols, w.data_rows),
+            shattermap=shattermap,
         )
 
     return [_map_window(p.window) for p in vw.window_proxies] if vw else []
