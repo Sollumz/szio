@@ -413,6 +413,8 @@ class ShaderManager:
         for node in tree.getroot():
             base_name = node.find("Name").text
             base_name_hash = jenkhash.hash_string(base_name)
+            template = ShaderDef.from_xml(node)
+
             for filename_elem in node.findall("./FileName//*"):
                 filename = filename_elem.text
 
@@ -422,7 +424,14 @@ class ShaderManager:
                 filename_hash = jenkhash.hash_string(filename)
                 render_bucket = int(filename_elem.attrib["bucket"])
 
-                shader = ShaderDef.from_xml(node)
+                shader = ShaderDef()
+                shader.tag_name = template.tag_name
+                shader.flags = template.flags
+                shader.layouts = template.layouts
+                shader.parameters = template.parameters
+                shader.uv_maps = template.uv_maps
+                shader.parameter_map = template.parameter_map
+                shader.parameter_ui_order = template.parameter_ui_order
                 shader.base_name = base_name
                 shader.preset_name = filename
                 shader.render_bucket = render_bucket

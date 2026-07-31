@@ -1,4 +1,5 @@
 import io
+import logging
 import struct
 
 import numpy as np
@@ -156,7 +157,7 @@ def shattermap_from_ascii(data_ascii: list[str], cols: int, rows: int) -> np.nda
             value = int(value, 16)
             return value / 255
 
-    data = np.empty((rows, cols), dtype=np.float32)
+    data = np.zeros((rows, cols), dtype=np.float32)
     for row_idx, row in enumerate(reversed(data_ascii)):
         frow = [row[x : x + 2] for x in range(0, len(row), 2)]
         # Need to check for malformed shattermaps. ZModeler shattermaps seem to be missing a value of "--" when "--"
@@ -169,6 +170,12 @@ def shattermap_from_ascii(data_ascii: list[str], cols: int, rows: int) -> np.nda
                 idx = None
             if idx is not None:
                 frow.insert(idx, "--")
+
+        if len(frow) != cols:
+            logging.getLogger(__name__).warning(
+                f"Malformed shattermap row {row_idx}: expected {cols} values, got {len(frow)}"
+            )
+            frow = frow[:cols]
 
         data_row = data[row_idx]
         for col_idx, value in enumerate(frow):

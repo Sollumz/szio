@@ -116,9 +116,14 @@ class ElementTree(Element):
         if new.tag_name != element.tag:
             new.tag_name = element.tag
 
+        children_by_tag = {}
+        for child in element:
+            if child.tag not in children_by_tag:
+                children_by_tag[child.tag] = child
+
         for prop_name, obj_element in vars(new).items():
             if isinstance(obj_element, Element):
-                child = element.find(obj_element.tag_name)
+                child = children_by_tag.get(obj_element.tag_name)
                 if child is not None and obj_element.tag_name == child.tag:
                     # Add element to object if tag is defined in class definition
                     setattr(new, prop_name, type(obj_element).from_xml(child))
@@ -150,26 +155,22 @@ class ElementTree(Element):
         return root
 
     def __getattribute__(self, key: str, onlyValue: bool = True):
-        obj = None
-        # Try and see if key exists
         try:
-            obj = object.__getattribute__(self, key)
-            if isinstance(obj, (ElementProperty, AttributeProperty)) and onlyValue:
-                # If the property is an ElementProperty or AttributeProperty, and onlyValue is true, return just the value of the Element property
-                return obj.value
-            else:
-                return obj
+            obj = _object_getattribute(self, key)
         except AttributeError:
             # Key doesn't exist, return None
             return None
+        if onlyValue and isinstance(obj, _PROPERTY_TYPES):
+            return obj.value
+        return obj
 
     def __setattr__(self, name: str, value) -> None:
         # Get the full object
         obj = self.__getattribute__(name, False)
         if (
             obj is not None
-            and isinstance(obj, (ElementProperty, AttributeProperty))
-            and not isinstance(value, (ElementProperty, AttributeProperty))
+            and isinstance(obj, _PROPERTY_TYPES)
+            and not isinstance(value, _PROPERTY_TYPES)
         ):
             # If the object is an ElementProperty or AttributeProperty, set it's value
             obj.value = value
@@ -212,6 +213,10 @@ class ElementProperty(Element, AbstractClass):
         if value is not None and not isinstance(value, self.value_types):
             raise TypeError(f"Value of {type(self).__name__} must be one of {self.value_types}, not {type(value)}!")
         self.value = value
+
+
+_PROPERTY_TYPES = (ElementProperty, AttributeProperty)
+_object_getattribute = object.__getattribute__
 
 
 class ListProperty(ElementProperty, AbstractClass):
@@ -494,7 +499,7 @@ class Matrix33Property(ElementProperty):
     value_types = Matrix
 
     def __init__(self, tag_name: str, value=None):
-        super().__init__(tag_name, value or Matrix.Diagonal((0, 0, 0)))
+        super().__init__(tag_name, value or Matrix(((0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.0))))
 
     @staticmethod
     def from_xml(element: ET.Element):
@@ -549,7 +554,7 @@ class FlagsProperty(ElementProperty):
         for item in self.value:
             # Should be a list of strings
             if not isinstance(item, str):
-                return TypeError("FlagsProperty can only contain str objects!")
+                raise TypeError("FlagsProperty can only contain str objects!")
 
         if len(self.value) > 0:
             element.text = ", ".join(self.value)

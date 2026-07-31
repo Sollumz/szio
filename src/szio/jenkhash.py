@@ -8,23 +8,19 @@ from pathlib import Path
 from typing import Sequence
 
 
+_MASK32 = 0xFFFFFFFF
+
 def hash_data(data: bytes, seed: int = 0) -> int:
-    h = seed
+    h = seed & _MASK32
 
     for b in data:
-        h += b
-        h &= 0xFFFFFFFF
-        h += (h << 10) & 0xFFFFFFFF
-        h &= 0xFFFFFFFF
-        h ^= (h >> 6) & 0xFFFFFFFF
-        h &= 0xFFFFFFFF
+        h = (h + b) & _MASK32
+        h = (h + (h << 10)) & _MASK32
+        h ^= h >> 6
 
-    h += (h << 3) & 0xFFFFFFFF
-    h &= 0xFFFFFFFF
-    h ^= (h >> 11) & 0xFFFFFFFF
-    h &= 0xFFFFFFFF
-    h += (h << 15) & 0xFFFFFFFF
-    h &= 0xFFFFFFFF
+    h = (h + (h << 3)) & _MASK32
+    h ^= h >> 11
+    h = (h + (h << 15)) & _MASK32
 
     return h
 
@@ -95,7 +91,8 @@ class HashResolver:
         return hashlib.md5(nt.encode("utf-8")).hexdigest()
 
     def _load_nametable_from_cache(self, nt_id: str) -> bool:
-        self.load_cache()
+        if self._cache is None:
+            self._cache = {}
         if (cache_dict := self._cache.get(nt_id, None)) is None:
             return False
 
@@ -103,7 +100,8 @@ class HashResolver:
         return True
 
     def _save_nametable_to_cache(self, nt_id: str, d: dict[int, str]):
-        self.load_cache()
+        if self._cache is None:
+            self._cache = {}
         self._cache[nt_id] = d
 
     def load_nametable(self, nt: str):

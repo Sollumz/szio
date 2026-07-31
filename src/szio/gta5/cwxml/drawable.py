@@ -400,19 +400,31 @@ class VertexLayoutList(ElementProperty):
         return element
 
 
+_NP_STR_CHUNK_ROWS = 4096
+
 def np_arr_to_str(arr: NDArray, fmt: str):
     """Convert numpy array to formatted string (faster than np.savetxt)"""
     n_fmt_chars = fmt.count("%")
 
     if arr.ndim == 1 and n_fmt_chars == 1:
         fmt = " ".join([fmt] * arr.size)
-    else:
-        if n_fmt_chars == 1:
-            fmt = " ".join([fmt] * arr.shape[1])
+        return fmt % tuple(arr.ravel())
 
-        fmt = "\n".join([fmt] * arr.shape[0])
+    if n_fmt_chars == 1:
+        fmt = " ".join([fmt] * arr.shape[1])
 
-    return fmt % tuple(arr.ravel())
+    num_rows = arr.shape[0]
+    if num_rows <= _NP_STR_CHUNK_ROWS:
+        return "\n".join([fmt] * num_rows) % tuple(arr.ravel())
+
+    chunk_fmt = "\n".join([fmt] * _NP_STR_CHUNK_ROWS)
+    chunks = []
+    for start in range(0, num_rows, _NP_STR_CHUNK_ROWS):
+        rows = arr[start : start + _NP_STR_CHUNK_ROWS]
+        f = chunk_fmt if len(rows) == _NP_STR_CHUNK_ROWS else "\n".join([fmt] * len(rows))
+        chunks.append(f % tuple(rows.ravel()))
+
+    return "\n".join(chunks)
 
 
 class VertexBuffer(ElementTree):
@@ -446,11 +458,11 @@ class VertexBuffer(ElementTree):
         return new
 
     def to_xml(self):
+        if self.data is None:
+            return super().to_xml()
+
         self.layout = self.data.dtype.names
         element = super().to_xml()
-
-        if self.data is None:
-            return element
 
         data_elem = ET.Element("Data")
         data_elem.text = self._data_to_str()

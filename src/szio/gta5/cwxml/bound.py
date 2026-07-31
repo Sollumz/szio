@@ -257,18 +257,20 @@ class VertexColorProperty(ElementProperty):
         return new
 
     def to_xml(self):
-        element = ET.Element(self.tag_name)
-        element.text = "\n"
-
         if len(self.value) == 0:
             return None
 
+        text = ["\n"]
+
         for color in self.value:
             for index, component in enumerate(color):
-                element.text += str(int(component))
+                text.append(str(int(component)))
                 if index < len(color) - 1:
-                    element.text += ", "
-            element.text += "\n"
+                    text.append(", ")
+            text.append("\n")
+
+        element = ET.Element(self.tag_name)
+        element.text = "".join(text)
 
         return element
 
