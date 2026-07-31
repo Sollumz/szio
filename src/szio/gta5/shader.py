@@ -430,13 +430,11 @@ class ShaderManager:
                 assert filename not in ShaderManager._shaders, f"Shader definition '{filename}' already registered"
                 ShaderManager._shaders[filename] = shader
                 ShaderManager._shaders_by_hash[filename_hash] = shader
-                # Don't overwrite presets with their gta_ alias presets (e.g spec.sps with gta_spec.sps). They are the same
-                # shader but their non-gta_ preset name is more commonly used, so when looking up a preset by base name+render
-                # bucket we want the non-gta_ one.
-                if (
-                    not filename.startswith("gta_")
-                    or (base_name, render_bucket) not in ShaderManager._shaders_by_base_name_and_rb
-                ):
+                # When multiple presets share the same base shader and render bucket, the first one listed in
+                # Shaders.xml is the canonical/most common one (e.g. vehicle_vehglass.sps before vehicle_lights.sps,
+                # spec.sps before its gta_spec.sps alias), so keep the first registered entry for base name+render
+                # bucket lookups.
+                if (base_name, render_bucket) not in ShaderManager._shaders_by_base_name_and_rb:
                     ShaderManager._shaders_by_base_name_and_rb[(base_name, render_bucket)] = shader
                     ShaderManager._shaders_by_base_name_hash_and_rb[(base_name_hash, render_bucket)] = shader
 
