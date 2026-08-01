@@ -8,23 +8,20 @@ from pathlib import Path
 from typing import Sequence
 
 
+_MASK32 = 0xFFFFFFFF
+
+
 def hash_data(data: bytes, seed: int = 0) -> int:
-    h = seed
+    h = seed & _MASK32
 
     for b in data:
-        h += b
-        h &= 0xFFFFFFFF
-        h += (h << 10) & 0xFFFFFFFF
-        h &= 0xFFFFFFFF
-        h ^= (h >> 6) & 0xFFFFFFFF
-        h &= 0xFFFFFFFF
+        h = (h + b) & _MASK32
+        h = (h + (h << 10)) & _MASK32
+        h ^= h >> 6
 
-    h += (h << 3) & 0xFFFFFFFF
-    h &= 0xFFFFFFFF
-    h ^= (h >> 11) & 0xFFFFFFFF
-    h &= 0xFFFFFFFF
-    h += (h << 15) & 0xFFFFFFFF
-    h &= 0xFFFFFFFF
+    h = (h + (h << 3)) & _MASK32
+    h ^= h >> 11
+    h = (h + (h << 15)) & _MASK32
 
     return h
 
