@@ -95,7 +95,8 @@ class HashResolver:
         return hashlib.md5(nt.encode("utf-8")).hexdigest()
 
     def _load_nametable_from_cache(self, nt_id: str) -> bool:
-        self.load_cache()
+        if self._cache is None:
+            self._cache = {}
         if (cache_dict := self._cache.get(nt_id, None)) is None:
             return False
 
@@ -103,7 +104,8 @@ class HashResolver:
         return True
 
     def _save_nametable_to_cache(self, nt_id: str, d: dict[int, str]):
-        self.load_cache()
+        if self._cache is None:
+            self._cache = {}
         self._cache[nt_id] = d
 
     def load_nametable(self, nt: str):
