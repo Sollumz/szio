@@ -494,7 +494,7 @@ class Matrix33Property(ElementProperty):
     value_types = Matrix
 
     def __init__(self, tag_name: str, value=None):
-        super().__init__(tag_name, value or Matrix.Diagonal((0, 0, 0)))
+        super().__init__(tag_name, value or Matrix(((0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.0))))
 
     @staticmethod
     def from_xml(element: ET.Element):
@@ -549,7 +549,7 @@ class FlagsProperty(ElementProperty):
         for item in self.value:
             # Should be a list of strings
             if not isinstance(item, str):
-                return TypeError("FlagsProperty can only contain str objects!")
+                raise TypeError("FlagsProperty can only contain str objects!")
 
         if len(self.value) > 0:
             element.text = ", ".join(self.value)
