@@ -446,11 +446,11 @@ class VertexBuffer(ElementTree):
         return new
 
     def to_xml(self):
+        if self.data is None:
+            return super().to_xml()
+
         self.layout = self.data.dtype.names
         element = super().to_xml()
-
-        if self.data is None:
-            return element
 
         data_elem = ET.Element("Data")
         data_elem.text = self._data_to_str()
