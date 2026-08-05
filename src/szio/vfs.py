@@ -2,6 +2,7 @@ import errno
 import fnmatch
 import functools
 import io
+import logging
 import os
 import pathlib
 import re
@@ -1058,6 +1059,14 @@ class _DataSourceVPath(DataSource):
         return self._vpath.read_bytes()
 
 
+def _open_archive(opener, name: str) -> RpfArchive:
+    try:
+        return opener()
+    except RuntimeError as e:
+        logging.getLogger(__name__).warning(f"Skipping invalid archive '{name}': {e}")
+        raise OSError(errno.EIO, f"invalid archive: {e}", name) from e
+
+
 class _ArchiveCache:
     _MAX = 256
 
@@ -1072,7 +1081,7 @@ class _ArchiveCache:
         if archive is not None:
             self._data.move_to_end(key)
             return archive
-        archive = _rpf.open_rpf(resolved_path)
+        archive = _open_archive(lambda: _rpf.open_rpf(resolved_path), str(resolved_path))
         self._data[key] = archive
         self._evict_oldest()
         return archive
@@ -1091,14 +1100,22 @@ class _ArchiveCache:
         if archive is not None:
             self._data.move_to_end(key)
             return archive
-        archive = outer.open_nested(inner_rel) if hasattr(outer, "open_nested") else None
+        name = "/".join(str(part) for part in key)
+        archive = (
+            _open_archive(lambda: outer.open_nested(inner_rel), name)
+            if hasattr(outer, "open_nested")
+            else None
+        )
         if archive is None:
             # Fallback: open the nested entry from a stream, handing it ownership
             # so the stream is released on eviction/clear instead of leaking.
             stream = outer.open_bytes(inner_rel)
             try:
-                archive = _rpf.open_rpf(
-                    stream, filename=inner_rel.rsplit("/", 1)[-1], owns_stream=True
+                archive = _open_archive(
+                    lambda: _rpf.open_rpf(
+                        stream, filename=inner_rel.rsplit("/", 1)[-1], owns_stream=True
+                    ),
+                    name,
                 )
             except BaseException:
                 stream.close()
