@@ -127,6 +127,7 @@ from .maps import (
     MAP_GRASS_INSTANCES_DTYPE,
     MAP_LOD_LIGHT_DTYPE,
     AssetMapData,
+    AssetMapParentTxds,
     MapBlockDescription,
     MapBoxOccluder,
     MapCarGenerator,

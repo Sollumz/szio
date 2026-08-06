@@ -6,6 +6,7 @@ from ....types import Vector
 from ... import jenkhash
 from ...entities import Entity, MapEntity
 from ...maps import (
+    AssetMapParentTxds,
     MAP_DISTANT_LOD_LIGHT_DTYPE,
     MAP_GRASS_INSTANCES_DTYPE,
     MAP_LOD_LIGHT_DTYPE,
@@ -404,4 +405,25 @@ def save_map_data_to_cw(asset: AssetMapData) -> cw.CMapData:
         _save_distant_lod_lights(asset.distant_lod_lights, t.distant_lod_lights_soa)
     if asset.description is not None:
         _save_description(asset.description, t.block)
+    return t
+
+
+def load_map_parent_txds_from_cw(t: cw.CMapParentTxds) -> AssetMapParentTxds:
+    parents = {}
+    for relationship in t.txd_relationships:
+        if relationship.parent and relationship.child:
+            # A texture dictionary can only inherit from a single parent, keep the first one
+            parents.setdefault(relationship.child, relationship.parent)
+
+    return AssetMapParentTxds(parents=parents)
+
+
+def save_map_parent_txds_to_cw(asset: AssetMapParentTxds) -> cw.CMapParentTxds:
+    t = cw.CMapParentTxds()
+    for child, parent in asset.parents.items():
+        relationship = cw.TxdRelationship()
+        relationship.parent = parent
+        relationship.child = child
+        t.txd_relationships.append(relationship)
+
     return t
