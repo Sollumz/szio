@@ -103,6 +103,11 @@ from .drawable import (
 from .fragment import (
     YFT,
     Archetype,
+    ArticulatedBody,
+    ArticulatedBodyJoint,
+    ArticulatedBodyJoint1Dof,
+    ArticulatedBodyJoint3Dof,
+    ArticulatedBodyJointsList,
     BoneTransform,
     BoneTransformsList,
     DrawablesList,

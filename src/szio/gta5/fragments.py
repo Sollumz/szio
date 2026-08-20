@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -33,6 +34,46 @@ class PhysArchetype:
     inertia_inv: Vector
 
 
+class PhysJointType(Enum):
+    DOF1 = 0
+    DOF3 = 1
+
+
+@dataclass(slots=True)
+class PhysJoint(ABC):
+    stiffness: float
+    parent_link_index: int
+    orient_parent: Matrix
+    orient_child: Matrix
+
+    @property
+    @abstractmethod
+    def joint_type(self) -> PhysJointType: ...
+
+
+@dataclass(slots=True)
+class PhysJoint1Dof(PhysJoint):
+    hard_angle_min: float
+    hard_angle_max: float
+    max_muscle_torque: float
+    min_muscle_torque: float
+
+    @property
+    def joint_type(self) -> PhysJointType:
+        return PhysJointType.DOF1
+
+
+@dataclass(slots=True)
+class PhysJoint3Dof(PhysJoint):
+    hard_first_lean_angle_max: float
+    hard_second_lean_angle_max: float
+    hard_twist_angle_max: float
+
+    @property
+    def joint_type(self) -> PhysJointType:
+        return PhysJointType.DOF3
+
+
 @dataclass(slots=True)
 class PhysChild:
     group_index: int
@@ -40,9 +81,10 @@ class PhysChild:
     damaged_mass: float
     drawable: AssetFragDrawable | None
     damaged_drawable: AssetFragDrawable | None
-    min_breaking_impulse: float  # TODO(io): import/export phys child min breaking impulse
+    min_breaking_impulse: float
     inertia: Vector
     damaged_inertia: Vector
+    joint: PhysJoint | None = None
 
 
 @dataclass(slots=True)
@@ -79,6 +121,9 @@ class PhysGroup:
     glass_window_index: int
 
 
+PHYS_ARTICULATED_BODY_MAX_JOINTS = 22
+
+
 @dataclass(slots=True)
 class PhysLod:
     archetype: PhysArchetype
@@ -98,6 +143,8 @@ class PhysLod:
     damping_angular_v: Vector
     damping_angular_v2: Vector
     link_attachments: list[Matrix]
+    self_collisions: list[tuple[int, int]] = field(default_factory=list)
+    has_articulated_body: bool = False
 
 
 @dataclass(slots=True)

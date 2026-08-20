@@ -657,7 +657,7 @@ class Vector4ListProperty(ElementProperty):
     @staticmethod
     def from_xml(element: ET.Element):
         new = Vector4ListProperty(element.tag, [])
-        text = element.text.strip().split("\n")
+        text = (element.text or "").strip().split("\n")
         if len(text) > 0:
             for line in text:
                 coords = line.strip().split(",")

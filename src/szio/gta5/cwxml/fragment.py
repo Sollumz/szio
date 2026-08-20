@@ -1,4 +1,5 @@
 from abc import ABC as AbstractClass
+from abc import abstractmethod
 from xml.etree import ElementTree as ET
 
 from ...types import Matrix
@@ -6,11 +7,13 @@ from ...xml import (
     AttributeProperty,
     ElementProperty,
     ElementTree,
+    InlineValueListProperty,
     ListProperty,
     Matrix33Property,
     MatrixProperty,
     TextProperty,
     ValueProperty,
+    Vector4ListProperty,
     Vector4Property,
     VectorProperty,
 )
@@ -151,6 +154,71 @@ class GroupsList(ListProperty):
     tag_name = "Groups"
 
 
+class ArticulatedBodyJoint(ElementTree, AbstractClass):
+    tag_name = "Item"
+
+    @property
+    @abstractmethod
+    def type(self) -> str:
+        raise NotImplementedError
+
+    def __init__(self):
+        super().__init__()
+        self.type = AttributeProperty("type", self.type)
+        self.frag_index_1 = ValueProperty("FragIndex1")
+        self.frag_index_2 = ValueProperty("FragIndex2")
+        self.stiffness = ValueProperty("Unknown10")
+        self.orient_parent_x = Vector4Property("Unknown20")
+        self.orient_parent_y = Vector4Property("Unknown30")
+        self.orient_parent_z = Vector4Property("Unknown40")
+        self.orient_parent_t = Vector4Property("Unknown50")
+        self.orient_child_x = Vector4Property("Unknown60")
+        self.orient_child_y = Vector4Property("Unknown70")
+        self.orient_child_z = Vector4Property("Unknown80")
+        self.orient_child_t = Vector4Property("Unknown90")
+        self.limits = Vector4Property("UnknownA0")
+
+
+class ArticulatedBodyJoint1Dof(ArticulatedBodyJoint):
+    type = "DOF1"
+
+
+class ArticulatedBodyJoint3Dof(ArticulatedBodyJoint):
+    type = "DOF3"
+
+
+class ArticulatedBodyJointsList(ListProperty):
+    list_type = ArticulatedBodyJoint
+    tag_name = "Joints"
+    item_tag_name = "Item"
+
+    @staticmethod
+    def from_xml(element: ET.Element):
+        new = ArticulatedBodyJointsList()
+
+        for child in element.findall("Item"):
+            joint_type = child.get("type")
+            if joint_type == "DOF1":
+                new.value.append(ArticulatedBodyJoint1Dof.from_xml(child))
+            elif joint_type == "DOF3":
+                new.value.append(ArticulatedBodyJoint3Dof.from_xml(child))
+            else:
+                raise ValueError(f"Unknown articulated body joint type '{joint_type}'")
+
+        return new
+
+
+class ArticulatedBody(ElementTree):
+    tag_name = "ArticulatedBody"
+
+    def __init__(self):
+        super().__init__()
+        self.item_indices = InlineValueListProperty("ItemIndices")
+        self.item_flags = InlineValueListProperty("ItemFlags")
+        self.unknown_vectors = Vector4ListProperty("UnknownVectors")
+        self.joints = ArticulatedBodyJointsList()
+
+
 class PhysicsLOD(ElementTree):
     tag_name = "LOD"
 
@@ -171,9 +239,12 @@ class PhysicsLOD(ElementTree):
         self.damping_angular_v2 = VectorProperty("DampingAngularV2")
         self.archetype = Archetype()
         self.damaged_archetype = Archetype("Archetype2")
+        self.articulated_body = ArticulatedBody()
         self.transforms = TransformsList()
         self.groups = GroupsList()
         self.children = ChildrenList()
+        self.unknown_data_1 = InlineValueListProperty("UnknownData1")
+        self.unknown_data_2 = InlineValueListProperty("UnknownData2")
 
 
 class Physics(ElementTree):

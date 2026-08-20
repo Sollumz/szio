@@ -1,11 +1,14 @@
 """Tests for the szio.gta5 API using anonymized test data files."""
 
+import re
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
 
 from szio.assets import AssetGame
 from szio.gta5 import (
+    PHYS_ARTICULATED_BODY_MAX_JOINTS,
     AssetBound,
     AssetDrawable,
     AssetDrawableDictionary,
@@ -18,11 +21,18 @@ from szio.gta5 import (
     CollisionFlags,
     FragmentTemplateAsset,
     LodLevel,
+    PhysChild,
+    PhysJoint,
+    PhysJoint1Dof,
+    PhysJoint3Dof,
+    PhysJointType,
+    PhysLod,
     RenderBucket,
     save_asset,
     try_load_asset,
 )
 from szio.gta5.native import IS_BACKEND_AVAILABLE
+from szio.types import Matrix, Vector
 
 DATA_DIR = Path(__file__).parent / "data" / "gta5"
 
@@ -385,6 +395,80 @@ class TestFragmentDamagedCWXML(FragmentTests):
         assert damaged.mass == pytest.approx(80.0)
 
 
+class FragmentArticulatedTests:
+    """Shared articulated fragment test methods. Subclasses provide the `fragment` fixture."""
+
+    def test_has_articulated_body(self, fragment: AssetFragment):
+        lod = fragment.physics.lod1
+        assert lod.has_articulated_body
+        assert len(lod.children) == 3
+
+    def test_root_link_has_no_joint(self, fragment: AssetFragment):
+        assert fragment.physics.lod1.children[0].joint is None
+
+    def test_link_inertia_and_mass(self, fragment: AssetFragment):
+        # a link is the physics child it describes, so the articulated body adds no mass/inertia
+        children = fragment.physics.lod1.children
+        masses = [60.0, 30.0, 10.0]
+        inertias = [(0.5, 0.4, 0.3), (0.05, 0.04, 0.03), (0.005, 0.004, 0.003)]
+        for child, mass, inertia in zip(children, masses, inertias, strict=True):
+            assert child.pristine_mass == pytest.approx(mass)
+            assert tuple(child.inertia)[:3] == pytest.approx(inertia)
+
+    def test_joint_3dof(self, fragment: AssetFragment):
+        joint = fragment.physics.lod1.children[1].joint
+        assert isinstance(joint, PhysJoint3Dof)
+        assert joint.joint_type == PhysJointType.DOF3
+        assert joint.parent_link_index == 0
+        assert joint.stiffness == pytest.approx(0.825)
+        assert joint.hard_first_lean_angle_max == pytest.approx(0.319066)
+        assert joint.hard_second_lean_angle_max == pytest.approx(0.319066)
+        assert joint.hard_twist_angle_max == pytest.approx(0.144533)
+
+    def test_joint_1dof(self, fragment: AssetFragment):
+        joint = fragment.physics.lod1.children[2].joint
+        assert isinstance(joint, PhysJoint1Dof)
+        assert joint.joint_type == PhysJointType.DOF1
+        assert joint.parent_link_index == 1
+        assert joint.stiffness == pytest.approx(0.825)
+        assert joint.hard_angle_min == pytest.approx(-1.017198)
+        assert joint.hard_angle_max == pytest.approx(0.493599)
+        assert joint.max_muscle_torque == pytest.approx(1e8)
+        assert joint.min_muscle_torque == pytest.approx(-1e8)
+
+    def test_joint_orients(self, fragment: AssetFragment):
+        joint = fragment.physics.lod1.children[1].joint
+        assert tuple(joint.orient_parent[3]) == pytest.approx((0.0, 0.0, 2.0, 1.0))
+        assert tuple(joint.orient_child[3]) == pytest.approx((0.0, 0.0, -0.5, 1.0))
+        for row in range(3):
+            assert joint.orient_parent[row][3] == pytest.approx(0.0)
+
+    def test_self_collisions(self, fragment: AssetFragment):
+        assert fragment.physics.lod1.self_collisions == [(0, 2), (1, 2)]
+
+
+class TestFragmentSelfCollisionsCWXML:
+    def test_unpaired_self_collision_arrays_are_ignored(self, tmp_path: Path):
+        """Some vanilla assets only have one of the two self-collision arrays (e.g. a_c_cormorant)."""
+        source = (DATA_DIR / "test_fragment_articulated.yft.xml").read_text()
+        unpaired = source.replace("<UnknownData1>0 1</UnknownData1>\n", "")
+        assert "UnknownData1" not in unpaired
+        path = tmp_path / "unpaired.yft.xml"
+        path.write_text(unpaired)
+
+        asset = try_load_asset(path)
+        assert asset is not None
+        assert asset.physics.lod1.self_collisions == []
+
+
+class TestFragmentArticulatedCWXML(FragmentArticulatedTests):
+    @pytest.fixture()
+    def fragment(self) -> AssetFragment:
+        asset = try_load_asset(DATA_DIR / "test_fragment_articulated.yft.xml")
+        assert asset is not None
+        return asset
+
+
 class FragmentClothTests:
     """Shared cloth fragment test methods. Subclasses provide the `fragment` fixture."""
 
@@ -497,6 +581,24 @@ class TestFragmentDamagedGen9(FragmentTests):
 
 
 @requires_native
+class TestFragmentArticulatedGen8(FragmentArticulatedTests):
+    @pytest.fixture()
+    def fragment(self) -> AssetFragment:
+        asset = try_load_asset(DATA_DIR / "gen8" / "test_fragment_articulated.yft")
+        assert asset is not None
+        return asset
+
+
+@requires_native
+class TestFragmentArticulatedGen9(FragmentArticulatedTests):
+    @pytest.fixture()
+    def fragment(self) -> AssetFragment:
+        asset = try_load_asset(DATA_DIR / "gen9" / "test_fragment_articulated.yft")
+        assert asset is not None
+        return asset
+
+
+@requires_native
 class TestFragmentClothGen8(FragmentClothTests):
     @pytest.fixture()
     def fragment(self) -> AssetFragment:
@@ -528,6 +630,7 @@ class TestRoundtripCWXML:
         "test_fragment_simple.yft.xml",
         "test_fragment_damaged.yft.xml",
         "test_fragment_cloth.yft.xml",
+        "test_fragment_articulated.yft.xml",
     ])
     def test_save_and_reload(self, filename: str, tmp_path: Path):
         asset = try_load_asset(DATA_DIR / filename)
@@ -603,6 +706,65 @@ class TestRoundtripCWXML:
         assert reloaded.physics.lod1.damaged_archetype.mass == pytest.approx(
             original.physics.lod1.damaged_archetype.mass
         )
+
+    def test_fragment_articulated_roundtrip_preserves_data(self, tmp_path: Path):
+        original = try_load_asset(DATA_DIR / "test_fragment_articulated.yft.xml")
+        save_asset(original, self.TARGETS, tmp_path, "rt")
+        reloaded = try_load_asset(tmp_path / "rt.yft.xml")
+
+        orig_lod = original.physics.lod1
+        rt_lod = reloaded.physics.lod1
+        assert rt_lod.has_articulated_body
+        assert len(rt_lod.children) == len(orig_lod.children)
+        for rt_child, orig_child in zip(rt_lod.children, orig_lod.children, strict=True):
+            assert rt_child.pristine_mass == pytest.approx(orig_child.pristine_mass)
+            assert tuple(rt_child.inertia)[:3] == pytest.approx(tuple(orig_child.inertia)[:3])
+            assert (rt_child.joint is None) == (orig_child.joint is None)
+
+        orig_joint = orig_lod.children[1].joint
+        rt_joint = rt_lod.children[1].joint
+        assert isinstance(rt_joint, PhysJoint3Dof)
+        assert rt_joint.stiffness == pytest.approx(orig_joint.stiffness)
+        assert rt_joint.parent_link_index == orig_joint.parent_link_index
+        assert rt_joint.hard_twist_angle_max == pytest.approx(orig_joint.hard_twist_angle_max)
+        for row in range(4):
+            assert tuple(rt_joint.orient_parent[row]) == pytest.approx(tuple(orig_joint.orient_parent[row]))
+            assert tuple(rt_joint.orient_child[row]) == pytest.approx(tuple(orig_joint.orient_child[row]))
+        assert isinstance(rt_lod.children[2].joint, PhysJoint1Dof)
+        assert reloaded.physics.lod1.self_collisions == original.physics.lod1.self_collisions
+
+    def test_fragment_articulated_xml_output_format(self, tmp_path: Path):
+        """The emitted XML must follow CodeWalker's articulated body conventions."""
+        original = try_load_asset(DATA_DIR / "test_fragment_articulated.yft.xml")
+        save_asset(original, self.TARGETS, tmp_path, "rt")
+        text = (tmp_path / "rt.yft.xml").read_text()
+
+        # ItemIndices/ItemFlags are derived from the joints and zero-padded to 22 entries
+        indices = re.search(r"<ItemIndices>([^<]*)</ItemIndices>", text)
+        assert indices is not None
+        assert indices.group(1).split() == ["0", "1"] + ["0"] * 20
+        flags = re.search(r"<ItemFlags>([^<]*)</ItemFlags>", text)
+        assert flags is not None
+        assert flags.group(1).split() == ["1", "0"] + ["0"] * 20
+
+    def test_fragment_articulated_link_mass_follows_child(self, tmp_path: Path):
+        """UnknownVectors is derived from the children, not stored alongside them."""
+        original = try_load_asset(DATA_DIR / "test_fragment_articulated.yft.xml")
+        child = original.physics.lod1.children[1]
+        child.pristine_mass = 12.5
+        child.inertia = Vector((1.25, 2.5, 3.75, 0.0))
+        save_asset(original, self.TARGETS, tmp_path, "rt")
+
+        text = (tmp_path / "rt.yft.xml").read_text()
+        vectors = re.search(r"<UnknownVectors>([^<]*)</UnknownVectors>", text)
+        assert vectors is not None
+        rows = [row.strip() for row in vectors.group(1).strip().splitlines()]
+        assert [float(v) for v in rows[1].split(",")] == pytest.approx([1.25, 2.5, 3.75, 12.5])
+
+        reloaded = try_load_asset(tmp_path / "rt.yft.xml")
+        rt_child = reloaded.physics.lod1.children[1]
+        assert rt_child.pristine_mass == pytest.approx(12.5)
+        assert tuple(rt_child.inertia)[:3] == pytest.approx((1.25, 2.5, 3.75))
 
     def test_fragment_cloth_roundtrip_no_physics(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "test_fragment_cloth.yft.xml")
@@ -722,6 +884,71 @@ class TestRoundtripNative:
         assert reloaded.physics is not None
         assert len(reloaded.physics.lod1.children) == len(original.physics.lod1.children)
 
+    def test_fragment_articulated_gen8_roundtrip(self, tmp_path: Path):
+        original = try_load_asset(DATA_DIR / "gen8" / "test_fragment_articulated.yft")
+        assert original is not None
+        save_asset(original, self.GEN8_TARGETS, tmp_path, "rt")
+        reloaded = try_load_asset(tmp_path / "rt.yft")
+        assert reloaded is not None
+
+        orig_lod = original.physics.lod1
+        lod = reloaded.physics.lod1
+        assert lod.has_articulated_body
+        assert len(lod.children) == len(orig_lod.children)
+        assert lod.children[0].joint is None
+        assert isinstance(lod.children[1].joint, PhysJoint3Dof)
+        assert isinstance(lod.children[2].joint, PhysJoint1Dof)
+        assert reloaded.physics.lod1.self_collisions == original.physics.lod1.self_collisions
+
+    def test_fragment_articulated_gen9_roundtrip(self, tmp_path: Path):
+        original = try_load_asset(DATA_DIR / "gen9" / "test_fragment_articulated.yft")
+        assert original is not None
+        save_asset(original, self.GEN9_TARGETS, tmp_path, "rt")
+        reloaded = try_load_asset(tmp_path / "rt.yft")
+        assert reloaded is not None
+
+        orig_lod = original.physics.lod1
+        lod = reloaded.physics.lod1
+        assert lod.has_articulated_body
+        assert len(lod.children) == len(orig_lod.children)
+        assert lod.children[0].joint is None
+        assert isinstance(lod.children[1].joint, PhysJoint3Dof)
+        assert isinstance(lod.children[2].joint, PhysJoint1Dof)
+        assert reloaded.physics.lod1.self_collisions == original.physics.lod1.self_collisions
+
+    def test_fragment_articulated_cwxml_to_gen8_roundtrip(self, tmp_path: Path):
+        """Load articulated fragment from CWXML, save as native gen8, reload and verify."""
+        original = try_load_asset(DATA_DIR / "test_fragment_articulated.yft.xml")
+        assert original is not None
+        save_asset(original, self.GEN8_TARGETS, tmp_path, "rt")
+        reloaded = try_load_asset(tmp_path / "rt.yft")
+        assert reloaded is not None
+
+        lod = reloaded.physics.lod1
+        assert lod.has_articulated_body
+        assert len(lod.children) == 3
+        assert lod.children[0].joint is None
+        joint = lod.children[1].joint
+        assert isinstance(joint, PhysJoint3Dof)
+        assert joint.hard_twist_angle_max == pytest.approx(0.144533)
+        assert reloaded.physics.lod1.self_collisions == [(0, 2), (1, 2)]
+
+    def test_fragment_articulated_cwxml_to_gen9_roundtrip(self, tmp_path: Path):
+        """Load articulated fragment from CWXML, save as native gen9, reload and verify."""
+        original = try_load_asset(DATA_DIR / "test_fragment_articulated.yft.xml")
+        assert original is not None
+        save_asset(original, self.GEN9_TARGETS, tmp_path, "rt")
+        reloaded = try_load_asset(tmp_path / "rt.yft")
+        assert reloaded is not None
+
+        lod = reloaded.physics.lod1
+        assert lod.has_articulated_body
+        assert len(lod.children) == 3
+        assert lod.children[0].joint is None
+        assert isinstance(lod.children[1].joint, PhysJoint3Dof)
+        assert isinstance(lod.children[2].joint, PhysJoint1Dof)
+        assert reloaded.physics.lod1.self_collisions == [(0, 2), (1, 2)]
+
     def test_fragment_damaged_gen8_roundtrip(self, tmp_path: Path):
         original = try_load_asset(DATA_DIR / "gen8" / "test_fragment_damaged.yft")
         assert original is not None
@@ -743,3 +970,24 @@ class TestRoundtripNative:
         assert reloaded.name == original.name
         assert len(reloaded.extra_drawables) == len(original.extra_drawables)
         assert reloaded.physics.lod1.damaged_archetype is not None
+
+
+@requires_native
+class TestFragmentArticulatedNativeToCwxml:
+    def test_native_fragment_saves_to_cwxml(self, tmp_path: Path):
+        original = try_load_asset(DATA_DIR / "gen8" / "test_fragment_articulated.yft")
+        assert original is not None
+        save_asset(original, [AssetTarget(AssetFormat.CWXML, AssetVersion.GEN8)], tmp_path, "rt")
+
+        root = ET.parse(tmp_path / "rt.yft.xml").getroot()
+        body = root.find(".//ArticulatedBody")
+        assert body is not None
+        joints = body.find("Joints").findall("Item")
+        assert [j.get("type") for j in joints] == ["DOF3", "DOF1"]
+        children = root.findall("./Physics/LOD1/Children/Item")
+        assert len(children) == len(original.physics.lod1.children)
+        for child, orig in zip(children, original.physics.lod1.children, strict=True):
+            for tag in ("InertiaTensor", "UnkVec"):
+                assert set(child.find(tag).attrib) == {"x", "y", "z", "w"}
+                assert float(child.find(tag).get("w")) == 0.0
+            assert float(child.find("InertiaTensor").get("x")) == pytest.approx(orig.inertia[0])

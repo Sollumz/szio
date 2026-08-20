@@ -109,6 +109,7 @@ from .extensions import (
     ScenarioPointFlags,
 )
 from .fragments import (
+    PHYS_ARTICULATED_BODY_MAX_JOINTS,
     AssetFragment,
     EnvCloth,
     EnvClothTuning,
@@ -119,6 +120,10 @@ from .fragments import (
     PhysArchetype,
     PhysChild,
     PhysGroup,
+    PhysJoint,
+    PhysJoint1Dof,
+    PhysJoint3Dof,
+    PhysJointType,
     PhysLod,
     PhysLodGroup,
 )

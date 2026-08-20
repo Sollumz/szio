@@ -6,6 +6,7 @@ from ...assets import (
 )
 from ...cloths import ClothBridgeSimGfx, ClothController, VerletCloth, VerletClothEdge
 from ...fragments import (
+    PHYS_ARTICULATED_BODY_MAX_JOINTS,
     AssetFragment,
     EnvCloth,
     EnvClothTuning,
@@ -15,6 +16,10 @@ from ...fragments import (
     PhysArchetype,
     PhysChild,
     PhysGroup,
+    PhysJoint,
+    PhysJoint1Dof,
+    PhysJoint3Dof,
+    PhysJointType,
     PhysLod,
     PhysLodGroup,
 )
@@ -97,16 +102,70 @@ def load_fragment_from_cw(f: cw.Fragment) -> AssetFragment:
             glass_window_index=g.glass_window_index,
         )
 
+    def _load_joint_orient(rx: Vector, ry: Vector, rz: Vector, t: Vector) -> Matrix:
+        return Matrix(
+            (
+                (rx.x, rx.y, rx.z, 0.0),
+                (ry.x, ry.y, ry.z, 0.0),
+                (rz.x, rz.y, rz.z, 0.0),
+                (t.x, t.y, t.z, 1.0),
+            )
+        )
+
+    def _load_joint(j: cw.ArticulatedBodyJoint) -> PhysJoint:
+        limits = j.limits
+        common = {
+            "stiffness": j.stiffness,
+            "parent_link_index": j.frag_index_1,
+            "orient_parent": _load_joint_orient(j.orient_parent_x, j.orient_parent_y, j.orient_parent_z, j.orient_parent_t),
+            "orient_child": _load_joint_orient(j.orient_child_x, j.orient_child_y, j.orient_child_z, j.orient_child_t),
+        }
+        if isinstance(j, cw.ArticulatedBodyJoint1Dof):
+            return PhysJoint1Dof(
+                **common,
+                hard_angle_min=limits.x,
+                hard_angle_max=limits.y,
+                max_muscle_torque=limits.z,
+                min_muscle_torque=limits.w,
+            )
+        if isinstance(j, cw.ArticulatedBodyJoint3Dof):
+            return PhysJoint3Dof(
+                **common,
+                hard_first_lean_angle_max=limits.x,
+                hard_second_lean_angle_max=limits.y,
+                hard_twist_angle_max=limits.z,
+            )
+        raise ValueError(
+            f"Unsupported articulated body joint type '{type(j).__name__}'; only 1-Dof and 3-Dof joints are supported"
+        )
+
+    def _apply_articulated_body(ab: cw.ArticulatedBody | None, children: list[PhysChild]) -> bool:
+        if ab is None:
+            return False
+
+        for j in ab.joints:
+            child_index = j.frag_index_2
+            if not 0 < child_index < len(children):
+                raise ValueError(f"Articulated body joint has invalid child link index {child_index}")
+            if children[child_index].joint is not None:
+                raise ValueError(f"Articulated body has multiple joints for child link index {child_index}")
+            children[child_index].joint = _load_joint(j)
+
+        return True
+
     def _load_lod(lod: cw.PhysicsLOD) -> PhysLod:
         group_bone_tags = [None] * len(lod.groups)
         for c in lod.children:
             if group_bone_tags[c.group_index] is None:
                 group_bone_tags[c.group_index] = c.bone_tag
 
+        children = [_load_child(c) for c in lod.children]
+        has_articulated_body = _apply_articulated_body(lod.articulated_body, children)
+
         return PhysLod(
             archetype=_load_archetype(lod.archetype),
             damaged_archetype=_load_archetype(lod.damaged_archetype),
-            children=[_load_child(c) for c in lod.children],
+            children=children,
             groups=[_load_group(g, group_bone_tags[i]) for i, g in enumerate(lod.groups)],
             smallest_ang_inertia=lod.unknown_14,
             largest_ang_inertia=lod.unknown_18,
@@ -121,6 +180,8 @@ def load_fragment_from_cw(f: cw.Fragment) -> AssetFragment:
             damping_angular_v=Vector(lod.damping_angular_v),
             damping_angular_v2=Vector(lod.damping_angular_v2),
             link_attachments=[t.value for t in lod.transforms],
+            self_collisions=list(zip(lod.unknown_data_1 or [], lod.unknown_data_2 or [], strict=False)),
+            has_articulated_body=has_articulated_body,
         )
 
     def _load_glass_window(g: cw.GlassWindow) -> FragGlassWindow:
@@ -340,6 +401,54 @@ def save_fragment_to_cw(asset: "AssetFragment", version: AssetVersion = AssetVer
             g.glass_window_index = group.glass_window_index
             return g
 
+        def _save_joint(joint: PhysJoint, child_index: int) -> cw.ArticulatedBodyJoint:
+            match joint.joint_type:
+                case PhysJointType.DOF1:
+                    j = cw.ArticulatedBodyJoint1Dof()
+                    j.limits = Vector(
+                        (joint.hard_angle_min, joint.hard_angle_max, joint.max_muscle_torque, joint.min_muscle_torque)
+                    )
+                case PhysJointType.DOF3:
+                    j = cw.ArticulatedBodyJoint3Dof()
+                    j.limits = Vector(
+                        (
+                            joint.hard_first_lean_angle_max,
+                            joint.hard_second_lean_angle_max,
+                            joint.hard_twist_angle_max,
+                            0.0,
+                        )
+                    )
+                case _:
+                    raise ValueError(f"Unsupported articulated body joint type '{joint.joint_type.name}'")
+            j.frag_index_1 = joint.parent_link_index
+            j.frag_index_2 = child_index
+            j.stiffness = joint.stiffness
+            mp = joint.orient_parent
+            j.orient_parent_x = Vector(mp[0])
+            j.orient_parent_y = Vector(mp[1])
+            j.orient_parent_z = Vector(mp[2])
+            j.orient_parent_t = Vector(mp[3])
+            mc = joint.orient_child
+            j.orient_child_x = Vector(mc[0])
+            j.orient_child_y = Vector(mc[1])
+            j.orient_child_z = Vector(mc[2])
+            j.orient_child_t = Vector(mc[3])
+            return j
+
+        def _save_articulated_body(lod: PhysLod) -> cw.ArticulatedBody | None:
+            if not lod.has_articulated_body:
+                return None
+            joints = [_save_joint(c.joint, i) for i, c in enumerate(lod.children) if c.joint is not None]
+            ab = cw.ArticulatedBody()
+            pad = [0] * (PHYS_ARTICULATED_BODY_MAX_JOINTS - len(joints))
+            ab.item_indices = [j.frag_index_1 for j in joints] + pad
+            ab.item_flags = [1 if isinstance(j, cw.ArticulatedBodyJoint3Dof) else 0 for j in joints] + pad
+            ab.unknown_vectors = [
+                Vector((c.inertia.x, c.inertia.y, c.inertia.z, c.pristine_mass)) for c in lod.children
+            ]
+            ab.joints = joints
+            return ab
+
         def _save_lod(lod: PhysLod, tag: str) -> cw.PhysicsLOD:
             l = cw.PhysicsLOD(tag)
             l.archetype = _save_archetype(lod.archetype, "Archetype")
@@ -359,6 +468,13 @@ def save_fragment_to_cw(asset: "AssetFragment", version: AssetVersion = AssetVer
             l.damping_angular_v = Vector(lod.damping_angular_v)
             l.damping_angular_v2 = Vector(lod.damping_angular_v2)
             l.transforms.extend(cw.Transform("Item", a) for a in lod.link_attachments)
+            l.articulated_body = _save_articulated_body(lod)
+            if lod.self_collisions:
+                l.unknown_data_1 = [a for a, _ in lod.self_collisions]
+                l.unknown_data_2 = [b for _, b in lod.self_collisions]
+            else:
+                l.unknown_data_1 = None
+                l.unknown_data_2 = None
             return l
 
         p = cw.Physics()

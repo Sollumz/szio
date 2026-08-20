@@ -23,6 +23,10 @@ from ...fragments import (
     PhysArchetype,
     PhysChild,
     PhysGroup,
+    PhysJoint,
+    PhysJoint1Dof,
+    PhysJoint3Dof,
+    PhysJointType,
     PhysLod,
     PhysLodGroup,
 )
@@ -119,8 +123,8 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
             if c.damaged_entity
             else None,
             min_breaking_impulse=lod.min_breaking_impulses[idx],
-            inertia=Vector(lod.undamaged_ang_inertia[idx]),
-            damaged_inertia=Vector(lod.damaged_ang_inertia[idx]),
+            inertia=Vector((*lod.undamaged_ang_inertia[idx], 0.0)),  # vec4 for consistency with CWXML
+            damaged_inertia=Vector((*lod.damaged_ang_inertia[idx], 0.0)),
         )
 
     def _load_group(g: pm.FragmentTypeGroup, name: str, bone_tag: int) -> PhysGroup:
@@ -159,6 +163,51 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
             glass_window_index=g.glass_pane_model_info_index,
         )
 
+    def _load_joint(j: pm.FragmentPhJointType) -> PhysJoint:
+        common = {
+            "stiffness": j.stiffness,
+            "parent_link_index": j.parent_link_index,
+            "orient_parent": from_native_mat34(j.orient_parent),
+            "orient_child": from_native_mat34(j.orient_child),
+        }
+        if isinstance(j, pm.FragmentPhJointType1Dof):
+            return PhysJoint1Dof(
+                **common,
+                hard_angle_min=j.hard_angle_min,
+                hard_angle_max=j.hard_angle_max,
+                max_muscle_torque=j.max_muscle_torque,
+                min_muscle_torque=j.min_muscle_torque,
+            )
+        if isinstance(j, pm.FragmentPhJointType3Dof):
+            return PhysJoint3Dof(
+                **common,
+                hard_first_lean_angle_max=j.hard_first_lean_angle_max,
+                hard_second_lean_angle_max=j.hard_second_lean_angle_max,
+                hard_twist_angle_max=j.hard_twist_angle_max,
+            )
+        raise ValueError(
+            f"Unsupported articulated body joint type '{type(j).__name__}' (type {j.type}); "
+            "only 1-Dof and 3-Dof joints are supported"
+        )
+
+    def _apply_articulated_body(ab: pm.FragmentPhArticulatedBodyType | None, children: list[PhysChild]) -> bool:
+        if ab is None:
+            return False
+
+        for n in ab.nodes:
+            j = n.joint_type
+            if j is None:
+                continue
+
+            child_index = j.child_link_index
+            if not 0 < child_index < len(children):
+                raise ValueError(f"Articulated body joint has invalid child link index {child_index}")
+            if children[child_index].joint is not None:
+                raise ValueError(f"Articulated body has multiple joints for child link index {child_index}")
+            children[child_index].joint = _load_joint(j)
+
+        return True
+
     def _load_lod(
         lod: pmg8.FragmentPhysicsLod | pmg9.FragmentPhysicsLod,
         parent_shader_group: pmg8.ShaderGroup | pmg9.ShaderGroup,
@@ -169,10 +218,13 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
             if group_bone_tags[c.owner_group_pointer_index] is None:
                 group_bone_tags[c.owner_group_pointer_index] = c.bone_id
 
+        children = [_load_child(c, i, lod, parent_shader_group) for i, c in enumerate(lod.children)]
+        has_articulated_body = _apply_articulated_body(lod.body_type, children)
+
         return PhysLod(
             archetype=_load_archetype(lod.phys_damp_undamaged),
             damaged_archetype=_load_archetype(lod.phys_damp_damaged),
-            children=[_load_child(c, i, lod, parent_shader_group) for i, c in enumerate(lod.children)],
+            children=children,
             groups=[
                 _load_group(g, gname, group_bone_tags[i])
                 for i, (g, gname) in enumerate(zip(lod.groups, lod.group_names))
@@ -190,6 +242,8 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
             damping_angular_v=Vector(d[4]),
             damping_angular_v2=Vector(d[5]),
             link_attachments=[from_native_mat34(a) for a in lod.link_attachments],
+            self_collisions=list(lod.self_collisions),
+            has_articulated_body=has_articulated_body,
         )
 
     def _load_glass_window(g: pmg8.BGPaneModelInfoBase | pmg9.BGPaneModelInfoBase) -> FragGlassWindow:
@@ -485,6 +539,52 @@ def _save_fragment_to_native(
                     d.bound = db.bound if db else None
                     d.skeleton = skel
 
+        def _save_joint(joint: PhysJoint, child_index: int) -> pm.FragmentPhJointType:
+            match joint.joint_type:
+                case PhysJointType.DOF1:
+                    j = pm.FragmentPhJointType1Dof()
+                    j.hard_angle_min = joint.hard_angle_min
+                    j.hard_angle_max = joint.hard_angle_max
+                    j.max_muscle_torque = joint.max_muscle_torque
+                    j.min_muscle_torque = joint.min_muscle_torque
+                case PhysJointType.DOF3:
+                    j = pm.FragmentPhJointType3Dof()
+                    j.hard_first_lean_angle_max = joint.hard_first_lean_angle_max
+                    j.hard_second_lean_angle_max = joint.hard_second_lean_angle_max
+                    j.hard_twist_angle_max = joint.hard_twist_angle_max
+                    j.twist_offset = 0.0  # constant in every vanilla asset, and never read by the game
+                    j.use_child_for_twist_axis = False  # constant in every vanilla asset
+                    j.max_muscle_torque = to_native_vec3(Vector((1e8, 1e8, 1e8)))
+                    j.min_muscle_torque = to_native_vec3(Vector((-1e8, -1e8, -1e8)))
+                case _:
+                    raise ValueError(f"Unsupported articulated body joint type '{joint.joint_type.name}'")
+            j.stiffness = joint.stiffness
+            j.enforce_acceded_limits = False  # constant in every vanilla asset
+            j.parent_link_index = joint.parent_link_index
+            j.child_link_index = child_index
+            j.orient_parent = to_native_mat34(joint.orient_parent)
+            j.orient_child = to_native_mat34(joint.orient_child)
+            return j
+
+        def _save_articulated_body(lod: PhysLod) -> pm.FragmentPhArticulatedBodyType | None:
+            if not lod.has_articulated_body:
+                return None
+            ab = pm.FragmentPhArticulatedBodyType()
+            ab.gravity_factor = 1.0  # constant in every vanilla asset
+            nodes = []
+            for i, child in enumerate(lod.children):
+                n = pm.FragmentPhArticulatedBodyNode()
+                n.ang_inertia = to_native_vec3(child.inertia)
+                n.mass = child.pristine_mass
+                if child.joint is not None:
+                    n.joint_type = _save_joint(child.joint, i)
+                    n.parent_index = child.joint.parent_link_index
+                else:
+                    n.parent_index = -1
+                nodes.append(n)
+            ab.nodes = nodes
+            return ab
+
         def _save_lod(lod_data: PhysLod) -> pmg8.FragmentPhysicsLod | pmg9.FragmentPhysicsLod:
             l = gen.FragmentPhysicsLod()
             l.smallest_ang_inertia = lod_data.smallest_ang_inertia
@@ -520,7 +620,8 @@ def _save_fragment_to_native(
             l.root_group_count = num_root_groups
             l.num_root_damage_regions = 1
             l.num_bony_children = len(lod_data.children)
-            l.body_type = None
+            l.body_type = _save_articulated_body(lod_data)
+            l.self_collisions = [(int(a), int(b)) for a, b in lod_data.self_collisions]
             return l
 
         g = gen.FragmentPhysicsLodGroup()
