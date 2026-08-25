@@ -120,8 +120,8 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
             if c.damaged_entity
             else None,
             min_breaking_impulse=lod.min_breaking_impulses[idx],
-            inertia=Vector(lod.damaged_ang_inertia[idx]),
-            damaged_inertia=Vector(lod.undamaged_ang_inertia[idx]),
+            inertia=Vector(lod.undamaged_ang_inertia[idx]),
+            damaged_inertia=Vector(lod.damaged_ang_inertia[idx]),
         )
 
     def _load_group(g: pm.FragmentTypeGroup, name: str) -> PhysGroup:
