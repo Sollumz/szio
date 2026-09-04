@@ -2135,7 +2135,7 @@
    <Item name="AlphaScale" type="float" x="1.2" />
    <Item name="SelfShadowing" type="float" x="1" />
    <Item name="UseTreeNormals" type="float" x="1" />
-   <Item name="WindGlobalParams" type="float4" x="1" y="5" z="5" w="1" />
+   <Item name="WindGlobalParams" type="float4" x="1" y="5" z="5" w="1" hidden="true" />
    <Item name="umGlobalParams" type="float4" x="0.025" y="0.02" z="1" w="0.5" />
    <Item name="bumpiness" type="float" x="2.5" />
    <Item name="specMapIntMask" type="float3" x="1" y="0" z="0" />
@@ -4267,7 +4267,7 @@
    <Item name="AlphaScale" type="float" x="1" />
    <Item name="SelfShadowing" type="float" x="0.8" />
    <Item name="UseTreeNormals" type="float" x="1" />
-   <Item name="WindGlobalParams" type="float4" x="1" y="1" z="1" w="1" />
+   <Item name="WindGlobalParams" type="float4" x="1" y="1" z="1" w="1" hidden="true" />
    <Item name="umGlobalParams" type="float4" x="0.025" y="0.02" z="1" w="0.5" />
   </Parameters>
  </Item>
@@ -4351,7 +4351,7 @@
    <Item name="AlphaScale" type="float" x="1" />
    <Item name="SelfShadowing" type="float" x="1" />
    <Item name="UseTreeNormals" type="float" x="1" />
-   <Item name="WindGlobalParams" type="float4" x="0.01" y="0.01" z="0.01" w="0.01" />
+   <Item name="WindGlobalParams" type="float4" x="0.01" y="0.01" z="0.01" w="0.01" hidden="true" />
    <Item name="umGlobalParams" type="float4" x="0" y="0" z="2" w="0" />
    <Item name="bumpiness" type="float" x="1" />
    <Item name="specMapIntMask" type="float3" x="1" y="0" z="0" />
@@ -5585,7 +5585,7 @@
    <Item name="AlphaScale" type="float" x="1" />
    <Item name="SelfShadowing" type="float" x="0.8" />
    <Item name="UseTreeNormals" type="float" x="1" />
-   <Item name="WindGlobalParams" type="float4" x="1" y="5" z="5" w="1" />
+   <Item name="WindGlobalParams" type="float4" x="1" y="5" z="5" w="1" hidden="true" />
    <Item name="umGlobalParams" type="float4" x="0.025" y="0.02" z="1" w="0.5" />
   </Parameters>
  </Item>
@@ -5760,7 +5760,7 @@
    <Item name="AlphaScale" type="float" x="1" />
    <Item name="SelfShadowing" type="float" x="0.8" />
    <Item name="UseTreeNormals" type="float" x="0" />
-   <Item name="WindGlobalParams" type="float4" x="1" y="1" z="1" w="1" />
+   <Item name="WindGlobalParams" type="float4" x="1" y="1" z="1" w="1" hidden="true" />
    <Item name="umGlobalParams" type="float4" x="0.025" y="0.02" z="0.96" w="0.5" />
    <Item name="tintPaletteSelector" type="float2" x="0" y="0" hidden="true" />
   </Parameters>
@@ -5822,7 +5822,7 @@
    <Item name="AlphaScale" type="float" x="1" />
    <Item name="SelfShadowing" type="float" x="1" />
    <Item name="UseTreeNormals" type="float" x="1" />
-   <Item name="WindGlobalParams" type="float4" x="1" y="5" z="5" w="1" />
+   <Item name="WindGlobalParams" type="float4" x="1" y="5" z="5" w="1" hidden="true" />
    <Item name="umGlobalParams" type="float4" x="0.025" y="0.02" z="1" w="0.5" />
    <Item name="bumpiness" type="float" x="1" />
   </Parameters>
@@ -6829,7 +6829,7 @@
    <Item name="AlphaScale" type="float" x="1" />
    <Item name="SelfShadowing" type="float" x="1" />
    <Item name="UseTreeNormals" type="float" x="1" />
-   <Item name="WindGlobalParams" type="float4" x="1" y="5" z="1" w="1" />
+   <Item name="WindGlobalParams" type="float4" x="1" y="5" z="1" w="1" hidden="true" />
    <Item name="umGlobalParams" type="float4" x="0.025" y="0.02" z="1" w="0.5" />
    <Item name="bumpiness" type="float" x="1" />
    <Item name="specMapIntMask" type="float3" x="1" y="0" z="0" />
@@ -7734,7 +7734,7 @@
    <Item name="AlphaScale" type="float" x="1" />
    <Item name="SelfShadowing" type="float" x="1" />
    <Item name="UseTreeNormals" type="float" x="1" />
-   <Item name="WindGlobalParams" type="float4" x="1" y="5" z="1" w="1" />
+   <Item name="WindGlobalParams" type="float4" x="1" y="5" z="1" w="1" hidden="true" />
    <Item name="umGlobalParams" type="float4" x="0.025" y="0.02" z="1" w="0.5" />
    <Item name="bumpiness" type="float" x="1" />
    <Item name="specMapIntMask" type="float3" x="1" y="0" z="0" />
