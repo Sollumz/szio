@@ -329,7 +329,7 @@ class FragmentTests:
         groups = fragment.physics.lod1.groups
         assert len(groups) == 1
         assert groups[0].name == "test_group_root"
-        assert groups[0].parent_group_index == 255
+        assert groups[0].parent_group_index == -1
         assert groups[0].strength == pytest.approx(-1.0)
 
     def test_physics_children(self, fragment: AssetFragment):

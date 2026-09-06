@@ -109,7 +109,6 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
         parent_shader_group: pmg8.ShaderGroup | pmg9.ShaderGroup,
     ) -> PhysChild:
         return PhysChild(
-            bone_tag=c.bone_id,
             group_index=c.owner_group_pointer_index,
             pristine_mass=c.undamaged_mass,
             damaged_mass=c.damaged_mass,
@@ -124,10 +123,13 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
             damaged_inertia=Vector(lod.damaged_ang_inertia[idx]),
         )
 
-    def _load_group(g: pm.FragmentTypeGroup, name: str) -> PhysGroup:
+    def _load_group(g: pm.FragmentTypeGroup, name: str, bone_tag: int) -> PhysGroup:
         return PhysGroup(
             name=name or g.name,
-            parent_group_index=g.parent_group_pointer_index,
+            parent_group_index=(
+                -1 if g.parent_group_pointer_index == 0xFF else g.parent_group_pointer_index
+            ),
+            bone_tag=bone_tag,
             flags=g.flags,
             total_mass=g.total_undamaged_mass,
             strength=g.strength,
@@ -162,11 +164,19 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
         parent_shader_group: pmg8.ShaderGroup | pmg9.ShaderGroup,
     ) -> PhysLod:
         d = lod.damping_constant
+        group_bone_tags = [None] * len(lod.groups)
+        for c in lod.children:
+            if group_bone_tags[c.owner_group_pointer_index] is None:
+                group_bone_tags[c.owner_group_pointer_index] = c.bone_id
+
         return PhysLod(
             archetype=_load_archetype(lod.phys_damp_undamaged),
             damaged_archetype=_load_archetype(lod.phys_damp_damaged),
             children=[_load_child(c, i, lod, parent_shader_group) for i, c in enumerate(lod.children)],
-            groups=[_load_group(g, gname) for g, gname in zip(lod.groups, lod.group_names)],
+            groups=[
+                _load_group(g, gname, group_bone_tags[i])
+                for i, (g, gname) in enumerate(zip(lod.groups, lod.group_names))
+            ],
             smallest_ang_inertia=lod.smallest_ang_inertia,
             largest_ang_inertia=lod.largest_ang_inertia,
             min_move_force=lod.min_move_force,
@@ -356,9 +366,11 @@ def _save_fragment_to_native(
 
         parent_sg = f.drawable.shader_group if f.drawable else None
 
-        def _save_child(child: PhysChild) -> pmg8.FragmentTypeChild | pmg9.FragmentTypeChild:
+        def _save_child(
+            child: PhysChild, groups: list[PhysGroup]
+        ) -> pmg8.FragmentTypeChild | pmg9.FragmentTypeChild:
             c = gen.FragmentTypeChild()
-            c.bone_id = child.bone_tag
+            c.bone_id = groups[child.group_index].bone_tag if 0 <= child.group_index < len(groups) else 0
             c.owner_group_pointer_index = child.group_index
             c.undamaged_mass = child.pristine_mass
             c.damaged_mass = child.damaged_mass
@@ -376,7 +388,9 @@ def _save_fragment_to_native(
         def _save_group(group: PhysGroup) -> pm.FragmentTypeGroup:
             g = pm.FragmentTypeGroup()
             g.name = group.name
-            g.parent_group_pointer_index = group.parent_group_index
+            g.parent_group_pointer_index = (
+                0xFF if group.parent_group_index < 0 else group.parent_group_index
+            )
             g.flags = group.flags
             g.total_undamaged_mass = group.total_mass
             g.total_damaged_mass = 0.0
@@ -481,7 +495,7 @@ def _save_fragment_to_native(
         )
         l.group_names = [g.name for g in lod_data.groups]
         groups = [_save_group(g) for g in lod_data.groups]
-        children = [_save_child(c) for c in lod_data.children]
+        children = [_save_child(c, lod_data.groups) for c in lod_data.children]
         num_root_groups = _link_group_indices(groups, children)
         l.groups = groups
         l.children = children

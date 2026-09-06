@@ -53,7 +53,6 @@ def load_fragment_from_cw(f: cw.Fragment) -> AssetFragment:
 
     def _load_child(g: cw.PhysicsChild) -> PhysChild:
         return PhysChild(
-            bone_tag=g.bone_tag,
             group_index=g.group_index,
             pristine_mass=g.pristine_mass,
             damaged_mass=g.damaged_mass,
@@ -64,10 +63,11 @@ def load_fragment_from_cw(f: cw.Fragment) -> AssetFragment:
             damaged_inertia=Vector(g.damaged_inertia_tensor),
         )
 
-    def _load_group(g: cw.PhysicsGroup) -> PhysGroup:
+    def _load_group(g: cw.PhysicsGroup, bone_tag: int) -> PhysGroup:
         return PhysGroup(
             name=g.name,
-            parent_group_index=g.parent_index,
+            parent_group_index=-1 if g.parent_index == 0xFF else g.parent_index,
+            bone_tag=bone_tag,
             flags=g.glass_flags,
             total_mass=g.mass,
             strength=g.strength,
@@ -98,11 +98,16 @@ def load_fragment_from_cw(f: cw.Fragment) -> AssetFragment:
         )
 
     def _load_lod(lod: cw.PhysicsLOD) -> PhysLod:
+        group_bone_tags = [None] * len(lod.groups)
+        for c in lod.children:
+            if group_bone_tags[c.group_index] is None:
+                group_bone_tags[c.group_index] = c.bone_tag
+
         return PhysLod(
             archetype=_load_archetype(lod.archetype),
             damaged_archetype=_load_archetype(lod.damaged_archetype),
             children=[_load_child(c) for c in lod.children],
-            groups=[_load_group(g) for g in lod.groups],
+            groups=[_load_group(g, group_bone_tags[i]) for i, g in enumerate(lod.groups)],
             smallest_ang_inertia=lod.unknown_14,
             largest_ang_inertia=lod.unknown_18,
             min_move_force=lod.unknown_1c,
@@ -279,9 +284,9 @@ def save_fragment_to_cw(asset: "AssetFragment", version: AssetVersion = AssetVer
                     c.ref_count = 2
             return a
 
-        def _save_child(child: PhysChild) -> cw.PhysicsChild:
+        def _save_child(child: PhysChild, groups: list[PhysGroup]) -> cw.PhysicsChild:
             c = cw.PhysicsChild()
-            c.bone_tag = child.bone_tag
+            c.bone_tag = groups[child.group_index].bone_tag if 0 <= child.group_index < len(groups) else 0
             c.group_index = child.group_index
             c.pristine_mass = child.pristine_mass
             c.damaged_mass = child.damaged_mass
@@ -301,7 +306,7 @@ def save_fragment_to_cw(asset: "AssetFragment", version: AssetVersion = AssetVer
         def _save_group(group: PhysGroup) -> cw.PhysicsGroup:
             g = cw.PhysicsGroup()
             g.name = group.name
-            g.parent_index = group.parent_group_index
+            g.parent_index = 0xFF if group.parent_group_index < 0 else group.parent_group_index
             g.glass_flags = group.flags
             g.mass = group.total_mass
             g.strength = group.strength
@@ -335,7 +340,7 @@ def save_fragment_to_cw(asset: "AssetFragment", version: AssetVersion = AssetVer
             l = cw.PhysicsLOD(tag)
             l.archetype = _save_archetype(lod.archetype, "Archetype")
             l.damaged_archetype = _save_archetype(lod.damaged_archetype, "Archetype2")
-            l.children.extend(_save_child(c) for c in lod.children)
+            l.children.extend(_save_child(c, lod.groups) for c in lod.children)
             l.groups.extend(_save_group(g) for g in lod.groups)
             l.unknown_14 = lod.smallest_ang_inertia
             l.unknown_18 = lod.largest_ang_inertia

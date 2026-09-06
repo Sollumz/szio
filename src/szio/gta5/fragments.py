@@ -35,7 +35,6 @@ class PhysArchetype:
 
 @dataclass(slots=True)
 class PhysChild:
-    bone_tag: int
     group_index: int
     pristine_mass: float
     damaged_mass: float
@@ -49,7 +48,8 @@ class PhysChild:
 @dataclass(slots=True)
 class PhysGroup:
     name: str
-    parent_group_index: int
+    parent_group_index: int  # -1 for root groups
+    bone_tag: int
     flags: int
     total_mass: float
     strength: float
