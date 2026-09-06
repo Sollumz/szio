@@ -272,7 +272,15 @@ def _load_fragment_from_native(f: pmg8.Fragment | pmg9.Fragment, *, load_frag_dr
 
     # Load physics
     group = f.physics_lod_group
-    physics = PhysLodGroup(_load_lod(group.high_lod, parent_sg)) if group and group.high_lod else None
+    physics = (
+        PhysLodGroup(
+            lod1=_load_lod(group.high_lod, parent_sg),
+            lod2=_load_lod(group.medium_lod, parent_sg) if group.medium_lod else None,
+            lod3=_load_lod(group.low_lod, parent_sg) if group.low_lod else None,
+        )
+        if group and group.high_lod
+        else None
+    )
 
     # Load glass windows
     glass_windows = [_load_glass_window(g) for g in f.glass_pane_model_infos]
@@ -477,45 +485,48 @@ def _save_fragment_to_native(
                     d.bound = db.bound if db else None
                     d.skeleton = skel
 
-        lod_data = asset.physics.lod1
-        l = gen.FragmentPhysicsLod()
-        l.smallest_ang_inertia = lod_data.smallest_ang_inertia
-        l.largest_ang_inertia = lod_data.largest_ang_inertia
-        l.min_move_force = lod_data.min_move_force
-        l.root_cg_offset = to_native_vec3(lod_data.root_cg_offset)
-        l.original_root_cg_offset = to_native_vec3(lod_data.original_root_cg_offset)
-        l.unbroken_cg_offset = to_native_vec3(lod_data.unbroken_cg_offset)
-        l.damping_constant = (
-            to_native_vec3(lod_data.damping_linear_c),
-            to_native_vec3(lod_data.damping_linear_v),
-            to_native_vec3(lod_data.damping_linear_v2),
-            to_native_vec3(lod_data.damping_angular_c),
-            to_native_vec3(lod_data.damping_angular_v),
-            to_native_vec3(lod_data.damping_angular_v2),
-        )
-        l.group_names = [g.name for g in lod_data.groups]
-        groups = [_save_group(g) for g in lod_data.groups]
-        children = [_save_child(c, lod_data.groups) for c in lod_data.children]
-        num_root_groups = _link_group_indices(groups, children)
-        l.groups = groups
-        l.children = children
-        l.min_breaking_impulses = [c.min_breaking_impulse for c in lod_data.children]
-        l.undamaged_ang_inertia = [to_native_vec3(c.inertia) for c in lod_data.children]
-        l.damaged_ang_inertia = [to_native_vec3(c.damaged_inertia) for c in lod_data.children]
-        l.phys_damp_undamaged = _save_archetype(lod_data.archetype)
-        l.phys_damp_damaged = _save_archetype(lod_data.damaged_archetype)
-        l.composite_bounds = l.phys_damp_undamaged.bounds
-        _link_child_collisions(
-            children, l.phys_damp_undamaged.bounds, l.phys_damp_damaged.bounds if l.phys_damp_damaged else None
-        )
-        l.link_attachments = [to_native_mat34(a) for a in lod_data.link_attachments]
-        l.root_group_count = num_root_groups
-        l.num_root_damage_regions = 1
-        l.num_bony_children = len(lod_data.children)
-        l.body_type = None
+        def _save_lod(lod_data: PhysLod) -> pmg8.FragmentPhysicsLod | pmg9.FragmentPhysicsLod:
+            l = gen.FragmentPhysicsLod()
+            l.smallest_ang_inertia = lod_data.smallest_ang_inertia
+            l.largest_ang_inertia = lod_data.largest_ang_inertia
+            l.min_move_force = lod_data.min_move_force
+            l.root_cg_offset = to_native_vec3(lod_data.root_cg_offset)
+            l.original_root_cg_offset = to_native_vec3(lod_data.original_root_cg_offset)
+            l.unbroken_cg_offset = to_native_vec3(lod_data.unbroken_cg_offset)
+            l.damping_constant = (
+                to_native_vec3(lod_data.damping_linear_c),
+                to_native_vec3(lod_data.damping_linear_v),
+                to_native_vec3(lod_data.damping_linear_v2),
+                to_native_vec3(lod_data.damping_angular_c),
+                to_native_vec3(lod_data.damping_angular_v),
+                to_native_vec3(lod_data.damping_angular_v2),
+            )
+            l.group_names = [g.name for g in lod_data.groups]
+            groups = [_save_group(g) for g in lod_data.groups]
+            children = [_save_child(c, lod_data.groups) for c in lod_data.children]
+            num_root_groups = _link_group_indices(groups, children)
+            l.groups = groups
+            l.children = children
+            l.min_breaking_impulses = [c.min_breaking_impulse for c in lod_data.children]
+            l.undamaged_ang_inertia = [to_native_vec3(c.inertia) for c in lod_data.children]
+            l.damaged_ang_inertia = [to_native_vec3(c.damaged_inertia) for c in lod_data.children]
+            l.phys_damp_undamaged = _save_archetype(lod_data.archetype)
+            l.phys_damp_damaged = _save_archetype(lod_data.damaged_archetype)
+            l.composite_bounds = l.phys_damp_undamaged.bounds
+            _link_child_collisions(
+                children, l.phys_damp_undamaged.bounds, l.phys_damp_damaged.bounds if l.phys_damp_damaged else None
+            )
+            l.link_attachments = [to_native_mat34(a) for a in lod_data.link_attachments]
+            l.root_group_count = num_root_groups
+            l.num_root_damage_regions = 1
+            l.num_bony_children = len(lod_data.children)
+            l.body_type = None
+            return l
 
         g = gen.FragmentPhysicsLodGroup()
-        g.high_lod = l
+        g.high_lod = _save_lod(asset.physics.lod1)
+        g.medium_lod = _save_lod(asset.physics.lod2) if asset.physics.lod2 else None
+        g.low_lod = _save_lod(asset.physics.lod3) if asset.physics.lod3 else None
         f.physics_lod_group = g
 
     # Save glass windows

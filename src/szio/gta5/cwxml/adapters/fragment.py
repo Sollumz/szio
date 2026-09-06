@@ -213,8 +213,12 @@ def load_fragment_from_cw(f: cw.Fragment) -> AssetFragment:
         )
 
     physics = None
-    if f.physics:
-        physics = PhysLodGroup(_load_lod(f.physics.lod1))
+    if f.physics and f.physics.lod1:
+        physics = PhysLodGroup(
+            lod1=_load_lod(f.physics.lod1),
+            lod2=_load_lod(f.physics.lod2) if f.physics.lod2 else None,
+            lod3=_load_lod(f.physics.lod3) if f.physics.lod3 else None,
+        )
 
     return AssetFragment(
         name=f.name,
@@ -359,8 +363,8 @@ def save_fragment_to_cw(asset: "AssetFragment", version: AssetVersion = AssetVer
 
         p = cw.Physics()
         p.lod1 = _save_lod(asset.physics.lod1, "LOD1")
-        p.lod2 = None
-        p.lod3 = None
+        p.lod2 = _save_lod(asset.physics.lod2, "LOD2") if asset.physics.lod2 else None
+        p.lod3 = _save_lod(asset.physics.lod3, "LOD3") if asset.physics.lod3 else None
         f.physics = p
     else:
         f.physics = None

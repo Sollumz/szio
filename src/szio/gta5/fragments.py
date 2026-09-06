@@ -103,6 +103,8 @@ class PhysLod:
 @dataclass(slots=True)
 class PhysLodGroup:
     lod1: PhysLod
+    lod2: PhysLod | None = None
+    lod3: PhysLod | None = None
 
 
 @dataclass(slots=True)
