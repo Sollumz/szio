@@ -431,7 +431,7 @@ class Vector4Property(ElementProperty):
         x = str(float32(self.value.x))
         y = str(float32(self.value.y))
         z = str(float32(self.value.z))
-        w = str(float32(self.value.w))
+        w = str(float32(self.value[3])) if len(self.value) > 3 else "0"
         return ET.Element(self.tag_name, attrib={"x": x, "y": y, "z": z, "w": w})
 
 

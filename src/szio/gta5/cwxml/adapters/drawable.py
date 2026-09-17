@@ -223,6 +223,7 @@ CW_VERTEX_DATA_TYPE_MAP = {
     "GTAV2": VertexDataType.ENV_CLOTH,
     "GTAV3": VertexDataType.ENV_CLOTH_NO_TANGENT,
     "GTAV4": VertexDataType.BREAKABLE_GLASS,
+    "216172782131191814": VertexDataType.ENV_CLOTH,
 }
 CW_VERTEX_DATA_TYPE_INVERSE_MAP = {v: k for k, v in CW_VERTEX_DATA_TYPE_MAP.items()}
 
