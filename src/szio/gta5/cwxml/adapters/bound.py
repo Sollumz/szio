@@ -10,6 +10,7 @@ from ...bounds import (
     CollisionFlags,
     CollisionMaterial,
     CollisionMaterialFlags,
+    create_bound,
 )
 from .. import bound as cw
 
@@ -130,7 +131,7 @@ def load_bound_from_cw(b: cw.Bound | None) -> AssetBound | None:
     bound_type = _bound_type_from_cw(b)
     is_primitive = b.type in _PRIMITIVE_TYPES
 
-    result = AssetBound.create(bound_type)
+    result = create_bound(bound_type)
 
     # Material
     lo = b.unk_flags & 0xFF

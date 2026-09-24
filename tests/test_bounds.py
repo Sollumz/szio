@@ -6,7 +6,6 @@ from numpy.testing import assert_array_equal
 
 import szio.gta5.native
 from szio.gta5 import (
-    AssetBound,
     AssetBoundBvh,
     AssetBoundComposite,
     AssetBoundGeometry,
@@ -17,6 +16,7 @@ from szio.gta5 import (
     BoundType,
     BoundVertex,
     CollisionMaterial,
+    create_bound,
     save_asset,
     try_load_asset,
 )
@@ -42,7 +42,7 @@ def test_bounds_gta5(target: AssetTarget, tmp_path: Path, caplog):
 
         comp = AssetBoundComposite()
         for bound_type in (BoundType.SPHERE, BoundType.CAPSULE, BoundType.BOX, BoundType.DISC, BoundType.CYLINDER):
-            b = AssetBound.create(bound_type)
+            b = create_bound(bound_type)
             b.extent = Vector((-1.0, -2.0, -1.0)), Vector((1.0, 2.0, 1.0))
             b.material = default_material
             comp.children.append(b)

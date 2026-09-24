@@ -31,6 +31,7 @@ from .assets import (
     try_load_asset,
 )
 from .bounds import (
+    SUPPORTED_BOUNDS,
     AssetBound,
     AssetBoundBox,
     AssetBoundBvh,
@@ -48,6 +49,7 @@ from .bounds import (
     CollisionFlags,
     CollisionMaterial,
     CollisionMaterialFlags,
+    create_bound,
 )
 from .cloths import (
     AssetClothDictionary,

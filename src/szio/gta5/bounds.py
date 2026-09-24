@@ -238,27 +238,8 @@ class AssetBound(ABC):
 
     @staticmethod
     def create(bound_type: BoundType) -> "AssetBound":
-        match bound_type:
-            case BoundType.SPHERE:
-                return AssetBoundSphere()
-            case BoundType.CAPSULE:
-                return AssetBoundCapsule()
-            case BoundType.BOX:
-                return AssetBoundBox()
-            case BoundType.GEOMETRY:
-                return AssetBoundGeometry()
-            case BoundType.BVH:
-                return AssetBoundBvh()
-            case BoundType.COMPOSITE:
-                return AssetBoundComposite()
-            case BoundType.DISC:
-                return AssetBoundDisc()
-            case BoundType.CYLINDER:
-                return AssetBoundCylinder()
-            case BoundType.PLANE:
-                return AssetBoundPlane()
-            case _:
-                raise AssertionError(f"Unknown bound type '{bound_type}'")
+        """Deprecated, use `create_bound` instead."""
+        return create_bound(bound_type)
 
 
 @dataclass(slots=True)
@@ -359,3 +340,25 @@ class AssetBoundPlane(AssetBound):
     @property
     def bound_type(self) -> BoundType:
         return BoundType.PLANE
+
+
+BOUND_MAP: dict[BoundType, type[AssetBound]] = {
+    BoundType.SPHERE: AssetBoundSphere,
+    BoundType.CAPSULE: AssetBoundCapsule,
+    BoundType.BOX: AssetBoundBox,
+    BoundType.GEOMETRY: AssetBoundGeometry,
+    BoundType.BVH: AssetBoundBvh,
+    BoundType.COMPOSITE: AssetBoundComposite,
+    BoundType.DISC: AssetBoundDisc,
+    BoundType.CYLINDER: AssetBoundCylinder,
+    BoundType.PLANE: AssetBoundPlane,
+}
+
+SUPPORTED_BOUNDS = frozenset(BOUND_MAP.keys())
+
+
+def create_bound(bound_type: BoundType) -> AssetBound:
+    cls = BOUND_MAP.get(bound_type)
+    if cls is None:
+        raise ValueError(f"Unsupported bound type '{bound_type.name}'")
+    return cls()
