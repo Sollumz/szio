@@ -1,328 +1,65 @@
 import json
 import os
 import xml.etree.ElementTree as ET
-from abc import ABC, abstractmethod
-from enum import Enum, Flag, auto
-from typing import Optional
 
-from ..xml import (
-    AttributeProperty,
-    ElementProperty,
-    ElementTree,
-    ListProperty,
-    TextProperty,
+from ..shader import (  # noqa: F401
+    ShaderDefFlag,
+    ShaderParameterDef,
+    ShaderParameterType,
+    ShaderParameterUiHint,
 )
+from ..shader import ShaderDef as _ShaderDefBase
+from ..shader import ShaderManager as _ShaderManagerBase
+from ..types import Vector
 from . import jenkhash
-from .cwxml import VertexLayoutList
 
 
-class FileNameList(ListProperty):
-    class FileName(TextProperty):
-        tag_name = "Item"
-
-    list_type = FileName
-    tag_name = "FileName"
-
-
-class LayoutList(ListProperty):
-    class Layout(VertexLayoutList):
-        tag_name = "Item"
-
-    list_type = Layout
-    tag_name = "Layout"
-
-
-class ShaderParameterType(str, Enum):
-    TEXTURE = "Texture"
-    FLOAT = "float"
-    FLOAT2 = "float2"
-    FLOAT3 = "float3"
-    FLOAT4 = "float4"
-    FLOAT4X4 = "float4x4"
-
-
-class ShaderParameterSubtype(str, Enum):
-    RGB = "rgb"
-    RGBA = "rgba"
-    BOOL = "bool"
-
-
-class ShaderParameterDef(ElementTree, ABC):
-    tag_name = "Item"
-
-    @property
-    @abstractmethod
-    def type() -> ShaderParameterType:
-        raise NotImplementedError
-
-    def __init__(self):
-        super().__init__()
-        self.name = AttributeProperty("name")
-        self.type = AttributeProperty("type", self.type)
-        self.subtype = AttributeProperty("subtype")
-        self.hidden = AttributeProperty("hidden", False)
-
-
-class ShaderParameterTextureDef(ShaderParameterDef):
-    type = ShaderParameterType.TEXTURE
-
-    def __init__(self):
-        super().__init__()
-        self.uv = AttributeProperty("uv")
-
-
-class ShaderParameterFloatVectorDef(ShaderParameterDef, ABC):
-    def __init__(self):
-        super().__init__()
-        self.count = AttributeProperty("count", 0)
-        self.min = AttributeProperty("min")
-        self.max = AttributeProperty("max")
-
-    @property
-    def is_array(self):
-        return self.count > 0
-
-
-class ShaderParameterFloatDef(ShaderParameterFloatVectorDef):
-    type = ShaderParameterType.FLOAT
-
-    def __init__(self):
-        super().__init__()
-        self.x = AttributeProperty("x", 0.0)
-
-
-class ShaderParameterFloat2Def(ShaderParameterFloatVectorDef):
-    type = ShaderParameterType.FLOAT2
-
-    def __init__(self):
-        super().__init__()
-        self.x = AttributeProperty("x", 0.0)
-        self.y = AttributeProperty("y", 0.0)
-
-
-class ShaderParameterFloat3Def(ShaderParameterFloatVectorDef):
-    type = ShaderParameterType.FLOAT3
-
-    def __init__(self):
-        super().__init__()
-        self.x = AttributeProperty("x", 0.0)
-        self.y = AttributeProperty("y", 0.0)
-        self.z = AttributeProperty("z", 0.0)
-
-
-class ShaderParameterFloat4Def(ShaderParameterFloatVectorDef):
-    type = ShaderParameterType.FLOAT4
-
-    def __init__(self):
-        super().__init__()
-        self.x = AttributeProperty("x", 0.0)
-        self.y = AttributeProperty("y", 0.0)
-        self.z = AttributeProperty("z", 0.0)
-        self.w = AttributeProperty("w", 0.0)
-
-
-class ShaderParameterFloat4x4Def(ShaderParameterDef):
-    type = ShaderParameterType.FLOAT4X4
-
-    def __init__(self):
-        super().__init__()
-
-
-class ShaderParameterDefsList(ListProperty):
-    list_type = ShaderParameterDef
-    tag_name = "Parameters"
-
-    @staticmethod
-    def from_xml(element: ET.Element):
-        new = ShaderParameterDefsList()
-
-        for child in element.iter():
-            if "type" in child.attrib:
-                param_type = child.get("type")
-                match param_type:
-                    case ShaderParameterType.TEXTURE:
-                        param = ShaderParameterTextureDef.from_xml(child)
-                    case ShaderParameterType.FLOAT:
-                        param = ShaderParameterFloatDef.from_xml(child)
-                    case ShaderParameterType.FLOAT2:
-                        param = ShaderParameterFloat2Def.from_xml(child)
-                    case ShaderParameterType.FLOAT3:
-                        param = ShaderParameterFloat3Def.from_xml(child)
-                    case ShaderParameterType.FLOAT4:
-                        param = ShaderParameterFloat4Def.from_xml(child)
-                    case ShaderParameterType.FLOAT4X4:
-                        param = ShaderParameterFloat4x4Def.from_xml(child)
-                    case _:
-                        assert False, f"Unknown shader parameter type '{param_type}'"
-
-                new.value.append(param)
-
-        return new
-
-
-class ShaderDefFlag(Flag):
-    IS_CLOTH = auto()
-    IS_PED_CLOTH = auto()
-    IS_TERRAIN = auto()
-    IS_TERRAIN_MASK_ONLY = auto()
-
-
-class ShaderDefFlagProperty(ElementProperty):
-    value_types = ShaderDefFlag
-
-    def __init__(self, tag_name: str = "Flags", value: ShaderDefFlag = ShaderDefFlag(0)):
-        super().__init__(tag_name, value)
-
-    @staticmethod
-    def from_xml(element: ET.Element):
-        new = ShaderDefFlagProperty(element.tag)
-        if element.text:
-            text = element.text.split()
-            for flag in text:
-                if flag in ShaderDefFlag.__members__:
-                    new.value = new.value | ShaderDefFlag[flag]
-                else:
-                    ShaderDefFlagProperty.read_value_error(element)
-
-        return new
-
-    def to_xml(self):
-        element = ET.Element(self.tag_name)
-        if len(self.value) > 0:
-            element.text = " ".join(f.name for f in self.value)
-        return element
-
-
-class ShaderDef(ElementTree):
-    tag_name = "Item"
-
-    render_bucket: int
-    uv_maps: dict[str, int]
-    parameter_map: dict[str, ShaderParameterDef]
-    parameter_ui_order: dict[str, int]
-
-    def __init__(self):
-        super().__init__()
-        self.preset_name = ""
-        self.base_name = ""
-        self.flags = ShaderDefFlagProperty()
-        self.layouts = LayoutList()
-        self.parameters = ShaderParameterDefsList("Parameters")
-        self.render_bucket = 0
-        self.uv_maps = {}
-        self.parameter_map = {}
-        self.parameter_ui_order = {}
+class ShaderDef(_ShaderDefBase):
+    __slots__ = ()
 
     @property
     def filename(self) -> str:
         """Deprecated, use `preset_name` instead."""
         return self.preset_name
 
-    @property
-    def required_tangent(self):
-        for layout in self.layouts:
-            if "Tangent" in layout.value:
-                return True
-        return False
 
-    @property
-    def required_normal(self):
-        for layout in self.layouts:
-            if "Normal" in layout.value:
-                return True
-        return False
-
-    @property
-    def used_texcoords(self) -> set[str]:
-        names = set()
-        for layout in self.layouts:
-            for field_name in layout.value:
-                if "TexCoord" in field_name:
-                    names.add(field_name)
-
-        return names
-
-    @property
-    def used_texcoords_indices(self) -> set[int]:
-        indices = set()
-        for layout in self.layouts:
-            for field_name in layout.value:
-                if "TexCoord" in field_name:
-                    indices.add(int(field_name[8:]))
-
-        return indices
-
-    @property
-    def used_colors(self) -> set[str]:
-        names = set()
-        for layout in self.layouts:
-            for field_name in layout.value:
-                if "Colour" in field_name:
-                    names.add(field_name)
-
-        return names
-
-    @property
-    def used_colors_indices(self) -> set[int]:
-        indices = set()
-        for layout in self.layouts:
-            for field_name in layout.value:
-                if "Colour" in field_name:
-                    indices.add(int(field_name[6:]))
-
-        return indices
-
-    @property
-    def is_uv_animation_supported(self) -> bool:
-        return "globalAnimUV0" in self.parameter_map and "globalAnimUV1" in self.parameter_map
-
-    @property
-    def is_cloth(self) -> bool:
-        return ShaderDefFlag.IS_CLOTH in self.flags
-
-    @property
-    def is_ped_cloth(self) -> bool:
-        return ShaderDefFlag.IS_PED_CLOTH in self.flags
-
-    @property
-    def is_terrain(self) -> bool:
-        return ShaderDefFlag.IS_TERRAIN in self.flags
-
-    @property
-    def is_terrain_mask_only(self) -> bool:
-        return ShaderDefFlag.IS_TERRAIN_MASK_ONLY in self.flags
-
-    @property
-    def is_alpha(self) -> bool:
-        return self.render_bucket == 1
-
-    @property
-    def is_decal(self) -> bool:
-        return self.render_bucket == 2
-
-    @property
-    def is_cutout(self) -> bool:
-        return self.render_bucket == 3
-
-    @classmethod
-    def from_xml(cls, element: ET.Element) -> "ShaderDef":
-        new: ShaderDef = super().from_xml(element)
-        new.uv_maps = {
-            p.name: p.uv for p in new.parameters if p.type == ShaderParameterType.TEXTURE and p.uv is not None
-        }
-        new.parameter_map = {p.name: p for p in new.parameters}
-        new.parameter_ui_order = {p.name: i for i, p in enumerate(new.parameters)}
-        return new
+def _parse_parameter(element: ET.Element) -> ShaderParameterDef:
+    attribs = element.attrib
+    ui_hint = attribs.get("subtype", None)
+    min_value = attribs.get("min", None)
+    max_value = attribs.get("max", None)
+    param = ShaderParameterDef(
+        name=attribs["name"],
+        type=ShaderParameterType(attribs["type"]),
+        ui_hint=ShaderParameterUiHint(ui_hint) if ui_hint is not None else None,
+        hidden=attribs.get("hidden", "").lower() == "true",
+        count=int(attribs.get("count", 0)),
+        min=float(min_value) if min_value is not None else None,
+        max=float(max_value) if max_value is not None else None,
+    )
+    if param.is_texture:
+        uv = attribs.get("uv", None)
+        param.uv = int(uv) if uv is not None else None
+    elif any(c in attribs for c in "xyzw"):
+        # Shaders.xml gives arrays and matrices no default.
+        param.default = Vector([float(attribs.get(c, 0.0)) for c in "xyzw"])
+    return param
 
 
-class ShaderManager:
+def _parse_flags(element: ET.Element | None) -> ShaderDefFlag:
+    if element is None or not element.text:
+        return ShaderDefFlag(0)
+
+    flags = ShaderDefFlag(0)
+    for name in element.text.split():
+        if name not in ShaderDefFlag.__members__:
+            raise ValueError(f"Unknown shader flag '{name}'")
+        flags |= ShaderDefFlag[name]
+    return flags
+
+
+class ShaderManager(_ShaderManagerBase):
     shaderxml = os.path.join(os.path.dirname(__file__), "Shaders.xml")
-
-    # Map shader filenames to base shader names
-    _shaders: dict[str, ShaderDef] = {}
-    _shaders_by_hash: dict[int, ShaderDef] = {}
-    _shaders_by_base_name_and_rb: dict[(str, int), ShaderDef] = {}
-    _shaders_by_base_name_hash_and_rb: dict[(int, int), ShaderDef] = {}
 
     _gen9_texture_name_mapping_file = os.path.join(os.path.dirname(__file__), "ShadersG9TextureNameMapping.json")
     _gen9_texture_name_forward_mapping = {}  # gen8 -> gen9
@@ -414,31 +151,25 @@ class ShaderManager:
 
         for node in tree.getroot():
             base_name = node.find("Name").text
-            base_name_hash = jenkhash.hash_string(base_name)
+            flags = _parse_flags(node.find("Flags"))
+            parameters = [_parse_parameter(p) for p in node.findall("./Parameters/Item")]
+            layouts = [frozenset(field.tag for field in item) for item in node.findall("./Layout/Item")]
+
             for filename_elem in node.findall("./FileName//*"):
                 filename = filename_elem.text
 
                 if filename is None:
                     continue
 
-                filename_hash = jenkhash.hash_string(filename)
-                render_bucket = int(filename_elem.attrib["bucket"])
-
-                shader = ShaderDef.from_xml(node)
-                shader.base_name = base_name
-                shader.preset_name = filename
-                shader.render_bucket = render_bucket
-
-                assert filename not in ShaderManager._shaders, f"Shader definition '{filename}' already registered"
-                ShaderManager._shaders[filename] = shader
-                ShaderManager._shaders_by_hash[filename_hash] = shader
-                # When multiple presets share the same base shader and render bucket, the first one listed in
-                # Shaders.xml is the canonical/most common one (e.g. vehicle_vehglass.sps before vehicle_lights.sps,
-                # spec.sps before its gta_spec.sps alias), so keep the first registered entry for base name+render
-                # bucket lookups.
-                if (base_name, render_bucket) not in ShaderManager._shaders_by_base_name_and_rb:
-                    ShaderManager._shaders_by_base_name_and_rb[(base_name, render_bucket)] = shader
-                    ShaderManager._shaders_by_base_name_hash_and_rb[(base_name_hash, render_bucket)] = shader
+                shader = ShaderDef(
+                    base_name=base_name,
+                    preset_name=filename,
+                    render_bucket=int(filename_elem.attrib["bucket"]),
+                    flags=flags,
+                    parameters=parameters,
+                    layouts=layouts,
+                )
+                ShaderManager._register(shader)
 
                 if native.IS_BACKEND_AVAILABLE:
                     hash_resolver.add_string(filename)
@@ -469,29 +200,6 @@ class ShaderManager:
         return ShaderManager._lookup_texture_name_mapping(mappings, name_g9, shader_name)
 
     @staticmethod
-    def find_shader(filename: str) -> Optional[ShaderDef]:
-        shader = ShaderManager._shaders.get(filename, None)
-        if shader is None and filename.startswith("hash_"):
-            try:
-                filename_hash = int(filename[5:], 16)
-                shader = ShaderManager._shaders_by_hash.get(filename_hash, None)
-            except ValueError:
-                pass
-        return shader
-
-    @staticmethod
-    def find_shader_preset_name(base_name: str, render_bucket: int) -> Optional[str]:
-        shader = ShaderManager._shaders_by_base_name_and_rb.get((base_name, render_bucket), None)
-        if shader is None and base_name.startswith("hash_"):
-            try:
-                base_name_hash = int(base_name[5:], 16)
-                shader = ShaderManager._shaders_by_base_name_hash_and_rb.get((base_name_hash, render_bucket), None)
-            except ValueError:
-                pass
-
-        return shader.preset_name if shader is not None else None
-
-    @staticmethod
     def generate_gen9_texture_name_mapping():
         from . import native
 
@@ -502,7 +210,7 @@ class ShaderManager:
 
         texture_map = defaultdict(set)
         texture_with_shader_map = defaultdict(lambda: defaultdict(set))
-        for shader in ShaderManager._shaders.values():
+        for shader in ShaderManager.shaders():
             shader_g8 = gen8.ShaderRegistry.instance.get_shader(shader.base_name)
             shader_g9 = gen9.ShaderRegistry.instance.get_shader(shader.base_name)
 
@@ -572,7 +280,7 @@ class ShaderManager:
         from pymateria.gta5 import gen8, gen9
 
         shader_map = defaultdict(dict)
-        for shader in ShaderManager._shaders.values():
+        for shader in ShaderManager.shaders():
             shader_g8 = gen8.ShaderRegistry.instance.get_shader(shader.base_name)
             shader_g9 = gen9.ShaderRegistry.instance.get_shader(shader.base_name)
 

@@ -13,7 +13,7 @@ from szio.gta5 import ShaderManager
 def test_find_shader(filename: str, expected: str):
     shader = ShaderManager.find_shader(filename)
     assert shader is not None
-    assert shader.filename == expected
+    assert shader.preset_name == expected
 
 
 @pytest.mark.parametrize("filename", (
