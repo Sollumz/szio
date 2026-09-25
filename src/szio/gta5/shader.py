@@ -75,6 +75,8 @@ class ShaderParameterFloatVectorDef(ShaderParameterDef, ABC):
     def __init__(self):
         super().__init__()
         self.count = AttributeProperty("count", 0)
+        self.min = AttributeProperty("min")
+        self.max = AttributeProperty("max")
 
     @property
     def is_array(self):
