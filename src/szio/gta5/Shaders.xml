@@ -181,7 +181,7 @@
    </Item>
   </Layout>
   <Parameters>
-   <Item name="DiffuseSampler" type="Texture" uv="0" />
+   <Item name="DiffuseSampler" type="Texture" uv="1" />
    <Item name="ShadowFalloff" type="float" x="1" min="0" max="1" />
    <Item name="AlphaTest" type="float" x="0" min="-100" max="100" />
    <Item name="AlphaScale" type="float" x="1" min="0" max="100" />
