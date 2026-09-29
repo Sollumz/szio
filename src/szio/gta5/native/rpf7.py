@@ -14,6 +14,7 @@ from pymateria.rpf7 import (
     PackFileEntryDirectory,
     PackFileEntryResource,
 )
+from pymateria.rsc7 import Header
 
 __all__ = ["_Rpf7Archive"]
 
@@ -156,6 +157,15 @@ class _Rpf7Archive:
         entry.export(buf)
         buf.seek(0)
         return buf
+
+    def read_prefix(self, inner_path: str, size: int) -> bytes:
+        if size < 0:
+            raise ValueError("prefix size must be non-negative")
+        entry = self._require_file(inner_path)
+        if isinstance(entry, PackFileEntryResource) and size <= Header.HEADER_SIZE:
+            return entry.header.to_bytes()[:size]
+        with self.open_bytes(inner_path) as stream:
+            return stream.read(size)
 
     def open_nested(self, inner_path: str) -> "_Rpf7Archive | None":
         entry = self._require_file(inner_path)

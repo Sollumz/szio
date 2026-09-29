@@ -64,6 +64,32 @@ def test_open_rpf_path_lists_root(tmp_path):
         arc.close()
 
 
+@pytest.mark.parametrize("generation", ["gen8", "gen9"])
+def test_resource_header_probe_uses_metadata(tmp_path, monkeypatch, generation):
+    from pymateria.rpf7 import PackFileEntryResource
+    from szio.gta5.assets import AssetVersion
+    from szio.gta5.native import NativeProviderG8, NativeProviderG9
+
+    source = DATA_DIR / generation / "test_drawable.ydr"
+    expected = source.read_bytes()
+    pf = PackFile.create()
+    pf.add_entry(PackFileEntryResource.create(pf, "asset.ydr", source), False)
+    rpf = tmp_path / "assets.rpf"
+    with rpf.open("wb") as stream:
+        PackFile.export_rpf(pf, stream)
+    path = VPath(rpf) / "asset.ydr"
+    assert path.read_prefix(16) == expected[:16]
+    assert path.read_prefix(0) == b""
+    assert path.read_prefix(32) == expected[:32]
+
+    def fail_payload_read(*args):
+        pytest.fail("Header detection must not open the resource payload")
+
+    monkeypatch.setattr(_Rpf7Archive, "open_bytes", fail_payload_read)
+    for provider in (NativeProviderG8(), NativeProviderG9()):
+        assert provider.supports_file(path) == (provider.ASSET_VERSION == getattr(AssetVersion, generation.upper()))
+
+
 def test_open_rpf_open_bytes_returns_seekable_stream(tmp_path):
     rpf = tmp_path / "pack.rpf"
     rpf.write_bytes(_build_rpf({"x.bin": b"0123456789"}))

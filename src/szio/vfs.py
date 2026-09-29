@@ -974,6 +974,22 @@ class VPath:
         with self.open("r", encoding=encoding, errors=errors) as f:
             return f.read()
 
+    def read_prefix(self, size: int) -> bytes:
+        """Read up to `size` leading bytes, using archive metadata when available.
+
+        Unlike opening an archived resource, header probes need not materialize
+        its entire payload. Backends without this optimization use a stream.
+        """
+        if size < 0:
+            raise ValueError("prefix size must be non-negative")
+        r = self._resolve()
+        if isinstance(r, _ArchiveResolved):
+            read_prefix = getattr(r.archive, "read_prefix", None)
+            if read_prefix is not None:
+                return read_prefix(r.inner, size)
+        with self.open("rb") as f:
+            return f.read(size)
+
     def open(
         self,
         mode: str = "rb",

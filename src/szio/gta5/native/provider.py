@@ -1,6 +1,8 @@
 from abc import ABC
 from pathlib import Path
 
+from ...vfs import VPath
+
 import pymateria as pma
 import pymateria.gta5 as pm
 import pymateria.rsc7 as pmrsc
@@ -41,10 +43,14 @@ class NativeProvider(ABC):
     def supports_file(self, path: ProviderPath) -> bool:
         ext = path.suffix.lower()
         if ext in NativeProvider.SUPPORTED_EXTENSIONS and path.is_file():
-            with path.open("rb") as f:
-                if header_data := f.read(pmrsc.Header.HEADER_SIZE):
-                    header = pmrsc.Header(header_data) if len(header_data) == pmrsc.Header.HEADER_SIZE else None
-                    return header and header.version == self.get_supported_rsc_version(ext)
+            if isinstance(path, VPath):
+                header_data = path.read_prefix(pmrsc.Header.HEADER_SIZE)
+            else:
+                with path.open("rb") as f:
+                    header_data = f.read(pmrsc.Header.HEADER_SIZE)
+            if len(header_data) == pmrsc.Header.HEADER_SIZE:
+                header = pmrsc.Header(header_data)
+                return bool(header) and header.version == self.get_supported_rsc_version(ext)
 
         return False
 
