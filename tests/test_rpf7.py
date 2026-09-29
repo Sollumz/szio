@@ -293,6 +293,34 @@ def test_backend_normal_archive_has_no_duplicate_children(tmp_path):
         arc.close()
 
 
+@pytest.mark.parametrize("reverse", [False, True])
+def test_backend_index_deduplicates_explicit_and_implied_entries(reverse):
+    from types import SimpleNamespace
+    from pymateria.rpf7 import PackFileEntryDirectory
+
+    pf = PackFile.create()
+    deep = PackFileEntryFile.create(pf, "a/b/c.bin", b"deep")
+    replacement = PackFileEntryFile.create(pf, "a/b/c.bin", b"replacement")
+    entries = [
+        deep,
+        PackFileEntryDirectory(pf, "a/b"),
+        PackFileEntryDirectory(pf, "a"),
+        replacement,
+    ]
+    # Malformed archive: the same path is both a file and a directory.
+    # Reversing also exercises backfilling a directory after its file entry.
+    entries.append(PackFileEntryFile.create(pf, "a", b"file"))
+    if reverse:
+        entries.reverse()
+    arc = _Rpf7Archive._from_packfile(SimpleNamespace(entries=entries))
+
+    assert arc.list_dir("") == ["a"]
+    assert arc.list_dir("a") == ["b"]
+    assert arc.list_dir("a/b") == ["c.bin"]
+    assert arc.is_dir("a") and arc.is_file("a")
+    assert arc.read_bytes("a/b/c.bin") == (b"deep" if reverse else b"replacement")
+
+
 # Minimal CWXML stubs; only the root element matters for detection/loading.
 _CWXML_STUBS = {
     "test.ydr.xml": b"<Drawable />",

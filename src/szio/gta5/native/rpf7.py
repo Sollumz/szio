@@ -69,15 +69,6 @@ class _Rpf7Archive:
         files = self._files
         dirs = self._dirs
         children = self._children
-        # Dedup per parent: an explicit dir entry and the backfill below must not
-        # insert the same child twice.
-        child_set: dict[str, set[str]] = defaultdict(set)
-
-        def add_child(parent: str, name: str) -> None:
-            if name not in child_set[parent]:
-                child_set[parent].add(name)
-                children[parent].append(name)
-
         # str(PurePosixPath) is ~20x faster than .as_posix() (skips a redundant
         # str-replace).
         for e in self._pf.entries:
@@ -92,11 +83,14 @@ class _Rpf7Archive:
                 parent = path[:sep]
                 name = path[sep + 1 :]
 
+            # These indexes already track both explicit and backfilled entries;
+            # no additional per-directory set of child names is needed.
+            if path not in files and path not in dirs:
+                children[parent].append(name)
             if isinstance(e, PackFileEntryDirectory):
                 dirs.add(path)
             else:
                 files[path] = e
-            add_child(parent, name)
 
             # Backfill missing parent dirs (malformed/third-party archives).
             # Register each in BOTH _dirs and its parent's children so it stays
@@ -109,7 +103,8 @@ class _Rpf7Archive:
                     cparent, cname = cursor[:csep], cursor[csep + 1 :]
                 else:
                     cparent, cname = "", cursor
-                add_child(cparent, cname)
+                if cursor not in files:
+                    children[cparent].append(cname)
                 cursor = cparent
 
     @staticmethod
