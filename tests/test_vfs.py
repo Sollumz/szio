@@ -122,6 +122,28 @@ def test_construct_from_str():
     assert VPath("a/b").parts[-2:] == ("a", "b")
 
 
+@pytest.mark.parametrize("source", [
+    "", "/", "//", "relative/path", "relative/pack.rpf/inner.rpf/file.ydr",
+    "/root/pack.rpf/file.ydr", "C:", "C:relative/pack.rpf/file.ydr",
+    "C:/root/pack.rpf/file.ydr", "//server/share", "//server/share/pack.rpf/file.ydr",
+    "name with spaces/café.ydr", "literal\\backslash/asset.ydr",
+])
+def test_string_matches_normalized_path(source):
+    path = VPath(source)
+    assert str(path) == pathlib.Path(source).as_posix()
+    assert VPath(str(path)) == path
+
+
+@pytest.mark.parametrize("name", [
+    "", "asset", "asset.ydr", "asset.ydr.xml", ".hidden", "..hidden", ".hidden.ydr",
+    "asset..ydr", "asset.", "asset..", "asset.ydr.", ".hidden.", "café.YDR",
+])
+def test_filename_properties_match_pathlib(name):
+    expected = pathlib.PurePosixPath(name)
+    path = VPath(name)
+    assert (path.stem, path.suffix, path.suffixes) == (expected.stem, expected.suffix, expected.suffixes)
+
+
 def test_read_prefix(tmp_path, fake_rpf, monkeypatch):
     loose = tmp_path / "asset.bin"
     loose.write_bytes(b"header-payload")
