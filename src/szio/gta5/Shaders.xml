@@ -9,27 +9,11 @@
    <Item bucket="0">gta_default.sps</Item>
    <Item bucket="0">default_noedge.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -45,26 +29,10 @@
   <FileName>
    <Item bucket="0">vehicle_mesh.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -93,24 +61,10 @@
    <Item bucket="1">normal_spec_alpha.sps</Item>
    <Item bucket="3">normal_spec_screendooralpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -130,21 +84,10 @@
   <FileName>
    <Item bucket="3">trees_lod.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="ShadowFalloff" type="float" x="1" min="0" max="1" />
@@ -159,27 +102,10 @@
   <FileName>
    <Item bucket="3">trees_lod2.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <TexCoord3 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <TexCoord3 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord1 TexCoord2 TexCoord3</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord2 TexCoord3</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="1" />
    <Item name="ShadowFalloff" type="float" x="1" min="0" max="1" />
@@ -198,22 +124,10 @@
    <Item bucket="3">spec_screendooralpha.sps</Item>
    <Item bucket="0">gta_spec.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="SpecSampler" type="Texture" uv="0" />
@@ -233,22 +147,10 @@
   <FileName>
    <Item bucket="2">decal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="useTessellation" type="float" subtype="bool" x="0" />
@@ -264,24 +166,10 @@
    <Item bucket="0">ped_default.sps</Item>
    <Item bucket="3">ped_default_cutout.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0</Item>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -308,24 +196,10 @@
    <Item bucket="0">gta_normal.sps</Item>
    <Item bucket="2">water_decal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -345,26 +219,10 @@
   <FileName>
    <Item bucket="0">vehicle_tire.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DirtSampler" type="Texture" uv="1" />
@@ -389,26 +247,10 @@
   <FileName>
    <Item bucket="0">vehicle_tire_emissive.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DirtSampler" type="Texture" uv="1" />
@@ -434,24 +276,10 @@
   <FileName>
    <Item bucket="0">vehicle_paint4.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -487,24 +315,10 @@
   <FileName>
    <Item bucket="0">normal_spec_detail.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DetailSampler" type="Texture" uv="0" />
@@ -525,28 +339,10 @@
   <FileName>
    <Item bucket="0">ped.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -570,24 +366,10 @@
    <Item bucket="4">vehicle_nosplash.sps</Item>
    <Item bucket="5">vehicle_nowater.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -617,24 +399,10 @@
   <FileName>
    <Item bucket="2">normal_spec_decal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -655,28 +423,10 @@
   <FileName>
    <Item bucket="0">vehicle_mesh2_enveff.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord2 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 TexCoord2 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -704,24 +454,10 @@
   <FileName>
    <Item bucket="2">normal_decal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -741,22 +477,10 @@
    <Item bucket="0">default_spec.sps</Item>
    <Item bucket="0">spec_const.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="useTessellation" type="float" subtype="bool" x="0" />
@@ -771,22 +495,10 @@
    <Item bucket="0">emissive.sps</Item>
    <Item bucket="1">emissive_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -802,22 +514,10 @@
   <FileName>
    <Item bucket="0">vehicle_interior2.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -841,18 +541,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_2tex_blend_pxm_spm.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord3 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord1 TexCoord3 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -893,16 +584,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_2tex_blend_lod.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="TextureSampler_layer1" type="Texture" uv="0" />
@@ -920,24 +604,10 @@
   <FileName>
    <Item bucket="0">vehicle_detail2.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -962,24 +632,10 @@
   <FileName>
    <Item bucket="0">vehicle_shuts.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -1004,24 +660,10 @@
   <FileName>
    <Item bucket="0">vehicle_paint3.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -1053,24 +695,10 @@
   <FileName>
    <Item bucket="1">vehicle_badges.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -1098,22 +726,10 @@
    <Item bucket="3">cutout_tnt.sps</Item>
    <Item bucket="0">default_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -1129,24 +745,10 @@
   <FileName>
    <Item bucket="1">vehicle_lightsemissive.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -1173,14 +775,9 @@
   <FileName>
    <Item bucket="1">cable.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="textureSamp" type="Texture" />
    <Item name="alphaTestValue" type="float" x="0" hidden="true" />
@@ -1201,26 +798,10 @@
    <Item bucket="1">vehicle_vehglass.sps</Item>
    <Item bucket="1">vehicle_lights.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 TexCoord2</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord2</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -1245,26 +826,10 @@
   <FileName>
    <Item bucket="3">ped_hair_spiked.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -1293,24 +858,10 @@
    <Item bucket="0">normal_spec_tnt.sps</Item>
    <Item bucket="3">normal_spec_cutout_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -1332,17 +883,9 @@
   <FileName>
    <Item bucket="2">normal_decal_pxm.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord2 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="heightSampler" type="Texture" uv="0" />
@@ -1366,17 +909,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_2tex_blend.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -1400,14 +935,9 @@
   <FileName>
    <Item bucket="0">default_terrain_wet.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -1423,24 +953,10 @@
   <FileName>
    <Item bucket="1">vehicle_vehglass_inner.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -1465,26 +981,10 @@
   <FileName>
    <Item bucket="0">vehicle_licenseplate.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DamageSampler" type="Texture" hidden="true" />
    <Item name="DirtSampler" type="Texture" uv="1" />
@@ -1520,24 +1020,10 @@
   <FileName>
    <Item bucket="1">glass_env.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -1557,16 +1043,9 @@
   <FileName>
    <Item bucket="2">normal_spec_decal_pxm.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="heightSampler" type="Texture" uv="0" />
@@ -1592,15 +1071,9 @@
    <Item bucket="0">terrain_cb_4lyr_lod.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="TextureSampler_layer1" type="Texture" uv="0" />
@@ -1618,15 +1091,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_lod.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="TextureSampler_layer1" type="Texture" uv="0" />
@@ -1643,24 +1110,10 @@
   <FileName>
    <Item bucket="0">normal_detail.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DetailSampler" type="Texture" uv="0" />
@@ -1680,22 +1133,10 @@
   <FileName>
    <Item bucket="1">vehicle_dash_emissive.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -1718,24 +1159,10 @@
   <FileName>
    <Item bucket="0">vehicle_emissive_opaque.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -1761,22 +1188,10 @@
   <FileName>
    <Item bucket="2">decal_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -1794,22 +1209,10 @@
    <Item bucket="0">emissivenight.sps</Item>
    <Item bucket="1">emissivenight_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -1823,22 +1226,10 @@
   <FileName>
    <Item bucket="0">vehicle_dash_emissive_opaque.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -1860,24 +1251,10 @@
   <FileName>
    <Item bucket="1">vehicle_decal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -1899,14 +1276,9 @@
   <FileName>
    <Item bucket="1">emissive_additive_uv_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -1924,31 +1296,11 @@
    <Item bucket="1">cloth_normal_spec_alpha.sps</Item>
   </FileName>
   <Flags>IS_CLOTH</Flags>
-  <Layout>
-   <Item type="GTAV2">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV2">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -1968,24 +1320,10 @@
    <Item bucket="0">normal_spec_reflect.sps</Item>
    <Item bucket="1">normal_spec_reflect_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -2005,17 +1343,9 @@
   <FileName>
    <Item bucket="0">normal_spec_pxm.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord2 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="heightSampler" type="Texture" uv="0" />
@@ -2040,20 +1370,10 @@
    <Item bucket="0">cloth_default.sps</Item>
   </FileName>
   <Flags>IS_CLOTH</Flags>
-  <Layout>
-   <Item type="GTAV3">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV3">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="useTessellation" type="float" subtype="bool" x="0" />
@@ -2064,28 +1384,10 @@
   <FileName>
    <Item bucket="1">ped_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -2106,26 +1408,10 @@
   <FileName>
    <Item bucket="3">trees_normal_spec.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="SpecSampler" type="Texture" uv="0" />
@@ -2150,22 +1436,10 @@
    <Item bucket="0">spec_tnt.sps</Item>
    <Item bucket="3">cutout_spec_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -2184,22 +1458,10 @@
   <FileName>
    <Item bucket="0">emissive_speclum.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -2216,22 +1478,10 @@
   <FileName>
    <Item bucket="0">vehicle_paint2.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -2260,24 +1510,10 @@
   <FileName>
    <Item bucket="0">normal_spec_detail_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -2301,22 +1537,10 @@
   <FileName>
    <Item bucket="0">default_detail.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DetailSampler" type="Texture" uv="0" />
@@ -2331,28 +1555,10 @@
   <FileName>
    <Item bucket="0">vehicle_paint8.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord2 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 TexCoord2 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="1" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -2394,17 +1600,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_pxm.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord3 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord3 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -2439,24 +1637,10 @@
   <FileName>
    <Item bucket="2">decal_normal_only.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -2472,22 +1656,10 @@
   <FileName>
    <Item bucket="3">cutout_fence.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="HardAlphaBlend" type="float" x="0" min="0" max="1" />
@@ -2500,17 +1672,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_pxm_spm.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord3 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord3 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -2548,17 +1712,9 @@
   <FileName>
    <Item bucket="3">grass_fur_mask.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord2 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -2593,24 +1749,10 @@
    <Item bucket="1">normal_tnt_alpha.sps</Item>
    <Item bucket="3">normal_cutout_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -2631,17 +1773,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_spec_pxm.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord3 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord3 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -2676,14 +1810,9 @@
   <FileName>
    <Item bucket="1">ptfx_model.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="useTessellation" type="float" subtype="bool" x="0" />
@@ -2699,15 +1828,9 @@
   <FileName>
    <Item bucket="3">grass_fur.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -2738,24 +1861,10 @@
   <FileName>
    <Item bucket="0">vehicle_interior.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -2780,22 +1889,10 @@
   <FileName>
    <Item bucket="2">spec_decal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="SpecSampler" type="Texture" uv="0" />
@@ -2811,26 +1908,10 @@
   <FileName>
    <Item bucket="0">vehicle_paint6_enveff.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -2870,26 +1951,10 @@
   <FileName>
    <Item bucket="3">ped_hair_cutout_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -2917,18 +1982,9 @@
    <Item bucket="3">ped_hair_cutout_alpha_cloth.sps</Item>
   </FileName>
   <Flags>IS_PED_CLOTH</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -2955,22 +2011,10 @@
   <FileName>
    <Item bucket="2">decal_dirt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="useTessellation" type="float" subtype="bool" x="0" />
@@ -2985,22 +2029,10 @@
   <FileName>
    <Item bucket="2">decal_emissive_only.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -3014,18 +2046,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_2tex_blend_pxm.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord3 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord1 TexCoord3 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -3062,24 +2085,10 @@
   <FileName>
    <Item bucket="0">weapon_normal_spec_detail_palette.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DetailSampler" type="Texture" uv="0" />
@@ -3106,22 +2115,10 @@
    <Item bucket="1">cloth_spec_alpha.sps</Item>
   </FileName>
   <Flags>IS_CLOTH</Flags>
-  <Layout>
-   <Item type="GTAV2">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV2">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="HardAlphaBlend" type="float" x="1" min="0" max="1" />
@@ -3137,22 +2134,10 @@
    <Item bucket="0">emissivestrong.sps</Item>
    <Item bucket="1">emissivestrong_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -3168,26 +2153,10 @@
   <FileName>
    <Item bucket="0">vehicle_track2.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DirtSampler" type="Texture" uv="1" />
@@ -3213,19 +2182,9 @@
   <FileName>
    <Item bucket="0">ped_wrinkle.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -3253,24 +2212,10 @@
   <FileName>
    <Item bucket="0">vehicle_detail.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -3301,22 +2246,10 @@
    <Item bucket="0">spec_reflect.sps</Item>
    <Item bucket="1">spec_reflect_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="SpecSampler" type="Texture" uv="0" />
@@ -3335,24 +2268,10 @@
   <FileName>
    <Item bucket="3">vehicle_cutout.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -3380,24 +2299,10 @@
   <FileName>
    <Item bucket="0">vehicle_paint4_enveff.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -3435,22 +2340,10 @@
   <FileName>
    <Item bucket="2">decal_glue.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="useTessellation" type="float" subtype="bool" x="0" />
@@ -3464,24 +2357,10 @@
   <FileName>
    <Item bucket="2">normal_spec_decal_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -3503,22 +2382,10 @@
    <Item bucket="1">emissive_alpha_tnt.sps</Item>
    <Item bucket="0">emissive_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -3534,28 +2401,10 @@
   <FileName>
    <Item bucket="0">vehicle_paint9.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 TexCoord2 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord2 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="2" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -3596,19 +2445,9 @@
   <FileName>
    <Item bucket="0">ped_nopeddamagedecals.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -3631,16 +2470,9 @@
    <Item bucket="0">terrain_cb_w_4lyr.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -3662,24 +2494,10 @@
   <FileName>
    <Item bucket="1">glass_pv_env.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DecalTint" type="float4" subtype="rgba" x="1" y="1" z="1" w="1" min="0" max="1" />
@@ -3701,15 +2519,9 @@
   <FileName>
    <Item bucket="2">normal_decal_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -3727,20 +2539,10 @@
   <FileName>
    <Item bucket="0">cpv_only.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0</Item>
+  </Layouts>
   <Parameters>
    <Item name="useTessellation" type="float" subtype="bool" x="0" />
   </Parameters>
@@ -3750,19 +2552,9 @@
   <FileName>
    <Item bucket="2">ped_decal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -3784,14 +2576,9 @@
   <FileName>
    <Item bucket="0">emissive_clip.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -3808,24 +2595,10 @@
    <Item bucket="3">cutout_um.sps</Item>
    <Item bucket="0">default_um.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -3840,12 +2613,9 @@
   <FileName>
    <Item bucket="0">minimap.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Colour0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Colour0</Item>
+  </Layouts>
   <Parameters>
    <Item name="useTessellation" type="float" subtype="bool" x="0" />
   </Parameters>
@@ -3855,24 +2625,10 @@
   <FileName>
    <Item bucket="1">glass_normal_spec_reflect.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -3892,15 +2648,9 @@
   <FileName>
    <Item bucket="2">distance_map.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="distanceMapSampler" type="Texture" uv="0" />
    <Item name="fillColor" type="float3" subtype="rgb" x="0.917647" y="0.886275" z="0.827451" min="0" max="1" />
@@ -3911,24 +2661,10 @@
   <FileName>
    <Item bucket="1">vehicle_blurredrotor.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="SpecSampler" type="Texture" uv="0" />
@@ -3945,24 +2681,10 @@
   <FileName>
    <Item bucket="1">glass.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -3980,24 +2702,10 @@
   <FileName>
    <Item bucket="3">cutout_fence_normal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -4014,28 +2722,10 @@
   <FileName>
    <Item bucket="0">ped_emissive.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -4058,15 +2748,9 @@
   <FileName>
    <Item bucket="0">normal_terrain_wet.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -4086,15 +2770,9 @@
   <FileName>
    <Item bucket="2">normal_spec_decal_detail.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DetailSampler" type="Texture" uv="0" />
@@ -4115,22 +2793,10 @@
    <Item bucket="0">vehicle_cloth.sps</Item>
   </FileName>
   <Flags>IS_CLOTH</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV2">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV2">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -4158,26 +2824,10 @@
   <FileName>
    <Item bucket="0">normal_um_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -4197,24 +2847,10 @@
   <FileName>
    <Item bucket="0">vehicle_basic.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -4242,24 +2878,10 @@
   <FileName>
    <Item bucket="3">trees.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="ShadowFalloff" type="float" x="1" min="0" max="1" />
@@ -4276,14 +2898,9 @@
   <FileName>
    <Item bucket="1">emissive_additive_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -4297,16 +2914,9 @@
    <Item bucket="1">glass_breakable.sps</Item>
    <Item bucket="3">glass_breakable_screendooralpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -4332,16 +2942,9 @@
   <FileName>
    <Item bucket="3">trees_normal_diffspec.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="SpecSampler" type="Texture" uv="0" />
@@ -4365,26 +2968,10 @@
   <FileName>
    <Item bucket="0">vehicle_track.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DirtSampler" type="Texture" uv="1" />
@@ -4410,28 +2997,10 @@
   <FileName>
    <Item bucket="0">ped_enveff.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -4454,15 +3023,9 @@
   <FileName>
    <Item bucket="2">water_terrainfoam.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="FoamSampler" type="Texture" uv="0" />
    <Item name="HeightOpacity" type="float" x="4" min="0" max="50" />
@@ -4476,24 +3039,10 @@
   <FileName>
    <Item bucket="0">vehicle_generic.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -4521,26 +3070,10 @@
   <FileName>
    <Item bucket="0">vehicle_track_ammo.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DirtSampler" type="Texture" uv="1" />
@@ -4566,18 +3099,9 @@
   <FileName>
    <Item bucket="0">ped_default_mp.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -4599,15 +3123,9 @@
   <FileName>
    <Item bucket="3">grass.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureGrassSampler" type="Texture" uv="0" />
@@ -4647,26 +3165,10 @@
   <FileName>
    <Item bucket="0">vehicle_track_emissive.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DirtSampler" type="Texture" uv="1" />
@@ -4693,22 +3195,10 @@
   <FileName>
    <Item bucket="1">glass_spec.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="SpecSampler" type="Texture" uv="0" />
@@ -4724,24 +3214,10 @@
   <FileName>
    <Item bucket="0">vehicle_paint5_enveff.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -4779,19 +3255,9 @@
   <FileName>
    <Item bucket="0">ped_wrinkle_enveff.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -4820,17 +3286,9 @@
   <FileName>
    <Item bucket="0">weapon_normal_spec_detail_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -4855,15 +3313,9 @@
   <FileName>
    <Item bucket="1">glass_pv.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DecalTint" type="float4" subtype="rgba" x="1" y="1" z="1" w="1" min="0" max="1" />
@@ -4886,17 +3338,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_spec_int_pxm.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord3 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord3 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -4932,24 +3376,10 @@
    <Item bucket="0">glass_emissive.sps</Item>
    <Item bucket="1">glass_emissive_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -4970,24 +3400,10 @@
   <FileName>
    <Item bucket="1">weapon_normal_spec_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -5006,17 +3422,9 @@
   <FileName>
    <Item bucket="0">normal_pxm.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord2 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="heightSampler" type="Texture" uv="0" />
@@ -5040,12 +3448,9 @@
   <FileName>
    <Item bucket="6">water_fountain.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="FogColor" type="float4" subtype="rgba" x="0.227" y="0.49" z="0.58" w="0.13" min="0" max="1" />
    <Item name="SpecularFalloff" type="float" x="2000" min="4" max="2000" />
@@ -5061,22 +3466,10 @@
    <Item bucket="1">reflect_alpha.sps</Item>
    <Item bucket="1">gta_reflect_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="EnvironmentSampler" type="Texture" />
@@ -5091,24 +3484,10 @@
    <Item bucket="1">normal_reflect_alpha.sps</Item>
    <Item bucket="3">normal_reflect_screendooralpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -5125,16 +3504,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_spec_int.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -5156,19 +3528,9 @@
   <FileName>
    <Item bucket="0">ped_wrinkle_cs.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -5198,15 +3560,9 @@
   <FileName>
    <Item bucket="3">grass_batch.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="gLodFadeTileScale" type="float2" x="1" y="1" />
@@ -5245,14 +3601,9 @@
   <FileName>
    <Item bucket="0">emissivenight_geomnightonly.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -5266,19 +3617,9 @@
   <FileName>
    <Item bucket="2">ped_decal_decoration.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -5300,18 +3641,9 @@
   <FileName>
    <Item bucket="0">vehicle_paint6.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -5349,14 +3681,9 @@
   <FileName>
    <Item bucket="6">water_riverlod.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="FlowSampler" type="Texture" uv="0" />
    <Item name="FogSampler" type="Texture" uv="0" />
@@ -5373,26 +3700,10 @@
    <Item bucket="0">normal_um.sps</Item>
    <Item bucket="3">normal_cutout_um.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -5411,17 +3722,9 @@
   <FileName>
    <Item bucket="2">vehicle_decal2.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -5449,16 +3752,9 @@
   <FileName>
    <Item bucket="1">weapon_emissivestrong_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -5473,14 +3769,9 @@
   <FileName>
    <Item bucket="6">water_shallow.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="FlowSampler" type="Texture" uv="0" />
    <Item name="FogSampler" type="Texture" uv="0" />
@@ -5496,17 +3787,9 @@
   <FileName>
    <Item bucket="0">vehicle_paint1_enveff.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -5539,17 +3822,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_2tex.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -5571,13 +3846,9 @@
   <FileName>
    <Item bucket="3">trees_shadow_proxy.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="ShadowFalloff" type="float" x="1" min="0" max="1" />
@@ -5594,18 +3865,9 @@
   <FileName>
    <Item bucket="0">vehicle_mesh_enveff.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -5633,17 +3895,9 @@
   <FileName>
    <Item bucket="0">ped_default_enveff.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -5666,15 +3920,9 @@
   <FileName>
    <Item bucket="6">water_riverfoam.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="FoamSampler" type="Texture" uv="0" />
    <Item name="RippleSpeed" type="float" x="2.25" min="0" max="10" />
@@ -5685,14 +3933,9 @@
   <FileName>
    <Item bucket="1">albedo_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="useTessellation" type="float" subtype="bool" x="0" />
@@ -5703,15 +3946,9 @@
   <FileName>
    <Item bucket="2">decal_shadow_only.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -5724,14 +3961,9 @@
    <Item bucket="0">radar.sps</Item>
    <Item bucket="0">gta_radar.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="clippingPlane" type="float4" x="0" y="0" z="0" w="0" />
@@ -5743,15 +3975,9 @@
   <FileName>
    <Item bucket="3">trees_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -5770,17 +3996,9 @@
   <FileName>
    <Item bucket="0">weapon_normal_spec_palette.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DiffuseExtraSampler" type="Texture" uv="0" />
@@ -5804,16 +4022,9 @@
   <FileName>
    <Item bucket="3">trees_normal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -5832,22 +4043,10 @@
   <FileName>
    <Item bucket="2">decal_spec_only.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="SpecSampler" type="Texture" uv="0" />
@@ -5863,15 +4062,9 @@
   <FileName>
    <Item bucket="1">mirror_default.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="SpecSampler" type="Texture" uv="0" />
@@ -5886,19 +4079,9 @@
   <FileName>
    <Item bucket="0">ped_palette.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -5920,15 +4103,9 @@
   <FileName>
    <Item bucket="2">normal_spec_decal_nopuddle.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -5947,24 +4124,10 @@
   <FileName>
    <Item bucket="0">normal_spec_emissive.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -5984,16 +4147,9 @@
   <FileName>
    <Item bucket="0">normal_spec_um.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -6013,16 +4169,9 @@
   <FileName>
    <Item bucket="2">decal_normal_spec_um.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -6043,14 +4192,9 @@
   <FileName>
    <Item bucket="2">decal_emissivenight_only.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -6063,16 +4207,9 @@
   <FileName>
    <Item bucket="0">ped_default_palette.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -6094,14 +4231,9 @@
   <FileName>
    <Item bucket="6">water_river.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="FlowSampler" type="Texture" uv="0" />
    <Item name="FogSampler" type="Texture" uv="0" />
@@ -6117,24 +4249,10 @@
   <FileName>
    <Item bucket="0">weapon_normal_spec_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -6157,14 +4275,9 @@
   <FileName>
    <Item bucket="0">cutout_hard.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="useTessellation" type="float" subtype="bool" x="0" />
@@ -6176,17 +4289,9 @@
    <Item bucket="0">normal_spec_pxm_tnt.sps</Item>
    <Item bucket="0">normal_spec_tnt_pxm.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord2 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -6213,16 +4318,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_cm_tnt.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN IS_TERRAIN_MASK_ONLY</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TintPaletteSampler" type="Texture" />
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
@@ -6247,24 +4345,10 @@
   <FileName>
    <Item bucket="1">vehicle_emissive_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -6290,15 +4374,9 @@
   <FileName>
    <Item bucket="1">mirror_decal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -6316,26 +4394,10 @@
   <FileName>
    <Item bucket="0">vehicle_track2_emissive.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DirtSampler" type="Texture" uv="1" />
@@ -6362,18 +4424,9 @@
   <FileName>
    <Item bucket="1">vehicle_track_siren.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -6402,19 +4455,9 @@
    <Item bucket="0">ped_cloth.sps</Item>
   </FileName>
   <Flags>IS_PED_CLOTH</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -6436,15 +4479,9 @@
   <FileName>
    <Item bucket="0">normal_cubemap_reflect.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -6459,24 +4496,10 @@
   <FileName>
    <Item bucket="0">normal_spec_cubemap_reflect.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -6496,14 +4519,9 @@
   <FileName>
    <Item bucket="1">glass_reflect.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="EnvironmentSampler" type="Texture" />
@@ -6519,14 +4537,9 @@
   <FileName>
    <Item bucket="0">spec_twiddle_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -6545,15 +4558,9 @@
   <FileName>
    <Item bucket="0">normal_diffspec_detail.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DetailSampler" type="Texture" uv="0" />
@@ -6574,17 +4581,9 @@
   <FileName>
    <Item bucket="3">weapon_normal_spec_cutout_palette.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DiffuseExtraSampler" type="Texture" uv="0" />
@@ -6609,16 +4608,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_spec.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -6640,18 +4632,9 @@
   <FileName>
    <Item bucket="3">ped_fur.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -6683,15 +4666,9 @@
   <FileName>
    <Item bucket="0">clouds_fast.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DensitySampler" type="Texture" uv="0" />
    <Item name="normalSampler" type="Texture" uv="0" />
@@ -6728,17 +4705,9 @@
   <FileName>
    <Item bucket="0">normal_diffspec_detail_dpm.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord4 />
-    <TexCoord5 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord4 TexCoord5 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DetailSampler" type="Texture" uv="0" />
@@ -6764,17 +4733,9 @@
   <FileName>
    <Item bucket="0">vehicle_paint3_enveff.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -6809,16 +4770,9 @@
   <FileName>
    <Item bucket="3">trees_normal_spec_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -6844,15 +4798,9 @@
   <FileName>
    <Item bucket="0">clouds_animsoft.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DensitySampler" type="Texture" uv="0" />
    <Item name="normalSampler" type="Texture" uv="0" />
@@ -6899,14 +4847,9 @@
   <FileName>
    <Item bucket="2">decal_amb_only.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -6919,17 +4862,9 @@
   <FileName>
    <Item bucket="0">normal_diffspec_detail_dpm_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord4 />
-    <TexCoord5 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord4 TexCoord5 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -6957,13 +4892,9 @@
   <FileName>
    <Item bucket="6">water_riverocean.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="FogSampler" type="Texture" uv="0" />
    <Item name="SpecularFalloff" type="float" x="1600" min="4" max="2000" />
@@ -6978,17 +4909,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_cm_pxm.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN IS_TERRAIN_MASK_ONLY</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord3 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord3 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -7024,16 +4947,9 @@
   <FileName>
    <Item bucket="0">vehicle_paint2_enveff.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -7065,24 +4981,10 @@
   <FileName>
    <Item bucket="1">vehicle_blurredrotor_emissive.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="SpecSampler" type="Texture" uv="0" />
@@ -7102,17 +5004,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_cm_pxm_tnt.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN IS_TERRAIN_MASK_ONLY</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord3 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord3 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TintPaletteSampler" type="Texture" />
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
@@ -7150,14 +5044,9 @@
   <FileName>
    <Item bucket="6">water_rivershallow.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="FlowSampler" type="Texture" uv="0" />
    <Item name="FogSampler" type="Texture" uv="0" />
@@ -7173,17 +5062,9 @@
   <FileName>
    <Item bucket="0">vehicle_paint7_enveff.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -7220,18 +5101,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_2tex_pxm.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord3 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord1 TexCoord3 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -7267,19 +5139,9 @@
    <Item bucket="0">ped_wrinkle_cloth.sps</Item>
   </FileName>
   <Flags>IS_PED_CLOTH</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -7307,24 +5169,10 @@
   <FileName>
    <Item bucket="2">normal_spec_reflect_decal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -7344,15 +5192,9 @@
   <FileName>
    <Item bucket="0">parallax_specmap.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -7371,17 +5213,9 @@
   <FileName>
    <Item bucket="0">normal_spec_detail_dpm_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord4 />
-    <TexCoord5 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord4 TexCoord5 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -7410,19 +5244,9 @@
    <Item bucket="0">ped_wrinkle_cloth_enveff.sps</Item>
   </FileName>
   <Flags>IS_PED_CLOTH</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -7451,12 +5275,9 @@
   <FileName>
    <Item bucket="6">water_poolenv.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="FogColor" type="float4" subtype="rgba" x="0.223529" y="0.486275" z="0.576471" w="0.075" min="0" max="1" />
    <Item name="SpecularFalloff" type="float" x="2000" min="4" max="2000" />
@@ -7471,15 +5292,9 @@
    <Item bucket="0">normal_spec_reflect_emissivenight.sps</Item>
    <Item bucket="1">normal_spec_reflect_emissivenight_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -7498,15 +5313,9 @@
   <FileName>
    <Item bucket="3">trees_lod_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -7523,22 +5332,10 @@
   <FileName>
    <Item bucket="2">decal_diff_only_um.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Colour0 Colour1 TexCoord0</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Colour0 Colour1 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="matMaterialColorScale" type="float4" x="1" y="0" z="0" w="1" />
@@ -7553,17 +5350,9 @@
   <FileName>
    <Item bucket="0">vehicle_paint7.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -7596,17 +5385,9 @@
   <FileName>
    <Item bucket="0">vehicle_paint4_emissive.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -7644,17 +5425,9 @@
    <Item bucket="0">normal_pxm_tnt.sps</Item>
    <Item bucket="0">normal_tnt_pxm.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord2 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -7678,26 +5451,10 @@
   <FileName>
    <Item bucket="0">blend_2lyr.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -7714,16 +5471,9 @@
   <FileName>
    <Item bucket="3">trees_normal_diffspec_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -7750,17 +5500,9 @@
    <Item bucket="0">ped_default_cloth.sps</Item>
   </FileName>
   <Flags>IS_PED_CLOTH</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -7782,15 +5524,9 @@
   <FileName>
    <Item bucket="1">mirror_crack.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="gMirrorCrackSampler" type="Texture" uv="0" />
@@ -7807,15 +5543,9 @@
   <FileName>
    <Item bucket="7">glass_displacement.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -7836,18 +5566,9 @@
   <FileName>
    <Item bucket="0">normal_spec_detail_dpm_vertdecal_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord4 />
-    <TexCoord5 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord4 TexCoord5 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -7877,15 +5598,9 @@
    <Item bucket="0">cloth_normal_spec_tnt.sps</Item>
   </FileName>
   <Flags>IS_CLOTH</Flags>
-  <Layout>
-   <Item type="GTAV2">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV2">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -7906,15 +5621,9 @@
   <FileName>
    <Item bucket="0">normal_diffspec.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -7935,15 +5644,9 @@
    <Item bucket="1">glass_emissivenight.sps</Item>
    <Item bucket="1">glass_emissivenight_alpha.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -7962,17 +5665,9 @@
   <FileName>
    <Item bucket="2">normal_decal_pxm_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <TexCoord2 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 TexCoord2 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -7994,17 +5689,9 @@
   <FileName>
    <Item bucket="0">normal_spec_dpm.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord4 />
-    <TexCoord5 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord4 TexCoord5 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="heightSampler" type="Texture" />
@@ -8028,16 +5715,9 @@
   <FileName>
    <Item bucket="0">weapon_emissive_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -8053,15 +5733,9 @@
   <FileName>
    <Item bucket="0">clouds_anim.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DensitySampler" type="Texture" uv="0" />
    <Item name="normalSampler" type="Texture" uv="0" />
@@ -8108,17 +5782,9 @@
   <FileName>
    <Item bucket="0">vehicle_paint3_lvr.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -8150,17 +5816,9 @@
   <FileName>
    <Item bucket="0">normal_spec_detail_dpm.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord4 />
-    <TexCoord5 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord4 TexCoord5 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DetailSampler" type="Texture" uv="0" />
@@ -8186,16 +5844,9 @@
   <FileName>
    <Item bucket="3">normal_spec_batch.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -8220,19 +5871,9 @@
   <FileName>
    <Item bucket="2">ped_decal_expensive.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -8253,15 +5894,9 @@
   <FileName>
    <Item bucket="0">clouds_altitude.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DensitySampler" type="Texture" uv="0" />
    <Item name="normalSampler" type="Texture" uv="0" />
@@ -8308,14 +5943,9 @@
   <FileName>
    <Item bucket="2">spec_reflect_decal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="SpecSampler" type="Texture" uv="0" />
@@ -8334,16 +5964,9 @@
    <Item bucket="0">terrain_cb_w_4lyr_cm.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN IS_TERRAIN_MASK_ONLY</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -8366,15 +5989,9 @@
   <FileName>
    <Item bucket="0">parallax.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -8391,15 +6008,9 @@
   <FileName>
    <Item bucket="0">normal_diffspec_detail_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -8423,17 +6034,9 @@
   <FileName>
    <Item bucket="0">normal_detail_dpm.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord4 />
-    <TexCoord5 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord4 TexCoord5 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DetailSampler" type="Texture" uv="0" />
@@ -8458,15 +6061,9 @@
    <Item bucket="0">vehicle_cloth2.sps</Item>
   </FileName>
   <Flags>IS_CLOTH</Flags>
-  <Layout>
-   <Item type="GTAV2">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV2">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />
@@ -8497,15 +6094,9 @@
   <FileName>
    <Item bucket="0">normal_diffspec_tnt.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TintPaletteSampler" type="Texture" />
@@ -8527,14 +6118,9 @@
   <FileName>
    <Item bucket="2">reflect_decal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="EnvironmentSampler" type="Texture" />
@@ -8547,15 +6133,9 @@
   <FileName>
    <Item bucket="0">clouds_soft.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DensitySampler" type="Texture" uv="0" />
    <Item name="normalSampler" type="Texture" uv="0" />
@@ -8595,18 +6175,9 @@
   <FileName>
    <Item bucket="2">ped_decal_nodiff.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -8628,17 +6199,9 @@
    <Item bucket="0">terrain_cb_4lyr_2tex.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -8660,17 +6223,9 @@
   <FileName>
    <Item bucket="0">normal_spec_wrinkle.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="WrinkleMaskSampler_0" type="Texture" uv="0" />
@@ -8699,13 +6254,9 @@
   <FileName>
    <Item bucket="0">sky_system.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="NoiseSampler" type="Texture" />
    <Item name="perlinSampler" type="Texture" uv="0" />
@@ -8760,15 +6311,9 @@
   <FileName>
    <Item bucket="0">clouds_fog.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DensitySampler" type="Texture" uv="0" />
    <Item name="normalSampler" type="Texture" uv="0" />
@@ -8808,16 +6353,9 @@
    <Item bucket="0">terrain_cb_4lyr.sps</Item>
   </FileName>
   <Flags>IS_TERRAIN</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 Colour1 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="TextureSampler_layer0" type="Texture" uv="0" />
    <Item name="BumpSampler_layer0" type="Texture" uv="0" />
@@ -8839,15 +6377,9 @@
   <FileName>
    <Item bucket="2">normal_reflect_decal.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="BumpSampler" type="Texture" uv="0" />
@@ -8863,19 +6395,9 @@
    <Item bucket="0">ped_cloth_enveff.sps</Item>
   </FileName>
   <Flags>IS_PED_CLOTH</Flags>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <Colour1 />
-    <TexCoord0 />
-    <TexCoord1 />
-    <Tangent />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 Colour1 TexCoord0 TexCoord1 Tangent</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="TextureSamplerDiffPal" type="Texture" />
@@ -8898,24 +6420,10 @@
   <FileName>
    <Item bucket="1">vehicle_lightsemissive_siren.sps</Item>
   </FileName>
-  <Layout>
-   <Item type="GTAV1">
-    <Position />
-    <BlendWeights />
-    <BlendIndices />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-   <Item type="GTAV1">
-    <Position />
-    <Normal />
-    <Colour0 />
-    <TexCoord0 />
-    <TexCoord1 />
-   </Item>
-  </Layout>
+  <Layouts>
+   <Item type="GTAV1">Position BlendWeights BlendIndices Normal Colour0 TexCoord0 TexCoord1</Item>
+   <Item type="GTAV1">Position Normal Colour0 TexCoord0 TexCoord1</Item>
+  </Layouts>
   <Parameters>
    <Item name="DiffuseSampler" type="Texture" uv="0" />
    <Item name="DamageSampler" type="Texture" hidden="true" />

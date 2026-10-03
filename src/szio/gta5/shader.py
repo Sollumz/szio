@@ -154,7 +154,7 @@ class ShaderManager(_ShaderManagerBase):
             base_name = node.find("Name").text
             flags = _parse_flags(node.find("Flags"))
             parameters = [_parse_parameter(p) for p in node.findall("./Parameters/Item")]
-            layouts = [frozenset(field.tag for field in item) for item in node.findall("./Layout/Item")]
+            layouts = ShaderManager._parse_layouts(node)
 
             for filename_elem in node.findall("./FileName//*"):
                 filename = filename_elem.text

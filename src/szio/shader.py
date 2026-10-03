@@ -1,3 +1,4 @@
+import xml.etree.ElementTree as ET
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum, Flag, auto
@@ -198,6 +199,11 @@ class ShaderManager:
         base_name_hash = jenkhash.name_to_hash(shader.base_name)
         cls._shaders_by_base_name_hash_and_rb.setdefault((base_name_hash, shader.render_bucket), shader)
         cls._shaders_by_base_name_hash.setdefault(base_name_hash, shader)
+
+    @classmethod
+    def _parse_layouts(cls, node: ET.Element) -> list[frozenset[str]]:
+        """Reads a Shaders.xml `<Layouts>` block."""
+        return [frozenset(item.text.split()) for item in node.findall("./Layouts/Item") if item.text]
 
     @classmethod
     def shaders(cls) -> Iterable[ShaderDef]:
