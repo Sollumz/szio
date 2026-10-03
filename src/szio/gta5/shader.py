@@ -28,11 +28,12 @@ def _parse_parameter(element: ET.Element) -> ShaderParameterDef:
     ui_hint = attribs.get("subtype", None)
     min_value = attribs.get("min", None)
     max_value = attribs.get("max", None)
+    if attribs.get("hidden", "").lower() == "true":
+        ui_hint = "hidden"
     param = ShaderParameterDef(
         name=attribs["name"],
         type=ShaderParameterType(attribs["type"]),
         ui_hint=ShaderParameterUiHint(ui_hint) if ui_hint is not None else None,
-        hidden=attribs.get("hidden", "").lower() == "true",
         count=int(attribs.get("count", 0)),
         min=float(min_value) if min_value is not None else None,
         max=float(max_value) if max_value is not None else None,

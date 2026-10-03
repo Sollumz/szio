@@ -18,6 +18,7 @@ class ShaderParameterType(str, Enum):
 
 class ShaderParameterUiHint(str, Enum):
     """Editor hint for a parameter."""
+    HIDDEN = "hidden"
     RGB = "rgb"
     RGBA = "rgba"
     BOOL = "bool"
@@ -39,7 +40,6 @@ class ShaderParameterDef:
     type: ShaderParameterType
     ui_order: int = 0
     ui_hint: ShaderParameterUiHint | None = None
-    hidden: bool = False
     uv: int | None = None
     """UV map index used by a texture."""
     count: int = 0
@@ -71,6 +71,10 @@ class ShaderParameterDef:
     @property
     def row_count(self) -> int:
         return 4 if self.type == ShaderParameterType.FLOAT4X4 else max(1, self.count)
+
+    @property
+    def hidden(self) -> bool:
+        return self.ui_hint == ShaderParameterUiHint.HIDDEN
 
 
 class ShaderDefFlag(Flag):
