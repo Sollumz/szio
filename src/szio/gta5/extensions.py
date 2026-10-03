@@ -1,14 +1,14 @@
-import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import Enum, Flag
 from typing import Protocol, runtime_checkable
 
+from ..flags import FlagIterCompat
 from ..types import Quaternion, Vector
 from .drawables import Light, LightFlashiness
 
 
-class ScenarioPointFlags(Flag):
+class ScenarioPointFlags(FlagIterCompat, Flag):
     IgnoreMaxInRange = 1 << 0
     NoSpawn = 1 << 1
     StationaryReactions = 1 << 2
@@ -40,13 +40,6 @@ class ScenarioPointFlags(Flag):
     CheckCrossedArrivalPlane = 1 << 28
     UseVehicleFrontForArrival = 1 << 29
     IgnoreWeatherRestrictions = 1 << 30
-
-    if sys.version_info < (3, 11):
-
-        def __iter__(self):
-            for flag in ScenarioPointFlags:
-                if flag in self:
-                    yield flag
 
 
 @dataclass(slots=True)

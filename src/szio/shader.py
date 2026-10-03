@@ -5,6 +5,7 @@ from enum import Enum, Flag, auto
 from typing import Iterable
 
 from . import jenkhash
+from .flags import FlagIterCompat
 from .types import Vector
 
 
@@ -78,7 +79,7 @@ class ShaderParameterDef:
         return self.ui_hint == ShaderParameterUiHint.HIDDEN
 
 
-class ShaderDefFlag(Flag):
+class ShaderDefFlag(FlagIterCompat, Flag):
     IS_CLOTH = auto()
     IS_PED_CLOTH = auto()
     IS_TERRAIN = auto()

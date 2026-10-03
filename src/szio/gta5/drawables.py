@@ -1,4 +1,3 @@
-import sys
 from dataclasses import dataclass, field
 from enum import Enum, IntEnum, IntFlag
 from typing import NamedTuple
@@ -7,13 +6,14 @@ import numpy as np
 from numpy.typing import NDArray
 
 from ..assets import AssetGame
+from ..flags import FlagIterCompat
 from ..types import DataSource, Matrix, Quaternion, Vector
 from .assets import AssetType
 from .bounds import AssetBound
 from .textures import EmbeddedTexture
 
 
-class SkelBoneFlags(IntFlag):
+class SkelBoneFlags(FlagIterCompat, IntFlag):
     ROTATE_X = 1 << 0
     ROTATE_Y = 1 << 1
     ROTATE_Z = 1 << 2
@@ -27,13 +27,6 @@ class SkelBoneFlags(IntFlag):
     SCALE_Z = 1 << 10
     HAS_SCALE_LIMITS = 1 << 11
     HAS_CHILD = 1 << 12
-
-    if sys.version_info < (3, 11):
-
-        def __iter__(self):
-            for flag in SkelBoneFlags:
-                if flag in self:
-                    yield flag
 
 
 @dataclass(slots=True)

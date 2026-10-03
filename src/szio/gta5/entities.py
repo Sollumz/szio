@@ -1,14 +1,14 @@
-import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import Enum, Flag
 from typing import Protocol, runtime_checkable
 
+from ..flags import FlagIterCompat
 from ..types import Quaternion, Vector
 from .extensions import Extension
 
 
-class EntityFlags(Flag):
+class EntityFlags(FlagIterCompat, Flag):
     ALLOW_FULL_ROTATION = 1 << 0
     STREAM_LOW_PRIORITY = 1 << 1
     DISABLE_EMBEDDED_COLLISIONS = 1 << 2
@@ -41,13 +41,6 @@ class EntityFlags(Flag):
     ONLY_RENDER_IN_MIRROR_REFLECTIONS = 1 << 29
     UNUSED_30 = 1 << 30
     UNUSED_31 = 1 << 31
-
-    if sys.version_info < (3, 11):
-
-        def __iter__(self):
-            for flag in EntityFlags:
-                if flag in self:
-                    yield flag
 
 
 class EntityLodLevel(Enum):
@@ -88,7 +81,7 @@ class Entity:
     extensions: list[Extension]
 
 
-class EntityMloInstanceFlags(Flag):
+class EntityMloInstanceFlags(FlagIterCompat, Flag):
     TURN_ON_GPS = 1 << 0
     CAP_ENTITIES_ALPHA = 1 << 1
     SHORT_FADE_DISTANCE = 1 << 2

@@ -1,4 +1,3 @@
-import sys
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum, Flag
@@ -6,24 +5,18 @@ from enum import Enum, Flag
 import numpy as np
 
 from ..assets import AssetGame
+from ..flags import FlagIterCompat
 from ..types import Vector
 from .assets import AssetType
 from .entities import MapEntity
 
 
-class MapFlags(Flag):
+class MapFlags(FlagIterCompat, Flag):
     SCRIPTED = 1 << 0
     IS_PARENT = 1 << 1
 
-    if sys.version_info < (3, 11):
 
-        def __iter__(self):
-            for flag in MapFlags:
-                if flag in self:
-                    yield flag
-
-
-class MapContentFlags(Flag):
+class MapContentFlags(FlagIterCompat, Flag):
     HAS_ENTITIES_HD = 1 << 0  # HD, ORPHANHD
     HAS_ENTITIES_LOD = 1 << 1  # LOD, SLOD1
     HAS_ENTITIES_CONTAINER_LOD = 1 << 2  # SLOD2, SLOD3, SLOD4
@@ -36,13 +29,6 @@ class MapContentFlags(Flag):
     HAS_ENTITIES_CRITICAL = 1 << 9
     HAS_INSTANCED_DATA = 1 << 10
 
-    if sys.version_info < (3, 11):
-
-        def __iter__(self):
-            for flag in MapContentFlags:
-                if flag in self:
-                    yield flag
-
 
 @dataclass(slots=True)
 class MapTimeCycleModifier:
@@ -54,7 +40,7 @@ class MapTimeCycleModifier:
     end_hour: int
 
 
-class MapCarGeneratorFlags(Flag):
+class MapCarGeneratorFlags(FlagIterCompat, Flag):
     FORCE_SPAWN = 1 << 0
     IGNORE_DENSITY = 1 << 1
     POLICE = 1 << 2
@@ -68,13 +54,6 @@ class MapCarGeneratorFlags(Flag):
     NETWORK_PLAYER = 1 << 10
     LOW_PRIORITY = 1 << 11
     PREVENT_ENTRY = 1 << 12
-
-    if sys.version_info < (3, 11):
-
-        def __iter__(self):
-            for flag in MapCarGeneratorFlags:
-                if flag in self:
-                    yield flag
 
 
 class MapCarGeneratorCreationRule(Enum):
@@ -222,15 +201,8 @@ class MapBoxOccluder:
         self.sin_z = round(v[1] * 16384.0)
 
 
-class MapModelOccluderFlags(Flag):
+class MapModelOccluderFlags(FlagIterCompat, Flag):
     WATER_ONLY = 1 << 0
-
-    if sys.version_info < (3, 11):
-
-        def __iter__(self):
-            for flag in MapModelOccluderFlags:
-                if flag in self:
-                    yield flag
 
 
 @dataclass(slots=True)

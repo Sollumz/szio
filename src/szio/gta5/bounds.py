@@ -1,9 +1,9 @@
-import sys
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum, IntFlag, auto
 
+from ..flags import FlagIterCompat
 from ..types import Matrix, Vector
 from .assets import AssetGame, AssetType
 
@@ -20,7 +20,7 @@ class BoundType(Enum):
     PLANE = auto()
 
 
-class CollisionFlags(IntFlag):
+class CollisionFlags(FlagIterCompat, IntFlag):
     DEFAULT_TYPE = 1 << 0
     MAP_TYPE_WEAPON = 1 << 1
     MAP_TYPE_MOVER = 1 << 2
@@ -54,15 +54,8 @@ class CollisionFlags(IntFlag):
     STAIR_SLOPE_TYPE = 1 << 30
     DEEP_SURFACE_TYPE = 1 << 31
 
-    if sys.version_info < (3, 11):
 
-        def __iter__(self):
-            for flag in CollisionFlags:
-                if flag in self:
-                    yield flag
-
-
-class CollisionMaterialFlags(IntFlag):
+class CollisionMaterialFlags(FlagIterCompat, IntFlag):
     STAIRS = 1 << 0
     NOT_CLIMBABLE = 1 << 1
     SEE_THROUGH = 1 << 2
@@ -79,13 +72,6 @@ class CollisionMaterialFlags(IntFlag):
     TOO_STEEP_FOR_PLAYER = 1 << 13
     NO_NETWORK_SPAWN = 1 << 14
     NO_CAM_COLLISION_ALLOW_CLIPPING = 1 << 15
-
-    if sys.version_info < (3, 11):
-
-        def __iter__(self):
-            for flag in CollisionMaterialFlags:
-                if flag in self:
-                    yield flag
 
 
 @dataclass(slots=True)
