@@ -13,6 +13,7 @@ from .element import (
     ListPropertyRequired,
     Matrix33Property,
     MatrixProperty,
+    MetaElementTree,
     QuaternionProperty,
     StringValueProperty,
     TextListProperty,

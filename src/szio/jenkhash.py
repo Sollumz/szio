@@ -27,8 +27,14 @@ def hash_data(data: bytes, seed: int = 0) -> int:
 
 
 def hash_string(text: str, encoding: str = "utf-8", seed: int = 0) -> int:
+    """Case-insensitive JOAAT."""
     bts = text.lower().encode(encoding)
     return hash_data(bts, seed)
+
+
+def hash_string_literal(text: str, encoding: str = "utf-8", seed: int = 0) -> int:
+    """Case-sensitive JOAAT."""
+    return hash_data(text.encode(encoding), seed)
 
 
 def name_to_hash(name: str) -> int:
@@ -45,6 +51,20 @@ def name_to_hash(name: str) -> int:
             pass
 
     return hash_string(name)
+
+
+def name_to_hash_literal(name: str) -> int:
+    """Like `name_to_hash`, but with the case-sensitive `hash_string_literal`."""
+    if name == "":
+        return 0
+
+    if name.startswith("hash_"):
+        try:
+            return int(name[5:], 16) & 0xFFFFFFFF
+        except ValueError:
+            pass
+
+    return hash_string_literal(name)
 
 
 def hash_to_name(hash_value: int) -> str:

@@ -9,6 +9,7 @@ from xml.etree import ElementTree as ET
 
 from numpy import float32
 
+from ..jenkhash import name_to_hash_literal
 from ..types import Matrix, Quaternion, Vector
 
 
@@ -183,6 +184,35 @@ class ElementTree(Element):
 
         if isinstance(obj, ElementProperty):
             return obj
+
+
+class MetaElementTree(ElementTree):
+    """ElementTree whose children are matched by name hash rather than literal tag."""
+
+    @classmethod
+    def from_xml(cls, element: ET.Element):
+        new = cls()
+        if new.tag_name != element.tag:
+            new.tag_name = element.tag
+
+        children_by_hash = {}
+        for child in element:
+            key = name_to_hash_literal(child.tag)
+            if key not in children_by_hash:
+                children_by_hash[key] = child
+
+        for prop_name, obj_element in vars(new).items():
+            if isinstance(obj_element, Element):
+                child = children_by_hash.get(name_to_hash_literal(obj_element.tag_name))
+                if child is not None:
+                    setattr(new, prop_name, type(obj_element).from_xml(child))
+                elif isinstance(obj_element, ElementTree):
+                    setattr(new, prop_name, None)
+            elif isinstance(obj_element, AttributeProperty):
+                if obj_element.name in element.attrib:
+                    obj_element.value = element.get(obj_element.name)
+
+        return new
 
 
 @dataclass

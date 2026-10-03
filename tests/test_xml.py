@@ -7,6 +7,7 @@ from szio.xml.element import (
     ElementTree,
     Matrix33Property,
     MatrixProperty,
+    MetaElementTree,
     TextProperty,
     ValueProperty,
     VectorProperty,
@@ -255,3 +256,64 @@ def test_matrix33_property_whitespace_tolerant(text):
     for r in range(3):
         for c in range(3):
             assert float(prop.value[r][c]) == expected[r][c]
+
+
+META_TAG_COLLISION = "awOyxCA_0x8471928B"
+META_TAG_LOWERCASE_COLLISION = "gdghaain_0x8471928b"
+META_TAG_HASH = "hash_8471928B"
+META_TAG_RESOLVED = "timeCycleVolumes"
+META_ALL_TAGS = (META_TAG_COLLISION, META_TAG_LOWERCASE_COLLISION, META_TAG_HASH, META_TAG_RESOLVED)
+
+
+class Meta(MetaElementTree):
+    tag_name = "Meta"
+
+    def __init__(self):
+        self.v = ValueProperty(META_TAG_COLLISION, 0)
+
+
+@pytest.mark.parametrize("tag", META_ALL_TAGS)
+def test_meta_element_tree_matches_any_name_for_a_hash(tag: str):
+    m = Meta.from_xml(ET.fromstring(f'<Meta><{tag} value="7" /></Meta>'))
+    assert m.v == 7
+
+
+@pytest.mark.parametrize("declared_tag", META_ALL_TAGS)
+@pytest.mark.parametrize("tag", META_ALL_TAGS)
+def test_meta_element_tree_matches_regardless_of_the_declared_name(declared_tag: str, tag: str):
+    class M(MetaElementTree):
+        tag_name = "M"
+
+        def __init__(self):
+            self.v = ValueProperty(declared_tag, 0)
+
+    m = M.from_xml(ET.fromstring(f'<M><{tag} value="7" /></M>'))
+    assert m.v == 7
+
+
+@pytest.mark.parametrize("tag", META_ALL_TAGS)
+def test_meta_element_tree_writes_back_the_name_it_read(tag: str):
+    m = Meta.from_xml(ET.fromstring(f'<Meta><{tag} value="7" /></Meta>'))
+    assert m.to_xml()[0].tag == tag
+
+
+def test_meta_element_tree_leaves_a_missing_child_at_its_default():
+    m = Meta.from_xml(ET.fromstring("<Meta />"))
+    assert m.v == 0
+
+
+def test_meta_element_tree_does_not_fold_case():
+    m = Meta.from_xml(ET.fromstring(f'<Meta><{META_TAG_RESOLVED.lower()} value="7" /></Meta>'))
+    assert m.v == 0
+
+
+def test_element_tree_matches_by_literal_name():
+    # Not an MetaElementTree, so collision string won't match the resolved string
+    class E(ElementTree):
+        tag_name = "Plain"
+
+        def __init__(self):
+            self.v = ValueProperty(META_TAG_COLLISION, 0)
+
+    p = E.from_xml(ET.fromstring(f'<Plain><{META_TAG_RESOLVED} value="7" /></Plain>'))
+    assert p.v == 0
