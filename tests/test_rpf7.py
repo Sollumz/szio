@@ -64,6 +64,32 @@ def test_open_rpf_path_lists_root(tmp_path):
         arc.close()
 
 
+@pytest.mark.parametrize("generation", ["gen8", "gen9"])
+def test_resource_header_probe_uses_metadata(tmp_path, monkeypatch, generation):
+    from pymateria.rpf7 import PackFileEntryResource
+    from szio.gta5.assets import AssetVersion
+    from szio.gta5.native import NativeProviderG8, NativeProviderG9
+
+    source = DATA_DIR / generation / "test_drawable.ydr"
+    expected = source.read_bytes()
+    pf = PackFile.create()
+    pf.add_entry(PackFileEntryResource.create(pf, "asset.ydr", source), False)
+    rpf = tmp_path / "assets.rpf"
+    with rpf.open("wb") as stream:
+        PackFile.export_rpf(pf, stream)
+    path = VPath(rpf) / "asset.ydr"
+    assert path.read_prefix(16) == expected[:16]
+    assert path.read_prefix(0) == b""
+    assert path.read_prefix(32) == expected[:32]
+
+    def fail_payload_read(*args):
+        pytest.fail("Header detection must not open the resource payload")
+
+    monkeypatch.setattr(_Rpf7Archive, "open_bytes", fail_payload_read)
+    for provider in (NativeProviderG8(), NativeProviderG9()):
+        assert provider.supports_file(path) == (provider.ASSET_VERSION == getattr(AssetVersion, generation.upper()))
+
+
 def test_open_rpf_open_bytes_returns_seekable_stream(tmp_path):
     rpf = tmp_path / "pack.rpf"
     rpf.write_bytes(_build_rpf({"x.bin": b"0123456789"}))
@@ -265,6 +291,34 @@ def test_backend_normal_archive_has_no_duplicate_children(tmp_path):
         assert sorted(arc.list_dir("")) == ["a"]
     finally:
         arc.close()
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_backend_index_deduplicates_explicit_and_implied_entries(reverse):
+    from types import SimpleNamespace
+    from pymateria.rpf7 import PackFileEntryDirectory
+
+    pf = PackFile.create()
+    deep = PackFileEntryFile.create(pf, "a/b/c.bin", b"deep")
+    replacement = PackFileEntryFile.create(pf, "a/b/c.bin", b"replacement")
+    entries = [
+        deep,
+        PackFileEntryDirectory(pf, "a/b"),
+        PackFileEntryDirectory(pf, "a"),
+        replacement,
+    ]
+    # Malformed archive: the same path is both a file and a directory.
+    # Reversing also exercises backfilling a directory after its file entry.
+    entries.append(PackFileEntryFile.create(pf, "a", b"file"))
+    if reverse:
+        entries.reverse()
+    arc = _Rpf7Archive._from_packfile(SimpleNamespace(entries=entries))
+
+    assert arc.list_dir("") == ["a"]
+    assert arc.list_dir("a") == ["b"]
+    assert arc.list_dir("a/b") == ["c.bin"]
+    assert arc.is_dir("a") and arc.is_file("a")
+    assert arc.read_bytes("a/b/c.bin") == (b"deep" if reverse else b"replacement")
 
 
 # Minimal CWXML stubs; only the root element matters for detection/loading.

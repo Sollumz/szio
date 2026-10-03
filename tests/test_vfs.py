@@ -122,6 +122,54 @@ def test_construct_from_str():
     assert VPath("a/b").parts[-2:] == ("a", "b")
 
 
+@pytest.mark.parametrize("source", [
+    "", "/", "//", "relative/path", "relative/pack.rpf/inner.rpf/file.ydr",
+    "/root/pack.rpf/file.ydr", "C:", "C:relative/pack.rpf/file.ydr",
+    "C:/root/pack.rpf/file.ydr", "//server/share", "//server/share/pack.rpf/file.ydr",
+    "name with spaces/café.ydr", "literal\\backslash/asset.ydr",
+])
+def test_string_matches_normalized_path(source):
+    path = VPath(source)
+    assert str(path) == pathlib.Path(source).as_posix()
+    assert VPath(str(path)) == path
+
+
+@pytest.mark.parametrize("name", [
+    "", "asset", "asset.ydr", "asset.ydr.xml", ".hidden", "..hidden", ".hidden.ydr",
+    "asset..ydr", "asset.", "asset..", "asset.ydr.", ".hidden.", "café.YDR",
+])
+def test_filename_properties_match_pathlib(name):
+    expected = pathlib.PurePosixPath(name)
+    path = VPath(name)
+    assert (path.stem, path.suffix, path.suffixes) == (expected.stem, expected.suffix, expected.suffixes)
+
+
+def test_read_prefix(tmp_path, fake_rpf, monkeypatch):
+    loose = tmp_path / "asset.bin"
+    loose.write_bytes(b"header-payload")
+    archive_path = tmp_path / "assets.rpf"
+    archive_path.write_bytes(b"fake")
+    archive = _FakeArchive({"asset.bin": b"header-payload"})
+    fake_rpf.register_path(archive_path, archive)
+    archived = VPath(archive_path) / "asset.bin"
+
+    for path in (VPath(loose), archived):
+        assert path.read_prefix(6) == b"header"
+        assert path.read_prefix(0) == b""
+        assert path.read_prefix(100) == b"header-payload"
+        with pytest.raises(ValueError):
+            path.read_prefix(-1)
+    with pytest.raises(FileNotFoundError):
+        (VPath(archive_path) / "missing").read_prefix(6)
+    with pytest.raises((IsADirectoryError, PermissionError)):
+        VPath(tmp_path).read_prefix(6)
+
+    calls = []
+    monkeypatch.setattr(archive, "read_prefix", lambda inner, size: calls.append((inner, size)) or b"header", raising=False)
+    assert archived.read_prefix(6) == b"header"
+    assert calls == [("asset.bin", 6)]
+
+
 def test_construct_from_path_and_vpath_equal():
     assert VPath("a/b") == VPath(pathlib.Path("a/b"))
     assert VPath("a/b") == VPath(VPath("a/b"))
