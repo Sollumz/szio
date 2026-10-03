@@ -52,6 +52,7 @@ class AssetType(Enum):
     CLOTH_DICTIONARY = auto()
     MAP_TYPES = auto()
     MAP_DATA = auto()
+    MAP_PARENT_TXDS = auto()
     TEXTURE_DICTIONARY = auto()
 
 

@@ -774,3 +774,34 @@ class CMapData(ElementTree, AbstractClass):
         self.lod_lights_soa = LODLightsSOA()
         self.distant_lod_lights_soa = DistantLODLightsSOA()
         self.block = Block()
+
+
+class TxdRelationship(ElementTree):
+    tag_name = "item"
+
+    def __init__(self):
+        super().__init__()
+        self.parent = TextPropertyRequired("parent")
+        self.child = TextPropertyRequired("child")
+
+
+class TxdRelationshipsList(ListPropertyRequired):
+    list_type = TxdRelationship
+    tag_name = "txdRelationships"
+
+    @classmethod
+    def from_xml(cls, element: ET.Element):
+        # `gtxd.ymt` uses `item` and `gtxd.meta` uses `Item`, accept both
+        new = cls(element.tag)
+        new.value.extend(TxdRelationship.from_xml(child) for child in element if child.tag.lower() == "item")
+        return new
+
+
+class CMapParentTxds(ElementTree):
+    """Parent-child texture dictionary relationships, as stored in `gtxd.meta` and `gtxd.ymt`."""
+
+    tag_name = "CMapParentTxds"
+
+    def __init__(self):
+        super().__init__()
+        self.txd_relationships = TxdRelationshipsList()
