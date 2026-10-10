@@ -73,6 +73,7 @@ from .drawables import (
     LodLevel,
     Model,
     RenderBucket,
+    RenderMask,
     ShaderGroup,
     ShaderInst,
     ShaderParameter,

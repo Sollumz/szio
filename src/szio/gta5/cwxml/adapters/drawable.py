@@ -20,6 +20,7 @@ from ...drawables import (
     LodLevel,
     Model,
     RenderBucket,
+    RenderMask,
     ShaderGroup,
     ShaderInst,
     ShaderParameter,
@@ -309,7 +310,7 @@ def _load_models(d: cw.Drawable) -> dict[LodLevel, list[Model]]:
         return Model(
             bone_index=model.bone_index,
             geometries=[_map_geometry(g) for g in model.geometries],
-            render_bucket_mask=model.render_mask,
+            mask=RenderMask(model.render_mask),
             has_skin=model.has_skin == 1,
             matrix_count=model.matrix_count,
             flags=model.flags,
@@ -513,7 +514,7 @@ def _save_models(v: dict[LodLevel, list[Model]], d: cw.Drawable):
     def _map_model(model: Model) -> cw.DrawableModel:
         m = cw.DrawableModel()
         m.geometries = [_map_geometry(g) for g in model.geometries]
-        m.render_mask = model.render_bucket_mask
+        m.render_mask = int(model.mask)
         m.flags = model.flags
         m.has_skin = 1 if model.has_skin else 0
         m.bone_index = model.bone_index

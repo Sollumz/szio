@@ -17,6 +17,7 @@ from ...drawables import (
     LodLevel,
     Model,
     RenderBucket,
+    RenderMask,
     ShaderGroup,
     ShaderInst,
     ShaderParameter,
@@ -181,7 +182,7 @@ def _load_models_g9(
         return Model(
             bone_index=model.matrix_index,
             geometries=[_map_geometry(g) for g in model.geometries],
-            render_bucket_mask=model.render_bucket_mask,
+            mask=RenderMask(model.render_bucket_mask),
             has_skin=model.has_skin,
             matrix_count=model.matrix_count,
             flags=model.flags,
@@ -343,7 +344,7 @@ def _save_models_g9(
         m = pmg9.Model()
         gs = [_map_geometry(g) for g in model.geometries]
         m.geometries.extend(gs)
-        m.render_bucket_mask = model.render_bucket_mask
+        m.render_bucket_mask = int(model.mask)
         m.flags = pm.ModelFlags(model.flags)
         m.has_skin = model.has_skin
         m.matrix_index = model.bone_index

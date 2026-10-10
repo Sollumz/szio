@@ -70,6 +70,20 @@ class RenderBucket(IntEnum):
     DISPLACEMENT_ALPHA = 7
 
 
+class RenderMask(FlagIterCompat, IntFlag):
+    DEFAULT = 1 << 0
+    SHADOW = 1 << 1
+    REFLECTION = 1 << 2
+    MIRROR = 1 << 3
+    WATER = 1 << 4
+    UNUSED_5 = 1 << 5
+    UNUSED_6 = 1 << 6
+    UNUSED_7 = 1 << 7
+
+    ALL_VIEWS = DEFAULT | SHADOW | REFLECTION | MIRROR | WATER
+    ALL = 0xFF
+
+
 @dataclass(slots=True)
 class ShaderParameter:
     name: str
@@ -151,7 +165,7 @@ class Geometry:
 class Model:
     bone_index: int
     geometries: list[Geometry]
-    render_bucket_mask: int
+    mask: RenderMask
     has_skin: bool
     matrix_count: int
     flags: int

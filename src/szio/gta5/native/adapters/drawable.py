@@ -24,6 +24,7 @@ from ...drawables import (
     LodLevel,
     Model,
     RenderBucket,
+    RenderMask,
     ShaderGroup,
     ShaderInst,
     ShaderParameter,
@@ -310,7 +311,7 @@ def _load_models_g8(
         return Model(
             bone_index=model.matrix_index,
             geometries=[_map_geometry(g) for g in model.geometries],
-            render_bucket_mask=model.render_bucket_mask,
+            mask=RenderMask(model.render_bucket_mask),
             has_skin=model.has_skin,
             matrix_count=model.matrix_count,
             flags=model.flags,
@@ -537,7 +538,7 @@ def _save_models_g8(
     def _map_model(model: Model) -> pmg8.Model:
         m = pmg8.Model()
         m.geometries = [_map_geometry(g) for g in model.geometries]
-        m.render_bucket_mask = model.render_bucket_mask
+        m.render_bucket_mask = int(model.mask)
         m.flags = pm.ModelFlags(model.flags)
         m.has_skin = model.has_skin
         m.matrix_index = model.bone_index
