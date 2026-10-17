@@ -388,6 +388,15 @@ class VertexLayoutList(ElementProperty):
     def from_xml(cls, element: ET.Element):
         new = cls()
         new.type = element.get("type")
+        if new.type and new.type.isdigit():
+            try:
+                val = int(new.type)
+                # CodeWalker 64-bit integer FVF (e.g. 216172782131191814 = 0x030000000109A006). High byte 0x03 = cloth.
+                if (val >> 56) == 3 or val == 216172782131191814:
+                    tags = [child.tag for child in element]
+                    new.type = "GTAV2" if "Tangent" in tags else "GTAV3"
+            except ValueError:
+                pass
         for child in element:
             new.value.append(child.tag)
         return new
@@ -475,7 +484,17 @@ class VertexBuffer(ElementTree):
     def _load_data_from_str(self, _str: str):
         layout = self.get_element("layout")
         struct_dtype = np.dtype([self.VERT_ATTR_DTYPES[attr_name] for attr_name in layout.value])
-        if layout.type == "GTAV2":
+        is_cloth_normal = layout.type == "GTAV2"
+        if not is_cloth_normal and "Normal" in layout.value:
+            first_line = _str.strip().split("\n", 1)[0]
+            expected_cols = sum(
+                self.VERT_ATTR_DTYPES[attr][2] if len(self.VERT_ATTR_DTYPES[attr]) > 2 else 1
+                for attr in layout.value
+            )
+            if len(first_line.split()) == expected_cols + 1:
+                is_cloth_normal = True
+
+        if is_cloth_normal:
             # FVF with value GTAV2 (used for cloth) has Normal with format RGBA8 (though A is unused), which CW now
             # exports as 4 floats. Other code assumes that Normal always has 3 floats.
             # This is the only case (given vanilla assets at least) where a vertex element can have a different number
