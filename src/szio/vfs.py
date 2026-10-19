@@ -592,15 +592,12 @@ class VPath:
         return str(self._os_leaf_path())
 
     def __str__(self) -> str:
-        # Uniform forward slashes (OS layer via as_posix, archive layers already
-        # '/'-joined). `__fspath__`, not this, carries the native-separator path.
-        # Round-trips through the constructor (pathlib parses '/' everywhere).
-        pieces: list[str] = []
-        for i, layer in enumerate(self._layers):
-            if i == 0:
-                pieces.append(_os_path(layer).as_posix())
-            else:
-                pieces.append("/".join(layer.parts))
+        # Layers already contain normalized components. Reconstruct directly
+        # instead of building and parsing a pathlib object for every file.
+        first = self._layers[0]
+        root = first.root.replace(os.sep, "/")
+        pieces = [root + "/".join(first.parts) or "."]
+        pieces.extend("/".join(layer.parts) for layer in self._layers[1:])
         return "/".join(pieces)
 
     def as_posix(self) -> str:
@@ -641,15 +638,27 @@ class VPath:
 
     @property
     def stem(self) -> str:
-        return pathlib.PurePosixPath(self.name).stem
+        name = self.name
+        # Trailing-dot handling changed in pathlib in Python 3.14.
+        if name.endswith("."):
+            return pathlib.PurePosixPath(name).stem
+        dot = name.rfind(".")
+        return name[:dot] if dot > 0 else name
 
     @property
     def suffix(self) -> str:
-        return pathlib.PurePosixPath(self.name).suffix
+        name = self.name
+        if name.endswith("."):
+            return pathlib.PurePosixPath(name).suffix
+        dot = name.rfind(".")
+        return name[dot:] if dot > 0 else ""
 
     @property
     def suffixes(self) -> list[str]:
-        return list(pathlib.PurePosixPath(self.name).suffixes)
+        name = self.name
+        if name.endswith("."):
+            return pathlib.PurePosixPath(name).suffixes
+        return ["." + part for part in name.lstrip(".").split(".")[1:]]
 
     @property
     def parent(self) -> "VPath":
@@ -973,6 +982,22 @@ class VPath:
     def read_text(self, encoding: str | None = None, errors: str | None = None) -> str:
         with self.open("r", encoding=encoding, errors=errors) as f:
             return f.read()
+
+    def read_prefix(self, size: int) -> bytes:
+        """Read up to `size` leading bytes, using archive metadata when available.
+
+        Unlike opening an archived resource, header probes need not materialize
+        its entire payload. Backends without this optimization use a stream.
+        """
+        if size < 0:
+            raise ValueError("prefix size must be non-negative")
+        r = self._resolve()
+        if isinstance(r, _ArchiveResolved):
+            read_prefix = getattr(r.archive, "read_prefix", None)
+            if read_prefix is not None:
+                return read_prefix(r.inner, size)
+        with self.open("rb") as f:
+            return f.read(size)
 
     def open(
         self,
