@@ -22,11 +22,18 @@ __all__ = [
 class _OsLayer:
     """Frozen, hashable layer holding the OS root and path components."""
 
-    __slots__ = ("root", "parts")
+    __slots__ = ("root", "parts", "_posix")
 
     def __init__(self, root: str, parts: tuple[str, ...]) -> None:
         self.root = root
         self.parts = parts
+        self._posix: str | None = None
+
+    def as_posix(self) -> str:
+        posix = self._posix
+        if posix is None:
+            posix = self._posix = _os_path(self).as_posix()
+        return posix
 
     def __hash__(self) -> int:
         return hash((self.root, self.parts))
@@ -595,13 +602,10 @@ class VPath:
         # Uniform forward slashes (OS layer via as_posix, archive layers already
         # '/'-joined). `__fspath__`, not this, carries the native-separator path.
         # Round-trips through the constructor (pathlib parses '/' everywhere).
-        pieces: list[str] = []
-        for i, layer in enumerate(self._layers):
-            if i == 0:
-                pieces.append(_os_path(layer).as_posix())
-            else:
-                pieces.append("/".join(layer.parts))
-        return "/".join(pieces)
+        layers = self._layers
+        if len(layers) == 1:
+            return layers[0].as_posix()
+        return "/".join([layers[0].as_posix(), *["/".join(layer.parts) for layer in layers[1:]]])
 
     def as_posix(self) -> str:
         """Return the path as a string with forward slashes (like `pathlib.PurePath.as_posix`)."""
@@ -641,15 +645,22 @@ class VPath:
 
     @property
     def stem(self) -> str:
-        return pathlib.PurePosixPath(self.name).stem
+        name = self.name
+        i = name.rfind(".")
+        return name[:i] if 0 < i < len(name) - 1 else name
 
     @property
     def suffix(self) -> str:
-        return pathlib.PurePosixPath(self.name).suffix
+        name = self.name
+        i = name.rfind(".")
+        return name[i:] if 0 < i < len(name) - 1 else ""
 
     @property
     def suffixes(self) -> list[str]:
-        return list(pathlib.PurePosixPath(self.name).suffixes)
+        name = self.name
+        if name.endswith("."):
+            return []
+        return ["." + suffix for suffix in name.lstrip(".").split(".")[1:]]
 
     @property
     def parent(self) -> "VPath":

@@ -158,6 +158,16 @@ def test_parts_name_stem_suffix_suffixes():
     assert p.suffixes == [".tar", ".gz"]
 
 
+@pytest.mark.parametrize(
+    "name",
+    ["file", "file.ydr", "file.ydr.xml", ".hidden", ".hidden.xml", "..x.y", "file.", "file..", "a..b", "x.rpf"],
+)
+def test_stem_suffix_suffixes_match_pathlib(name):
+    p = VPath("dir", "inner.rpf", name)
+    expected = pathlib.PurePosixPath(name)
+    assert (p.stem, p.suffix, p.suffixes) == (expected.stem, expected.suffix, expected.suffixes)
+
+
 def test_parent_across_mount_boundary():
     p = VPath("C:/x/a.rpf/inner/f.ydr") if os.name == "nt" else VPath("/x/a.rpf/inner/f.ydr")
     # Inside the RPF, parent strips "f.ydr"
