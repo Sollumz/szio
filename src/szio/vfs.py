@@ -413,10 +413,10 @@ def _walk_glob(
                     yield from _walk_glob(child, segments, cs, sub_seen)
             return
 
-        regex = _compile_segment(head2, cs)
+        regex = None if head2 == "*" else _compile_segment(head2, cs)
         for child in children:
             child_is_dir = child.is_dir()
-            if regex.match(child.name) is not None:
+            if regex is None or regex.match(child.name) is not None:
                 if rest_rest:
                     if child_is_dir:
                         yield from _walk_glob(child, rest_rest, cs, sub_seen)
@@ -430,13 +430,13 @@ def _walk_glob(
                 yield from _walk_glob(child, segments, cs, sub_seen)
         return
 
-    regex = _compile_segment(head, cs)
+    regex = None if head == "*" else _compile_segment(head, cs)
     try:
         children = list(path.iterdir())
     except OSError:
         return
     for child in children:
-        if regex.match(child.name) is None:
+        if regex is not None and regex.match(child.name) is None:
             continue
         if rest:
             if child.is_dir():
