@@ -4,7 +4,6 @@ Implements the `szio.rpf.RpfArchive` Protocol. Lazily imported by `open_rpf`.
 """
 
 import io
-from collections import defaultdict
 from typing import IO, Iterable
 
 from pymateria.rpf7 import (
@@ -61,21 +60,13 @@ class _Rpf7Archive:
         constructors)."""
         self._files: dict[str, PackFileEntry] = {}
         self._dirs: set[str] = {""}
-        self._children: dict[str, list[str]] = defaultdict(list)
+        self._children: dict[str, dict[str, None]] = {}  # ordered set of child names of each directory
         self._build_index()
 
     def _build_index(self) -> None:
         files = self._files
         dirs = self._dirs
         children = self._children
-        # Dedup per parent: an explicit dir entry and the backfill below must not
-        # insert the same child twice.
-        child_set: dict[str, set[str]] = defaultdict(set)
-
-        def add_child(parent: str, name: str) -> None:
-            if name not in child_set[parent]:
-                child_set[parent].add(name)
-                children[parent].append(name)
 
         # str(PurePosixPath) is ~20x faster than .as_posix() (skips a redundant
         # str-replace).
@@ -83,19 +74,13 @@ class _Rpf7Archive:
             path = str(e.path)
             if path == "" or path == ".":
                 continue
-            sep = path.rfind("/")
-            if sep == -1:
-                parent = ""
-                name = path
-            else:
-                parent = path[:sep]
-                name = path[sep + 1 :]
+            parent, _, name = path.rpartition("/")
 
             if isinstance(e, PackFileEntryDirectory):
                 dirs.add(path)
             else:
                 files[path] = e
-            add_child(parent, name)
+            children.setdefault(parent, {})[name] = None
 
             # Backfill missing parent dirs (malformed/third-party archives).
             # Register each in BOTH _dirs and its parent's children so it stays
@@ -103,12 +88,8 @@ class _Rpf7Archive:
             cursor = parent
             while cursor and cursor not in dirs:
                 dirs.add(cursor)
-                csep = cursor.rfind("/")
-                if csep != -1:
-                    cparent, cname = cursor[:csep], cursor[csep + 1 :]
-                else:
-                    cparent, cname = "", cursor
-                add_child(cparent, cname)
+                cparent, _, cname = cursor.rpartition("/")
+                children.setdefault(cparent, {})[cname] = None
                 cursor = cparent
 
     @staticmethod
@@ -136,7 +117,7 @@ class _Rpf7Archive:
         p = self._norm(inner_path)
         if p not in self._dirs:
             raise FileNotFoundError(f"no such directory in archive: {inner_path!r}")
-        return list(self._children.get(p, []))
+        return list(self._children.get(p, ()))
 
     def read_bytes(self, inner_path: str) -> bytes:
         entry = self._require_file(inner_path)
