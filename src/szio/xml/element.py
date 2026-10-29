@@ -1,5 +1,6 @@
 """Manages reading/writing Codewalker XML files"""
 
+import logging
 from abc import ABC as AbstractClass
 from abc import abstractclassmethod, abstractmethod
 from dataclasses import dataclass
@@ -9,7 +10,7 @@ from xml.etree import ElementTree as ET
 
 from numpy import float32
 
-from ..jenkhash import name_to_hash_literal
+from ..jenkhash import hash_string_literal, name_to_hash_literal
 from ..types import Matrix, Quaternion, Vector
 
 
@@ -68,6 +69,20 @@ def get_str_type(value: str):
             pass
 
     return value
+
+
+def format_value(value) -> str:
+    if isinstance(value, float):
+        return str(int(value)) if value.is_integer() else str(float32(value))
+    if isinstance(value, bool):
+        return str(value).lower()
+    return str(value)
+
+
+def join_rows(values: list[str], per_line: int) -> str:
+    """Join values `per_line` to a row, one row per line, with the text starting and ending on a new line."""
+    rows = (values[i : i + per_line] for i in range(0, len(values), per_line))
+    return "\n" + "\n".join(" ".join(row) for row in rows) + "\n"
 
 
 class Element(AbstractClass):
@@ -684,17 +699,17 @@ class Vector4ListProperty(ElementProperty):
     def __init__(self, tag_name: str, value=None):
         super().__init__(tag_name, value or [])
 
-    @staticmethod
-    def from_xml(element: ET.Element):
-        new = Vector4ListProperty(element.tag, [])
-        text = (element.text or "").strip().split("\n")
-        if len(text) > 0:
-            for line in text:
-                coords = line.strip().split(",")
-                if not len(coords) == 4:
-                    return Vector4ListProperty.read_value_error(element)
+    @classmethod
+    def from_xml(cls, element: ET.Element):
+        new = cls(element.tag, [])
+        for line in (element.text or "").strip().split("\n"):
+            coords = [c for c in line.split(",") if c.strip()]
+            if not coords:
+                continue
+            if len(coords) != 4:
+                return cls.read_value_error(element)
 
-                new.value.append(Vector((float(coords[0]), float(coords[1]), float(coords[2]), float(coords[3]))))
+            new.value.append(Vector((float(coords[0]), float(coords[1]), float(coords[2]), float(coords[3]))))
 
         return new
 
@@ -717,3 +732,239 @@ class Vector4ListProperty(ElementProperty):
         element.text = "".join(text)
 
         return element
+
+
+class ValueListProperty(ElementProperty):
+    """Whitespace-separated scalars, written `per_line` to a row."""
+
+    value_types = (list, type(None))
+    per_line = 10
+    # None guesses each value's type
+    item_type = None
+    format_item = staticmethod(format_value)
+
+    def __init__(self, tag_name: str = None, value=None):
+        super().__init__(tag_name or type(self).tag_name, value)
+
+    @classmethod
+    def from_xml(cls, element: ET.Element):
+        text = element.text or ""
+        if element.get("base") == "16":
+            values = [int(s, 16) for s in text.split()]
+        else:
+            parse = cls.item_type or get_str_type
+            values = [parse(s) for s in text.split()]
+        return cls(element.tag, values)
+
+    def to_xml(self):
+        if self.value is None:
+            return None
+        element = ET.Element(self.tag_name)
+        values = [self.format_item(v) for v in self.value]
+        element.text = " ".join(values) if len(values) <= self.per_line else join_rows(values, self.per_line)
+        return element
+
+
+class ValueListPropertyRequired(ValueListProperty):
+    """Same as ValueListProperty but defaults to an empty list, which it still writes."""
+
+    def __init__(self, tag_name: str = None, value=None):
+        super().__init__(tag_name, [] if value is None else value)
+
+    def to_xml(self):
+        return super().to_xml() if self.value else ET.Element(self.tag_name)
+
+
+class ByteListProperty(ValueListProperty):
+    def to_xml(self):
+        if self.value is None:
+            return None
+        if len(self.value) <= self.per_line:
+            return super().to_xml()
+        element = ET.Element(self.tag_name, attrib={"base": "16"})
+        element.text = join_rows([f"{v:02X}" for v in self.value], self.per_line)
+        return element
+
+
+class InlineMatrixProperty(ElementProperty):
+    value_types = Matrix
+    tag_name = "Item"
+
+    def __init__(self, tag_name: str = "Item", value=None):
+        super().__init__(tag_name, value if value is not None else Matrix())
+
+    @staticmethod
+    def from_xml(element: ET.Element):
+        values = [float(s) for s in (element.text or "").split()]
+        rows = [values[i : i + 4] for i in range(0, len(values), 4)]
+        return InlineMatrixProperty(element.tag, Matrix(rows))
+
+    def to_xml(self):
+        if self.value is None:
+            return None
+        element = ET.Element(self.tag_name)
+        element.text = " ".join(format_value(float(v)) for row in self.value for v in row)
+        return element
+
+
+class Vector4ListItemsProperty(ElementProperty):
+    value_types = (list, type(None))
+
+    def __init__(self, tag_name: str, value=None):
+        super().__init__(tag_name, value)
+
+    @classmethod
+    def from_xml(cls, element: ET.Element):
+        values = [Vector4Property.from_xml(child).value for child in element.findall("Item")]
+        return cls(element.tag, values)
+
+    def to_xml(self):
+        if self.value is None:
+            return None
+        element = ET.Element(self.tag_name)
+        for vec in self.value:
+            if not isinstance(vec, Vector):
+                raise TypeError(f"{type(self).__name__} can only contain Vector objects, not '{type(vec)}'!")
+            element.append(Vector4Property("Item", vec).to_xml())
+        return element
+
+
+class TextListItemsProperty(ElementProperty):
+    value_types = (list, type(None))
+
+    def __init__(self, tag_name: str, value=None):
+        super().__init__(tag_name, value)
+
+    @classmethod
+    def from_xml(cls, element: ET.Element):
+        values = [child.text or "" for child in element.findall("Item")]
+        return cls(element.tag, values)
+
+    def to_xml(self):
+        if self.value is None:
+            return None
+        element = ET.Element(self.tag_name)
+        for text in self.value:
+            item = ET.SubElement(element, "Item")
+            item.text = text
+        return element
+
+
+class ColourListItemsProperty(ElementProperty):
+    value_types = (list, type(None))
+
+    def __init__(self, tag_name: str, value=None):
+        super().__init__(tag_name, value)
+
+    @classmethod
+    def from_xml(cls, element: ET.Element):
+        values = [
+            (
+                int(child.get("r", 0)),
+                int(child.get("g", 0)),
+                int(child.get("b", 0)),
+                int(child.get("a", 0)),
+            )
+            for child in element.findall("Item")
+        ]
+        return cls(element.tag, values)
+
+    def to_xml(self):
+        if self.value is None:
+            return None
+        element = ET.Element(self.tag_name)
+        for r, g, b, a in self.value:
+            ET.SubElement(element, "Item", attrib={"r": str(r), "g": str(g), "b": str(b), "a": str(a)})
+        return element
+
+
+class HexValueProperty(ElementProperty):
+    value_types = int
+
+    def __init__(self, tag_name: str, value: int = 0):
+        super().__init__(tag_name, value)
+
+    @staticmethod
+    def from_xml(element: ET.Element):
+        text = element.get("value") or "0"
+        return HexValueProperty(element.tag, int(text, 16 if text.lower().startswith("0x") else 10))
+
+    def to_xml(self):
+        return ET.Element(self.tag_name, attrib={"value": f"0x{self.value:016X}"})
+
+
+class ByteValueListProperty(ValueListProperty):
+    per_line = 16
+
+
+class HexULongListProperty(ValueListProperty):
+    per_line = 1
+    format_item = staticmethod(lambda v: f"0x{v:016X}")
+
+    @classmethod
+    def from_xml(cls, element: ET.Element):
+        return cls(element.tag, [int(s, 0) for s in (element.text or "").split()])
+
+
+class RawDataProperty(ValueListProperty):
+    value_types = (bytes, bytearray, type(None))
+    per_line = 32
+    format_item = staticmethod(lambda v: f"{v:02X}")
+
+    @classmethod
+    def from_xml(cls, element: ET.Element):
+        return cls(element.tag, bytes(int(s, 16) for s in (element.text or "").split()))
+
+
+class Vector4ListPropertyRequired(Vector4ListProperty):
+    """Same as Vector4ListProperty but returns an empty element rather than None when the list is empty"""
+
+    def to_xml(self):
+        return super().to_xml() if self.value else ET.Element(self.tag_name)
+
+
+class StructListProperty(ListProperty):
+    """List of a single struct type, named once in the list's `itemType` attribute."""
+
+    item_type_name = None
+
+    def _do_to_xml(self):
+        element = ET.Element(self.tag_name)
+        element.set("itemType", self.item_type_name)
+        for item in self.value:
+            item_element = item.to_xml()
+            item_element.attrib.pop("type", None)
+            element.append(item_element)
+        return element
+
+
+class StructListPropertyRequired(StructListProperty, ListPropertyRequired):
+    """Same as StructListProperty but returns an empty element rather than None when the list is empty"""
+
+
+class PolymorphicListProperty(ListProperty):
+    """List whose items each name their own class in a `type` attribute, looked up in `item_classes`."""
+
+    item_classes = {}
+    item_classes_by_hash = {}
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # CodeX may write an item type as its name or as a collision string.
+        cls.item_classes_by_hash = {hash_string_literal(n): c for n, c in cls.item_classes.items()}
+
+    @classmethod
+    def from_xml(cls, element: ET.Element):
+        new = cls(element.tag)
+        for child in element.findall("Item"):
+            item_type = child.get("type")
+            item_class = cls.item_classes_by_hash.get(hash_string_literal(item_type)) if item_type else None
+            if item_class is None:
+                logging.getLogger(__name__).warning(f"Unsupported '{element.tag}' item type '{item_type}'")
+                continue
+            new.value.append(item_class.from_xml(child))
+        return new
+
+
+class PolymorphicListPropertyRequired(PolymorphicListProperty, ListPropertyRequired):
+    """Same as PolymorphicListProperty but returns an empty element rather than None when the list is empty"""

@@ -8,8 +8,15 @@ from szio.xml.element import (
     Matrix33Property,
     MatrixProperty,
     MetaElementTree,
+    RawDataProperty,
+    StructListProperty,
+    StructListPropertyRequired,
     TextProperty,
+    ValueListProperty,
+    ValueListPropertyRequired,
     ValueProperty,
+    Vector4ListProperty,
+    Vector4ListPropertyRequired,
     VectorProperty,
     get_str_type,
 )
@@ -317,3 +324,95 @@ def test_element_tree_matches_by_literal_name():
 
     p = E.from_xml(ET.fromstring(f'<Plain><{META_TAG_RESOLVED} value="7" /></Plain>'))
     assert p.v == 0
+
+
+@pytest.mark.parametrize("cls", (Vector4ListProperty, Vector4ListPropertyRequired))
+def test_vector4_list_property_skips_blank_lines(cls):
+    prop = cls.from_xml(ET.fromstring("<V>\n  1, 2, 3, 4\n\n  5, 6, 7, 8,\n</V>"))
+    assert type(prop) is cls
+    assert [tuple(v) for v in prop.value] == [(1, 2, 3, 4), (5, 6, 7, 8)]
+
+
+@pytest.mark.parametrize("cls", (Vector4ListProperty, Vector4ListPropertyRequired))
+def test_vector4_list_property_reads_empty_element(cls):
+    assert cls.from_xml(ET.fromstring("<V />")).value == []
+
+
+def test_vector4_list_property_omits_empty_list():
+    assert Vector4ListProperty("V", []).to_xml() is None
+    assert ET.tostring(Vector4ListPropertyRequired("V", []).to_xml()) == b"<V />"
+
+
+@pytest.mark.parametrize("size, expected", (
+    (0, b"<D />"),
+    (3, b"<D>00 01 02</D>"),
+    (33, b"<D>\n" + " ".join(f"{i:02X}" for i in range(32)).encode() + b"\n20\n</D>"),
+))
+def test_raw_data_property_writes_hex_rows(size, expected):
+    prop = RawDataProperty("D", bytes(range(size)))
+    assert ET.tostring(prop.to_xml()) == expected
+    assert RawDataProperty.from_xml(prop.to_xml()).value == bytes(range(size))
+
+
+class FloatValues(ValueListProperty):
+    tag_name = "values"
+    item_type = float
+
+
+def test_value_list_property_reads_values_as_item_type():
+    out = FloatValues.from_xml(ET.fromstring("<values>0 1.5</values>")).value
+    assert out == [0.0, 1.5]
+    assert all(isinstance(v, float) for v in out)
+
+
+def test_value_list_property_defaults_tag_name_to_the_class():
+    assert FloatValues().tag_name == "values"
+
+
+@pytest.mark.parametrize("values, expected", (
+    ([1, 2, 3], b"<v>1 2 3</v>"),
+    (list(range(1, 13)), b"<v>\n1 2 3 4 5 6 7 8 9 10\n11 12\n</v>"),
+))
+def test_value_list_property_wraps_rows_like_codewalker(values, expected):
+    assert ET.tostring(ValueListProperty("v", values).to_xml()) == expected
+
+
+@pytest.mark.parametrize("cls, expected", (
+    (ValueListProperty, None),
+    (ValueListPropertyRequired, b"<v />"),
+))
+def test_value_list_property_writes_an_unset_list(cls, expected):
+    out = cls("v").to_xml()
+    assert (out if out is None else ET.tostring(out)) == expected
+
+
+class StructItem(ElementTree):
+    tag_name = "Item"
+
+    def __init__(self):
+        self.v = ValueProperty("v", 0)
+
+
+class Structs(StructListProperty):
+    tag_name = "structs"
+    list_type = StructItem
+    item_type_name = "StructItem"
+
+
+class StructsRequired(Structs, StructListPropertyRequired):
+    pass
+
+
+def test_struct_list_property_names_the_item_type_once():
+    out = Structs("structs", [StructItem(), StructItem()]).to_xml()
+    assert out.get("itemType") == "StructItem"
+    assert [item.tag for item in out] == ["Item", "Item"]
+
+
+@pytest.mark.parametrize("cls, expected", (
+    (Structs, None),
+    (StructsRequired, b'<structs itemType="StructItem" />'),
+))
+def test_struct_list_property_writes_an_empty_list(cls, expected):
+    out = cls("structs", []).to_xml()
+    assert (out if out is None else ET.tostring(out)) == expected
