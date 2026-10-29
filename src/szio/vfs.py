@@ -1,3 +1,4 @@
+import atexit
 import errno
 import fnmatch
 import functools
@@ -1166,3 +1167,9 @@ def clear_archive_cache() -> None:
     _archive_cache.clear()
     _resolved_layer_cache.clear()
     _rpf_dir_cache.clear()
+
+
+# Release the open archives before interpreter shutdown. This module's globals can outlive finalization (e.g.
+# `typing.overload`'s registry keeps functions referencing them alive), so without this the native archive objects are
+# never freed and nanobind reports them as leaked at exit.
+atexit.register(_archive_cache.clear)
