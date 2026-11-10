@@ -6,6 +6,7 @@ Implements the `szio.rpf.RpfArchive` Protocol. Lazily imported by `open_rpf`.
 import io
 from typing import IO, Iterable
 
+from pymateria import Buffer
 from pymateria.rpf7 import (
     PackFile,
     PackFileEntry,
@@ -13,8 +14,115 @@ from pymateria.rpf7 import (
     PackFileEntryDirectory,
     PackFileEntryResource,
 )
+from pymateria.rsc7 import Header
 
 __all__ = ["_Rpf7Archive"]
+
+
+class _BufferStream(io.BufferedIOBase):
+    """Read-only stream for a pymateria Buffer, without intermediate copies."""
+
+    __slots__ = ("_view", "_size", "_pos")
+
+    def __init__(self, buffer: Buffer):
+        self._view: memoryview | None = memoryview(buffer.raw)
+        self._size = len(self._view)
+        self._pos = 0
+
+    def _loaded(self) -> memoryview:
+        assert self._view is not None
+        return self._view
+
+    def _check_open(self) -> None:
+        if self.closed:
+            raise ValueError("I/O operation on closed file.")
+
+    def readable(self) -> bool:
+        return True
+
+    def seekable(self) -> bool:
+        return True
+
+    def read(self, size: int | None = -1) -> bytes:
+        self._check_open()
+        view = self._loaded()
+        pos = self._pos
+        end = len(view) if size is None or size < 0 else min(pos + size, len(view))
+        if pos >= end:
+            return b""
+        self._pos = end
+        return bytes(view[pos:end])
+
+    def read1(self, size: int | None = -1) -> bytes:
+        return self.read(size)
+
+    def readinto(self, b) -> int:
+        self._check_open()
+        view = self._loaded()
+        out = memoryview(b).cast("B")
+        n = max(0, min(len(out), len(view) - self._pos))
+        out[:n] = view[self._pos : self._pos + n]
+        self._pos += n
+        return n
+
+    def readinto1(self, b) -> int:
+        return self.readinto(b)
+
+    def seek(self, offset: int, whence: int = io.SEEK_SET) -> int:
+        self._check_open()
+        if whence == io.SEEK_SET:
+            pos = offset
+        elif whence == io.SEEK_CUR:
+            pos = self._pos + offset
+        elif whence == io.SEEK_END:
+            pos = self._size + offset
+        else:
+            raise ValueError(f"invalid whence ({whence}, should be 0, 1 or 2)")
+        if pos < 0:
+            raise ValueError(f"negative seek value {pos}")
+        self._pos = pos
+        return pos
+
+    def tell(self) -> int:
+        self._check_open()
+        return self._pos
+
+    def close(self) -> None:
+        if self._view is not None:
+            self._view.release()
+            self._view = None
+        super().close()
+
+
+class _ResourceStream(_BufferStream):
+    """Stream over a resource entry that serves its RSC7 header from the archive
+    TOC, loading the resource data only once a read goes past it.
+    """
+
+    __slots__ = ("_entry", "_header")
+
+    def __init__(self, entry: PackFileEntryResource):
+        self._entry = entry
+        self._header: bytes | None = None
+        self._view = None
+        self._size = entry.size
+        self._pos = 0
+
+    def _loaded(self) -> memoryview:
+        if self._view is None:
+            self._view = memoryview(self._entry.raw_buffer.raw)
+        return self._view
+
+    def read(self, size: int | None = -1) -> bytes:
+        self._check_open()
+        pos = self._pos
+        if self._view is None and size is not None and 0 <= size and pos + size <= Header.HEADER_SIZE:
+            # Use the entry header if reading the starting bytes only
+            if self._header is None:
+                self._header = self._entry.header.to_bytes()
+            self._pos = pos + size
+            return self._header[pos : pos + size]
+        return super().read(size)
 
 
 class _Rpf7Archive:
@@ -123,20 +231,13 @@ class _Rpf7Archive:
         entry = self._require_file(inner_path)
         if isinstance(entry, PackFileEntryResource):
             return bytes(entry.raw_buffer.raw)
-        buf = io.BytesIO()
-        entry.export(buf)
-        return buf.getvalue()
+        return bytes(entry.export().raw)
 
     def open_bytes(self, inner_path: str) -> IO[bytes]:
         entry = self._require_file(inner_path)
         if isinstance(entry, PackFileEntryResource):
-            # BytesIO copies the buffer once into its own storage; no intermediate
-            # bytes() copy needed.
-            return io.BytesIO(entry.raw_buffer.raw)
-        buf = io.BytesIO()
-        entry.export(buf)
-        buf.seek(0)
-        return buf
+            return _ResourceStream(entry)
+        return _BufferStream(entry.export())
 
     def open_nested(self, inner_path: str) -> "_Rpf7Archive | None":
         entry = self._require_file(inner_path)

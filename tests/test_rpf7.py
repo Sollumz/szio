@@ -26,9 +26,10 @@ if IS_BACKEND_AVAILABLE:
     from pymateria.rpf7 import (
         PackFile,
         PackFileEntryFile,
+        PackFileEntryResource,
     )
 
-    from szio.gta5.native.rpf7 import _Rpf7Archive
+    from szio.gta5.native.rpf7 import _ResourceStream, _Rpf7Archive
 
 
 def _build_rpf(entries: dict[str, bytes]) -> bytes:
@@ -75,6 +76,124 @@ def test_open_rpf_open_bytes_returns_seekable_stream(tmp_path):
             assert stream.read() == b"3456789"
     finally:
         arc.close()
+
+
+def test_open_rpf_file_stream_seek_and_readinto(tmp_path):
+    data = bytes(range(256)) * 64
+    rpf = tmp_path / "pack.rpf"
+    rpf.write_bytes(_build_rpf({"x.bin": data, "empty.bin": b""}))
+
+    arc = open_rpf(rpf)
+    try:
+        assert arc.read_bytes("x.bin") == data
+        assert arc.read_bytes("empty.bin") == b""
+        with arc.open_bytes("empty.bin") as stream:
+            assert stream.read() == b""
+
+        with arc.open_bytes("x.bin") as stream:
+            assert stream.seek(0, io.SEEK_END) == len(data)
+            assert stream.read(4) == b""
+            assert stream.seek(-10, io.SEEK_CUR) == len(data) - 10
+            assert stream.read() == data[-10:]
+            stream.seek(300)
+            assert stream.tell() == 300
+            buf = bytearray(16)
+            assert stream.readinto(buf) == 16
+            assert buf == data[300:316]
+            assert stream.tell() == 316
+            with pytest.raises(ValueError):
+                stream.seek(-1)
+
+        stream = arc.open_bytes("x.bin")
+        stream.close()
+        with pytest.raises(ValueError):
+            stream.read(1)
+    finally:
+        arc.close()
+
+
+def _build_resource_rpf(tmp_path, source: Path) -> VPath:
+    pf = PackFile.create()
+    pf.add_entry(PackFileEntryResource.create(pf, source.name, source), False)
+    rpf = tmp_path / "assets.rpf"
+    with rpf.open("wb") as stream:
+        PackFile.export_rpf(pf, stream)
+    return VPath(rpf) / source.name
+
+
+def _forbid_data_load(monkeypatch):
+    def fail(self):
+        pytest.fail("resource data must not be loaded")
+
+    monkeypatch.setattr(_ResourceStream, "_loaded", fail)
+
+
+@pytest.mark.parametrize("generation", ["gen8", "gen9"])
+def test_resource_header_probe_skips_data(tmp_path, monkeypatch, generation):
+    from szio.gta5.assets import AssetVersion
+    from szio.gta5.native import NativeProviderG8, NativeProviderG9
+
+    path = _build_resource_rpf(tmp_path, DATA_DIR / generation / "test_drawable.ydr")
+    expected = (DATA_DIR / generation / "test_drawable.ydr").read_bytes()
+
+    _forbid_data_load(monkeypatch)
+    with path.open("rb") as stream:
+        assert stream.read(0) == b""
+        assert stream.read(4) == expected[:4]
+        assert stream.read(12) == expected[4:16]
+        assert stream.seek(0, io.SEEK_END) == len(expected)
+        assert stream.seek(-len(expected), io.SEEK_CUR) == 0
+    for provider in (NativeProviderG8(), NativeProviderG9()):
+        assert provider.supports_file(path) == (provider.ASSET_VERSION == getattr(AssetVersion, generation.upper()))
+
+
+def test_resource_stream_loads_data_past_header(tmp_path):
+    source = DATA_DIR / "gen8" / "test_drawable.ydr"
+    expected = source.read_bytes()
+    path = _build_resource_rpf(tmp_path, source)
+
+    with path.open("rb") as stream:
+        assert stream.read(10) == expected[:10]
+        assert stream.read(10) == expected[10:20]
+        assert stream.tell() == 20
+        assert stream.read() == expected[20:]
+        stream.seek(5)
+        assert stream.read(3) == expected[5:8]
+
+    with path.open("rb") as stream:
+        assert stream.read(20) == expected[:20]
+
+    with path.open("rb") as stream:
+        assert stream.read(16) == expected[:16]
+        assert stream.read(4) == expected[16:20]
+
+    with path.open("rb") as stream:
+        stream.seek(12)
+        assert stream.read(8) == expected[12:20]
+
+    with path.open("rb") as stream:
+        stream.seek(100)
+        assert stream.read(8) == expected[100:108]
+
+    with path.open("rb") as stream:
+        assert stream.read() == expected
+        assert stream.read(4) == b""
+        assert stream.seek(len(expected) + 10) == len(expected) + 10
+        assert stream.read(4) == b""
+
+    with path.open("rb") as stream:
+        buf = bytearray(24)
+        assert stream.readinto(buf) == 24
+        assert buf == expected[:24]
+        stream.seek(-4, io.SEEK_END)
+        assert stream.readinto(buf) == 4
+        assert buf[:4] == expected[-4:]
+        assert stream.readinto(buf) == 0
+
+    stream = path.open("rb")
+    stream.close()
+    with pytest.raises(ValueError):
+        stream.read(4)
 
 
 def test_missing_entry_raises(tmp_path):
