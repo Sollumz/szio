@@ -41,19 +41,19 @@ class NativeProviderG8(NativeProvider):
         match path.suffix.lower():
             case ".ydr":
                 with import_source(path) as src:
-                    drawable = pmg8.Drawable.import_rsc(src).result
+                    drawable = pmg8.Drawable.import_rsc(src, self._import_settings()).result
                 return load_drawable_from_native_g8(drawable)
             case ".ydd":
                 with import_source(path) as src:
-                    dwd = pmg8.DrawableDictionary.import_rsc(src).result
+                    dwd = pmg8.DrawableDictionary.import_rsc(src, self._import_settings()).result
                 return load_drawable_dictionary_from_native_g8(dwd)
             case ".yft":
                 with import_source(path) as src:
-                    fragment = pmg8.Fragment.import_rsc(src).result
+                    fragment = pmg8.Fragment.import_rsc(src, self._import_settings()).result
                 return load_fragment_from_native_g8(fragment)
             case ".ytd":
                 with import_source(path) as src:
-                    txd = pmg8.TextureDictionary.import_rsc(src).result
+                    txd = pmg8.TextureDictionary.import_rsc(src, self._import_settings()).result
                 return load_txd_from_native_g8(txd)
             case _:
                 return super().load_file(path)

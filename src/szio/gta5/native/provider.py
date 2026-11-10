@@ -65,21 +65,21 @@ class NativeProvider(ABC):
         match path.suffix.lower():
             case ".ybn":
                 with import_source(path) as src:
-                    result = pm.Bound.import_rsc(src).result
+                    result = pm.Bound.import_rsc(src, self._import_settings()).result
                 return load_bound_from_native(result)
             case ".yld":
                 with import_source(path) as src:
-                    result = pm.ClothDictionary.import_rsc(src).result
+                    result = pm.ClothDictionary.import_rsc(src, self._import_settings()).result
                 return load_cloth_dictionary_from_native(result)
             case ".ytyp":
                 # gen9 map types has some minimal differences (made some padding explicit fields, doesn't really affect anything)
                 # gen8 import can read both
                 with import_source(path) as src:
-                    result = pm.gen8.MapTypes.import_rsc(src).result
+                    result = pm.gen8.MapTypes.import_rsc(src, self._import_settings()).result
                 return load_map_types_from_native(result)
             case ".ymap":
                 with import_source(path) as src:
-                    result = pm.MapData.import_rsc(src).result
+                    result = pm.MapData.import_rsc(src, self._import_settings()).result
                 return load_map_data_from_native(result)
             case _:
                 raise ValueError(f"Unsupported file '{str(path)}'")
@@ -101,6 +101,9 @@ class NativeProvider(ABC):
             pm.MapData.export_rsc(save_map_data_to_native(asset), path, self._export_settings(tool_metadata))
         else:
             raise ValueError(f"Unsupported asset '{asset}' (name: '{name}', directory: '{str(directory)}')")
+
+    def _import_settings(self) -> pma.ImportSettings:
+        return pma.ImportSettings(relaxed=True)
 
     def _export_settings(self, tool_metadata: tuple[str, str] | None = None) -> pma.ExportSettings:
         s = pma.ExportSettings()

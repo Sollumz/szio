@@ -43,19 +43,19 @@ class NativeProviderG9(NativeProvider):
         match path.suffix.lower():
             case ".ydr":
                 with import_source(path) as src:
-                    drawable = pmg9.Drawable.import_rsc(src).result
+                    drawable = pmg9.Drawable.import_rsc(src, self._import_settings()).result
                 return load_drawable_from_native_g9(drawable)
             case ".ydd":
                 with import_source(path) as src:
-                    dwd = pmg9.DrawableDictionary.import_rsc(src).result
+                    dwd = pmg9.DrawableDictionary.import_rsc(src, self._import_settings()).result
                 return load_drawable_dictionary_from_native_g9(dwd)
             case ".yft":
                 with import_source(path) as src:
-                    fragment = pmg9.Fragment.import_rsc(src).result
+                    fragment = pmg9.Fragment.import_rsc(src, self._import_settings()).result
                 return load_fragment_from_native_g9(fragment)
             case ".ytd":
                 with import_source(path) as src:
-                    txd = pmg9.TextureDictionary.import_rsc(src).result
+                    txd = pmg9.TextureDictionary.import_rsc(src, self._import_settings()).result
                 return load_txd_from_native_g9(txd)
             case _:
                 return super().load_file(path)
