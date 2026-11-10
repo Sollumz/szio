@@ -253,6 +253,48 @@ def test_drop_mip_unsupported_textures(kwargs, match):
         _drop_mip(data)
 
 
+@pytest.mark.parametrize(
+    "width, height, mip_sizes, kwargs, expected",
+    [
+        (16, 8, BC1_16X8_MIPS, {"fourcc": b"DXT1"}, 5),
+        (16, 8, [64], {"fourcc": b"DXT1"}, 1),
+        # Sub-block mips sized per pixel (1 byte/pixel for DXT5) instead of per 4x4 block
+        (24, 24, [576, 144, 36, 9, 1], {"fourcc": b"DXT5"}, 2),
+        (32, 32, [512, 128, 32, 8, 2, 0], {"fourcc": b"DXT1"}, 4),
+        (16, 8, [10], {"fourcc": b"DXT1"}, 0),
+        (4, 2, [32, 8], {"bits": 32}, 2),
+        (4, 2, [32, 7], {"bits": 32}, 1),
+    ],
+    ids=[
+        "bc1-full",
+        "bc1-single",
+        "dxt5-24-undersized",
+        "bc1-32-undersized",
+        "truncated-base",
+        "rgba-full",
+        "rgba-short",
+    ],
+)
+def test_complete_mip_count(width, height, mip_sizes, kwargs, expected):
+    assert _parse(_make_dds(width, height, mip_sizes, **kwargs)).complete_mip_count() == expected
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"fourcc": b"DXT1", "caps2": DDSCAPS2_CUBEMAP},
+        {"dxgi": 98, "misc_flag": 0x4},
+        {"dxgi": 98, "resource_dimension": 4},
+        {"dxgi": 98, "array_size": 2},
+        {"fourcc": b"UYVY"},
+    ],
+    ids=["cubemap-caps", "cubemap-dx10", "volume-dx10", "array-dx10", "unknown-fourcc"],
+)
+def test_complete_mip_count_unsupported_textures(kwargs):
+    with pytest.raises(ValueError):
+        _parse(_make_dds(16, 8, BC1_16X8_MIPS, **kwargs)).complete_mip_count()
+
+
 def test_from_buffer_rejects_non_dds():
     with pytest.raises(ValueError):
         _parse(b"not a dds file")

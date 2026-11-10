@@ -96,6 +96,34 @@ class DdsFile:
             )
             return self.header.ddspf.dwFourCC in _COMPRESSED_FOURCC
 
+    def complete_mip_count(self) -> int:
+        """Number of leading mip levels whose data is fully present in `pixel_data`.
+
+        Can be lower than `dwMipMapCount` for files from encoders that undersize mips smaller than a 4x4 block.
+        Raises `ValueError` for formats or layouts whose mip sizes cannot be computed.
+        """
+        header = self.header
+        if header.dwCaps2 & (_DDSCAPS2_CUBEMAP | _DDSCAPS2_VOLUME):
+            raise ValueError("Cubemap and volume textures are not supported")
+        if self.header10 is not None and (
+            self.header10.resourceDimension == _DDS_DIMENSION_TEXTURE3D
+            or self.header10.miscFlag & _DDS_RESOURCE_MISC_TEXTURECUBE
+            or self.header10.arraySize > 1
+        ):
+            raise ValueError("Cubemap, volume and array textures are not supported")
+
+        mip_count = max(1, int(header.dwMipMapCount)) if header.dwFlags & _DDSD_MIPMAPCOUNT else 1
+        block_size, bits_per_pixel = _format_layout(self)
+        width, height = self.width, self.height
+        remaining = len(self.pixel_data)
+        for i in range(mip_count):
+            size = _mip_size(width, height, block_size, bits_per_pixel)
+            if size > remaining:
+                return i
+            remaining -= size
+            width, height = max(1, width // 2), max(1, height // 2)
+        return mip_count
+
     def drop_mip(self) -> bytes:
         """Rebuilds the file's bytes with the top mip level removed. The instance is not modified.
 

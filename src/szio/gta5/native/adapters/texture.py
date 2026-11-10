@@ -37,21 +37,36 @@ def _is_texture_compressed_g8(tex: pmg8.Texture) -> bool:
             return False
 
 
+def _drop_incomplete_mips_compressed(tex: pmg8.Texture | pmg9.Texture):
+    """Removes mips from the first one whose data doesn't match its block-compressed size, so `export_dds` accepts
+    textures from encoders that undersize mips smaller than a 4x4 block.
+    """
+    mips = tex.mips
+    if not mips or not mips[0].layers:
+        return
+
+    def _num_blocks(w: int, h: int) -> int:
+        return max(1, (w + 3) // 4) * max(1, (h + 3) // 4)
+
+    w, h = tex.width, tex.height
+    block_size = mips[0].layers[0].nbytes // _num_blocks(w, h)
+    num_complete = 0
+    for mip in mips:
+        expected_size = _num_blocks(w, h) * block_size
+        if any(layer.nbytes != expected_size for layer in mip.layers):
+            break
+        num_complete += 1
+        w, h = max(1, w // 2), max(1, h // 2)
+
+    for _ in range(len(mips) - max(1, num_complete)):
+        mips.pop()
+
+
 def _extract_embedded_texture_dds_g8(tex: pmg8.Texture) -> bytes:
     import io
-    import math
 
     if _is_texture_compressed_g8(tex):
-        mips = tex.mips
-        w = tex.width
-        h = tex.height
-        max_mips_w = math.ceil(math.log2(w / 2))
-        max_mips_h = math.ceil(math.log2(h / 2))
-        max_mips = min(max_mips_w, max_mips_h)
-        if len(mips) > max_mips:
-            num_mips_to_remove = len(mips) - max_mips
-            for _ in range(num_mips_to_remove):
-                mips.pop()
+        _drop_incomplete_mips_compressed(tex)
 
     tex_dds = io.BytesIO()
     tex.export_dds(tex_dds)
@@ -68,30 +83,26 @@ def _import_dds(tex: pmg8.Texture | pmg9.Texture, data: DataSource | None) -> bo
         return True
     except RuntimeError:
         import io
-        import math
 
         from ....dds import DdsFile
 
         data_bytes = bytearray(data.read_bytes())
         try:
             dds = DdsFile.from_buffer(data_bytes)
+            complete_mips = dds.complete_mip_count()
         except ValueError as e:
             err_msg = str(e)
             logging.getLogger(__name__).warning(f"Failed to embed texture '{tex.name}'. {err_msg}")
             return False
 
-        if dds.is_compressed:
-            max_mips_w = math.ceil(math.log2(dds.header.dwWidth / 2))
-            max_mips_h = math.ceil(math.log2(dds.header.dwHeight / 2))
-            max_mips = max(1, min(max_mips_w, max_mips_h))
-            if dds.header.dwMipMapCount > max_mips:
-                dds.header.dwMipMapCount = max_mips
-                try:
-                    with io.BytesIO(data_bytes) as data_stream:
-                        tex.import_dds(data_stream)
-                    return True
-                except RuntimeError:
-                    pass
+        if 0 < complete_mips < dds.header.dwMipMapCount:
+            dds.header.dwMipMapCount = complete_mips
+            try:
+                with io.BytesIO(data_bytes) as data_stream:
+                    tex.import_dds(data_stream)
+                return True
+            except RuntimeError:
+                pass
 
         logging.getLogger(__name__).warning(f"Failed to embed texture '{tex.name}'. DDS image data may be corrupted.")
         return False

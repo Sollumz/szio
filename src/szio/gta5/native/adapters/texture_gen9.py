@@ -15,6 +15,7 @@ from ._utils import (
     make_checkerboard_texture_data,
 )
 from .texture import (
+    _drop_incomplete_mips_compressed,
     _import_dds,
 )
 
@@ -26,19 +27,9 @@ def _is_texture_compressed_g9(tex: pmg9.Texture) -> bool:
 
 def _extract_embedded_texture_dds_g9(tex: pmg9.Texture) -> bytes:
     import io
-    import math
 
     if _is_texture_compressed_g9(tex):
-        mips = tex.mips
-        w = tex.width
-        h = tex.height
-        max_mips_w = math.ceil(math.log2(w / 2))
-        max_mips_h = math.ceil(math.log2(h / 2))
-        max_mips = min(max_mips_w, max_mips_h)
-        if len(mips) > max_mips:
-            num_mips_to_remove = len(mips) - max_mips
-            for _ in range(num_mips_to_remove):
-                mips.pop()
+        _drop_incomplete_mips_compressed(tex)
 
     tex_dds = io.BytesIO()
     tex.export_dds(tex_dds)
