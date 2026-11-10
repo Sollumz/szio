@@ -1,4 +1,3 @@
-import itertools
 import logging
 from pathlib import Path
 
@@ -33,10 +32,10 @@ skip_if_no_native_backend = pytest.mark.skipif(
 @pytest.mark.parametrize("target_version", (AssetVersion.GEN8, AssetVersion.GEN9))
 @pytest.mark.parametrize(
     "tex_file",
-    itertools.chain(
-        (TESTS_DIR / "data/textures/bad_mips").glob("*.dds"),
-        (TESTS_DIR / "data/textures/good_mips").glob("*.dds"),
-    ),
+    [
+        *(TESTS_DIR / "data/textures/bad_mips").glob("*.dds"),
+        *(TESTS_DIR / "data/textures/good_mips").glob("*.dds"),
+    ],
     ids=lambda p: p.name,
 )
 def test_drawables_embed_texture_with_mipmaps(tex_file: Path, target_version: AssetVersion, tmp_path: Path, caplog):
@@ -86,10 +85,10 @@ def test_drawables_embed_texture_with_mipmaps(tex_file: Path, target_version: As
 @pytest.mark.parametrize("target_version", (AssetVersion.GEN8, AssetVersion.GEN9))
 @pytest.mark.parametrize(
     "tex_file",
-    itertools.chain(
-        (TESTS_DIR / "data/textures/bad_mips").glob("*.dds"),
-        (TESTS_DIR / "data/textures/good_mips").glob("*.dds"),
-    ),
+    [
+        *(TESTS_DIR / "data/textures/bad_mips").glob("*.dds"),
+        *(TESTS_DIR / "data/textures/good_mips").glob("*.dds"),
+    ],
     ids=lambda p: p.name,
 )
 def test_txd_embed_texture_with_mipmaps(tex_file: Path, target_version: AssetVersion, tmp_path: Path, caplog):
