@@ -7,6 +7,7 @@ import logging
 import os
 import pathlib
 import re
+import sys
 from collections import OrderedDict
 from typing import IO, Iterator, TypeAlias
 
@@ -644,24 +645,50 @@ class VPath:
                 return layer.parts[-1]
         return ""
 
-    @property
-    def stem(self) -> str:
-        name = self.name
-        i = name.rfind(".")
-        return name[:i] if 0 < i < len(name) - 1 else name
+    # Python 3.14 changed pathlib to count a trailing "." as a suffix ("file." -> ".").
+    # Follow the runtime version so `VPath` and `pathlib.Path` agree.
+    if sys.version_info >= (3, 14):
 
-    @property
-    def suffix(self) -> str:
-        name = self.name
-        i = name.rfind(".")
-        return name[i:] if 0 < i < len(name) - 1 else ""
+        @property
+        def stem(self) -> str:
+            name = self.name
+            i = name.rfind(".")
+            if i != -1:
+                stem = name[:i]
+                if stem.lstrip("."):
+                    return stem
+            return name
 
-    @property
-    def suffixes(self) -> list[str]:
-        name = self.name
-        if name.endswith("."):
-            return []
-        return ["." + suffix for suffix in name.lstrip(".").split(".")[1:]]
+        @property
+        def suffix(self) -> str:
+            name = self.name.lstrip(".")
+            i = name.rfind(".")
+            return name[i:] if i != -1 else ""
+
+        @property
+        def suffixes(self) -> list[str]:
+            return ["." + suffix for suffix in self.name.lstrip(".").split(".")[1:]]
+
+    else:
+
+        @property
+        def stem(self) -> str:
+            name = self.name
+            i = name.rfind(".")
+            return name[:i] if 0 < i < len(name) - 1 else name
+
+        @property
+        def suffix(self) -> str:
+            name = self.name
+            i = name.rfind(".")
+            return name[i:] if 0 < i < len(name) - 1 else ""
+
+        @property
+        def suffixes(self) -> list[str]:
+            name = self.name
+            if name.endswith("."):
+                return []
+            return ["." + suffix for suffix in name.lstrip(".").split(".")[1:]]
 
     @property
     def parent(self) -> "VPath":
