@@ -7,8 +7,11 @@ from ...xml import (
     ElementProperty,
     ElementTree,
     ListProperty,
+    PolymorphicListProperty,
     QuaternionProperty,
+    StructListProperty,
     TextProperty,
+    ValueListPropertyRequired,
     ValueProperty,
     VectorProperty,
 )
@@ -87,36 +90,9 @@ class CornersList(ListProperty):
     tag_name = "corners"
 
 
-class AttachedObjectsBuffer(ElementProperty):
-    value_types = list
-
-    def __init__(self):
-        super().__init__(tag_name="attachedObjects", value=[])
-
-    @classmethod
-    def from_xml(cls, element: ET.Element):
-        new = cls()
-        if element.text:
-            indices = element.text.strip().replace("\n", "").split()
-            new.value = [int(i) for i in indices]
-
-        return new
-
-    def to_xml(self):
-        element = ET.Element(self.tag_name)
-        columns = 10
-        text = []
-
-        for index, entity_index in enumerate(self.value):
-            text.append(str(entity_index))
-            if index < len(self.value) - 1:
-                text.append(" ")
-            if (index + 1) % columns == 0:
-                text.append("\n")
-
-        element.text = "".join(text)
-
-        return element
+class AttachedObjectsBuffer(ValueListPropertyRequired):
+    tag_name = "attachedObjects"
+    item_type = int
 
 
 class Portal(ElementTree):
@@ -134,13 +110,10 @@ class Portal(ElementTree):
         self.attached_objects = AttachedObjectsBuffer()
 
 
-class PortalsList(ListProperty):
+class PortalsList(StructListProperty):
     tag_name = "portals"
     list_type = Portal
-
-    def __init__(self, tag_name=None, value=None):
-        super().__init__(tag_name="portals", value=value or [])
-        self.item_type = AttributeProperty("itemType", "CMloPortalDef")
+    item_type_name = "CMloPortalDef"
 
 
 class Room(ElementTree):
@@ -161,45 +134,15 @@ class Room(ElementTree):
         self.attached_objects = AttachedObjectsBuffer()
 
 
-class RoomsList(ListProperty):
+class RoomsList(StructListProperty):
     tag_name = "rooms"
     list_type = Room
-
-    def __init__(self, tag_name=None, value=None):
-        super().__init__(tag_name="rooms", value=value or [])
-        self.item_type = AttributeProperty("itemType", "CMloRoomDef")
+    item_type_name = "CMloRoomDef"
 
 
-class LocationsBuffer(ElementProperty):
-    value_types = list
-
-    def __init__(self):
-        super().__init__(tag_name="locations", value=[])
-
-    @classmethod
-    def from_xml(cls, element: ET.Element):
-        new = cls()
-        if element.text:
-            indices = element.text.strip().replace("\n", "").split()
-            new.value = [int(i) for i in indices]
-
-        return new
-
-    def to_xml(self):
-        element = ET.Element(self.tag_name)
-        columns = 10
-        text = []
-
-        for index, entity_index in enumerate(self.value):
-            text.append(str(entity_index))
-            if index < len(self.value) - 1:
-                text.append(" ")
-            if (index + 1) % columns == 0:
-                text.append("\n")
-
-        element.text = "".join(text)
-
-        return element
+class LocationsBuffer(ValueListPropertyRequired):
+    tag_name = "locations"
+    item_type = int
 
 
 class EntitySet(ElementTree):
@@ -212,13 +155,10 @@ class EntitySet(ElementTree):
         self.entities = EntityList()
 
 
-class EntitySetsList(ListProperty):
+class EntitySetsList(StructListProperty):
     tag_name = "entitySets"
     list_type = EntitySet
-
-    def __init__(self, tag_name=None, value=None):
-        super().__init__(tag_name="entitySets", value=value or [])
-        self.item_type = AttributeProperty("itemType", "CMloEntitySet")
+    item_type_name = "CMloEntitySet"
 
 
 class TimeCycleModifier(ElementTree):
@@ -233,13 +173,10 @@ class TimeCycleModifier(ElementTree):
         self.end_hour = ValueProperty("endHour")
 
 
-class TimeCycleModifiersList(ListProperty):
+class TimeCycleModifiersList(StructListProperty):
     tag_name = "timeCycleModifiers"
     list_type = TimeCycleModifier
-
-    def __init__(self, tag_name=None, value=None):
-        super().__init__(tag_name="timeCycleModifiers", value=value or [])
-        self.item_type = AttributeProperty("itemType", "CMloTimeCycleModifier")
+    item_type_name = "CMloTimeCycleModifier"
 
 
 class MloArchetype(BaseArchetype):
@@ -254,25 +191,14 @@ class MloArchetype(BaseArchetype):
         self.timecycle_modifiers = TimeCycleModifiersList()
 
 
-class ArchetypesList(ListProperty):
+class ArchetypesList(PolymorphicListProperty):
     list_type = BaseArchetype
     tag_name = "archetypes"
-
-    @staticmethod
-    def from_xml(element: ET.Element):
-        new = ArchetypesList()
-
-        for child in element.iter():
-            if "type" in child.attrib:
-                arch_type = child.get("type")
-                if arch_type == "CBaseArchetypeDef":
-                    new.value.append(BaseArchetype.from_xml(child))
-                elif arch_type == "CMloArchetypeDef":
-                    new.value.append(MloArchetype.from_xml(child))
-                elif arch_type == "CTimeArchetypeDef":
-                    new.value.append(TimeArchetype.from_xml(child))
-
-        return new
+    item_classes = {
+        "CBaseArchetypeDef": BaseArchetype,
+        "CMloArchetypeDef": MloArchetype,
+        "CTimeArchetypeDef": TimeArchetype,
+    }
 
 
 class CompositeEntityType(ElementTree):
@@ -297,13 +223,10 @@ class CompositeEntityType(ElementTree):
         # self.animations = AnimationsList()
 
 
-class CompositeEntityTypeList(ListProperty):
+class CompositeEntityTypeList(StructListProperty):
     list_type = CompositeEntityType
     tag_name = "compositeEntityTypes"
-
-    def __init__(self, tag_name=None, value=None):
-        super().__init__(tag_name="compositeEntityTypes", value=value or [])
-        self.item_type = AttributeProperty("itemType", "CCompositeEntityType")
+    item_type_name = "CCompositeEntityType"
 
 
 class CMapTypes(ElementTree):

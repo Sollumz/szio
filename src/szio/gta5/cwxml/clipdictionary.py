@@ -7,11 +7,11 @@ from xml.etree import ElementTree as ET
 
 from ...types import Vector
 from ...xml import (
-    ElementProperty,
     ElementTree,
     ListProperty,
     QuaternionProperty,
     TextProperty,
+    ValueListPropertyRequired,
     ValueProperty,
     Vector4Property,
     VectorProperty,
@@ -125,74 +125,14 @@ class AttributesList(ItemTypeList):
     tag_name = "Attributes"
 
 
-class ValuesBuffer(ElementProperty):
-    value_types = list
-
-    def __init__(self):
-        super().__init__(tag_name="Values", value=[])
-
-    @classmethod
-    def from_xml(cls, element: ET.Element):
-        new = cls()
-        text = element.text.strip().split("\n")
-        if len(text) > 0:
-            for line in text:
-                items = line.strip().split(" ")
-                for item in items:
-                    new.value.append(float(item))
-
-        return new
-
-    def to_xml(self):
-        element = ET.Element(self.tag_name)
-        columns = 10
-        text = []
-
-        for index, value in enumerate(self.value):
-            text.append(str(value))
-            if index < len(self.value) - 1:
-                text.append(" ")
-            if (index + 1) % columns == 0:
-                text.append("\n")
-
-        element.text = "".join(text)
-
-        return element
+class ValuesBuffer(ValueListPropertyRequired):
+    tag_name = "Values"
+    item_type = float
 
 
-class FramesBuffer(ElementProperty):
-    value_types = list
-
-    def __init__(self):
-        super().__init__(tag_name="Frames", value=[])
-
-    @classmethod
-    def from_xml(cls, element: ET.Element):
-        new = cls()
-        text = element.text.strip().split("\n")
-        if len(text) > 0:
-            for line in text:
-                items = line.strip().split(" ")
-                for item in items:
-                    new.value.append(int(item))
-
-        return new
-
-    def to_xml(self):
-        element = ET.Element(self.tag_name)
-        columns = 10
-        text = []
-
-        for index, value in enumerate(self.value):
-            text.append(str(value))
-            if index < len(self.value) - 1:
-                text.append(" ")
-            if (index + 1) % columns == 0:
-                text.append("\n")
-
-        element.text = "".join(text)
-
-        return element
+class FramesBuffer(ValueListPropertyRequired):
+    tag_name = "Frames"
+    item_type = int
 
 
 class ChannelsList(ItemTypeList):

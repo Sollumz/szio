@@ -1,6 +1,5 @@
 from abc import ABC as AbstractClass
 from abc import abstractmethod
-from typing import Type, Union
 from xml.etree import ElementTree as ET
 
 from ...xml import (
@@ -9,9 +8,12 @@ from ...xml import (
     ElementTree,
     InlineValueListProperty,
     ListProperty,
-    ListPropertyRequired,
+    PolymorphicListProperty,
+    PolymorphicListPropertyRequired,
     QuaternionProperty,
     StringValueProperty,
+    StructListProperty,
+    StructListPropertyRequired,
     TextListProperty,
     TextProperty,
     TextPropertyRequired,
@@ -133,13 +135,10 @@ class LightInstance(ElementTree):
         self.projected_texture_key = ValueProperty("projectedTextureKey")
 
 
-class LightInstancesList(ListProperty):
+class LightInstancesList(StructListProperty):
     list_type = LightInstance
     tag_name = "instances"
-
-    def __init__(self, tag_name=None, value=None):
-        super().__init__(LightInstancesList.tag_name, value=value)
-        self.item_type = AttributeProperty("itemType", "CLightAttrDef")
+    item_type_name = "CLightAttrDef"
 
 
 class ExtensionParticleEffect(Extension):
@@ -339,59 +338,28 @@ class ExtensionProcObject(Extension):
         self.flags = ValueProperty("flags")
 
 
-class ExtensionsList(ListProperty):
+class ExtensionsList(PolymorphicListProperty):
     list_type = Extension
     tag_name = "extensions"
-
-    @staticmethod
-    def get_extension_xml_class_from_type(ext_type: str) -> Union[Type[Extension], None]:
-        if ext_type == ExtensionLightEffect.type:
-            return ExtensionLightEffect
-        elif ext_type == ExtensionParticleEffect.type:
-            return ExtensionParticleEffect
-        elif ext_type == ExtensionAudioCollision.type:
-            return ExtensionAudioCollision
-        elif ext_type == ExtensionAudioEmitter.type:
-            return ExtensionAudioEmitter
-        elif ext_type == ExtensionExplosionEffect.type:
-            return ExtensionExplosionEffect
-        elif ext_type == ExtensionLadder.type:
-            return ExtensionLadder
-        elif ext_type == ExtensionBuoyancy.type:
-            return ExtensionBuoyancy
-        elif ext_type == ExtensionExpression.type:
-            return ExtensionExpression
-        elif ext_type == ExtensionLightShaft.type:
-            return ExtensionLightShaft
-        elif ext_type == ExtensionDoor.type:
-            return ExtensionDoor
-        elif ext_type == ExtensionSpawnPoint.type:
-            return ExtensionSpawnPoint
-        elif ext_type == ExtensionSpawnPointOverride.type:
-            return ExtensionSpawnPointOverride
-        elif ext_type == ExtensionWindDisturbance.type:
-            return ExtensionWindDisturbance
-        elif ext_type == ExtensionProcObject.type:
-            return ExtensionProcObject
-
-        return None
-
-    @staticmethod
-    def from_xml(element: ET.Element):
-        new = ExtensionsList()
-
-        for child in element.iter():
-            if "type" in child.attrib:
-                ext_type = child.get("type")
-                ext_class = ExtensionsList.get_extension_xml_class_from_type(ext_type)
-
-                if ext_class is None:
-                    print(f"Unknown extension type '{ext_type}'! Skipping...")
-                    continue
-
-                new.value.append(ext_class.from_xml(child))
-
-        return new
+    item_classes = {
+        cls.type: cls
+        for cls in (
+            ExtensionLightEffect,
+            ExtensionParticleEffect,
+            ExtensionAudioCollision,
+            ExtensionAudioEmitter,
+            ExtensionExplosionEffect,
+            ExtensionLadder,
+            ExtensionBuoyancy,
+            ExtensionExpression,
+            ExtensionLightShaft,
+            ExtensionDoor,
+            ExtensionSpawnPoint,
+            ExtensionSpawnPointOverride,
+            ExtensionWindDisturbance,
+            ExtensionProcObject,
+        )
+    }
 
 
 class Entity(ElementTree):
@@ -440,26 +408,11 @@ class EntityMloInstance(Entity):
         self.mlo_inst_flags = ValueProperty("MLOInstflags", 0)
 
 
-class EntityList(ListPropertyRequired):
+class EntityList(PolymorphicListPropertyRequired):
     list_type = Entity
     tag_name = "entities"
     item_tag_name = "Item"
-
-    @staticmethod
-    def from_xml(element: ET.Element):
-        new = EntityList()
-
-        for child in element:
-            if "type" in child.attrib:
-                entity_type = child.get("type")
-                if entity_type == "CEntityDef":
-                    new.value.append(Entity.from_xml(child))
-                elif entity_type == "CMloInstanceDef":
-                    new.value.append(EntityMloInstance.from_xml(child))
-                else:
-                    raise AssertionError(f"Unknown entity type '{entity_type}'")
-
-        return new
+    item_classes = {"CEntityDef": Entity, "CMloInstanceDef": EntityMloInstance}
 
 
 class ContainerLodsList(ElementTree):
@@ -487,13 +440,10 @@ class BoxOccluder(ElementTree):
         self.sin_z = ValueProperty("iSinZ")
 
 
-class BoxOccludersList(ListPropertyRequired):
+class BoxOccludersList(StructListPropertyRequired):
     list_type = BoxOccluder
     tag_name = "boxOccluders"
-
-    def __init__(self, tag_name=None, value=None):
-        super().__init__(tag_name, value)
-        self.item_type = AttributeProperty("itemType", "BoxOccluder")
+    item_type_name = "BoxOccluder"
 
 
 class OccludeModel(ElementTree):
@@ -536,13 +486,10 @@ class OccludeModel(ElementTree):
         self.flags = ValueProperty("flags")
 
 
-class OccludeModelsList(ListPropertyRequired):
+class OccludeModelsList(StructListPropertyRequired):
     list_type = OccludeModel
     tag_name = "occludeModels"
-
-    def __init__(self, tag_name=None, value=None):
-        super().__init__(tag_name, value)
-        self.item_type = AttributeProperty("itemType", "OccludeModel")
+    item_type_name = "OccludeModel"
 
 
 class PhysicsDictionariesList(ListProperty):
@@ -589,13 +536,10 @@ class GrassInstance(ElementTree):
         # self.pad = InlineValueListProperty("Pad")
 
 
-class GrassInstanceList(ListPropertyRequired):
+class GrassInstanceList(StructListPropertyRequired):
     list_type = GrassInstance
     tag_name = "InstanceList"
-
-    def __init__(self, tag_name=None, value=None):
-        super().__init__(tag_name, value)
-        self.item_type = AttributeProperty("itemType", "rage__fwGrassInstanceListDef__InstanceData")
+    item_type_name = "rage__fwGrassInstanceListDef__InstanceData"
 
 
 class GrassInstanceListAABB(ElementTree):
@@ -622,13 +566,10 @@ class GrassInstanceListDef(ElementTree):
         self.instance_list = GrassInstanceList()
 
 
-class GrassInstanceListDefList(ListPropertyRequired):
+class GrassInstanceListDefList(StructListPropertyRequired):
     list_type = GrassInstanceListDef
     tag_name = "GrassInstanceList"
-
-    def __init__(self, tag_name=None, value=None):
-        super().__init__(tag_name, value)
-        self.item_type = AttributeProperty("itemType", "rage__fwGrassInstanceListDef")
+    item_type_name = "rage__fwGrassInstanceListDef"
 
 
 class InstancedMapData(ElementTree):
@@ -655,13 +596,10 @@ class TimeCycleModifier(ElementTree):
         self.end_hour = ValueProperty("endHour")
 
 
-class TimeCycleModifiersList(ListPropertyRequired):
+class TimeCycleModifiersList(StructListPropertyRequired):
     list_type = TimeCycleModifier
     tag_name = "timeCycleModifiers"
-
-    def __init__(self, tag_name=None, value=None):
-        super().__init__(tag_name, value)
-        self.item_type = AttributeProperty("itemType", "CTimeCycleModifier")
+    item_type_name = "CTimeCycleModifier"
 
 
 class CarGenerator(ElementTree):
@@ -683,13 +621,10 @@ class CarGenerator(ElementTree):
         self.livery = ValueProperty("livery", -1)
 
 
-class CarGeneratorsList(ListPropertyRequired):
+class CarGeneratorsList(StructListPropertyRequired):
     list_type = CarGenerator
     tag_name = "carGenerators"
-
-    def __init__(self, tag_name=None, value=None):
-        super().__init__(tag_name, value)
-        self.item_type = AttributeProperty("itemType", "CCarGen")
+    item_type_name = "CCarGen"
 
 
 class FloatXYZ(ElementTree):
@@ -702,13 +637,10 @@ class FloatXYZ(ElementTree):
         self.z = ValueProperty("z")
 
 
-class FloatXYZList(ListPropertyRequired):
+class FloatXYZList(StructListPropertyRequired):
     list_type = FloatXYZ
     tag_name = "direction"
-
-    def __init__(self, tag_name=None, value=None):
-        super().__init__(tag_name, value)
-        self.item_type = AttributeProperty("itemType", "FloatXYZ")
+    item_type_name = "FloatXYZ"
 
 
 class LODLightsSOA(ElementTree):
