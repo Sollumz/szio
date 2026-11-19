@@ -4,6 +4,7 @@ import pytest
 
 from szio.gta5.cwxml.ymap import HexColorProperty
 from szio.xml.element import (
+    AttributeProperty,
     ElementTree,
     Matrix33Property,
     MatrixProperty,
@@ -298,10 +299,22 @@ def test_meta_element_tree_matches_regardless_of_the_declared_name(declared_tag:
     assert m.v == 7
 
 
+@pytest.mark.parametrize("declared_tag", META_ALL_TAGS)
 @pytest.mark.parametrize("tag", META_ALL_TAGS)
-def test_meta_element_tree_writes_back_the_name_it_read(tag: str):
-    m = Meta.from_xml(ET.fromstring(f'<Meta><{tag} value="7" /></Meta>'))
-    assert m.to_xml()[0].tag == tag
+def test_meta_element_tree_writes_the_declared_name(declared_tag: str, tag: str):
+    class M(MetaElementTree):
+        tag_name = declared_tag
+
+        def __init__(self):
+            self.count = AttributeProperty("count", 0)
+            self.v = ValueProperty(declared_tag, 0)
+
+    m = M.from_xml(ET.fromstring(f'<{tag} count="3"><{tag} value="7" /></{tag}>'))
+    out = m.to_xml()
+    assert out.tag == declared_tag
+    assert out.get("count") == "3"
+    assert out[0].tag == declared_tag
+    assert m.v == 7
 
 
 def test_meta_element_tree_leaves_a_missing_child_at_its_default():

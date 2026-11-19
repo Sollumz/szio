@@ -207,8 +207,6 @@ class MetaElementTree(ElementTree):
     @classmethod
     def from_xml(cls, element: ET.Element):
         new = cls()
-        if new.tag_name != element.tag:
-            new.tag_name = element.tag
 
         children_by_hash = {}
         for child in element:
@@ -220,7 +218,9 @@ class MetaElementTree(ElementTree):
             if isinstance(obj_element, Element):
                 child = children_by_hash.get(name_to_hash_literal(obj_element.tag_name))
                 if child is not None:
-                    setattr(new, prop_name, type(obj_element).from_xml(child))
+                    parsed = type(obj_element).from_xml(child)
+                    parsed.tag_name = obj_element.tag_name
+                    setattr(new, prop_name, parsed)
                 elif isinstance(obj_element, ElementTree):
                     setattr(new, prop_name, None)
             elif isinstance(obj_element, AttributeProperty):
