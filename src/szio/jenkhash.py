@@ -4,6 +4,7 @@ import hashlib
 import logging
 import os
 import pickle
+from functools import lru_cache
 from pathlib import Path
 from typing import Sequence
 
@@ -32,6 +33,7 @@ def hash_string(text: str, encoding: str = "utf-8", seed: int = 0) -> int:
     return hash_data(bts, seed)
 
 
+@lru_cache(maxsize=4096)
 def hash_string_literal(text: str, encoding: str = "utf-8", seed: int = 0) -> int:
     """Case-sensitive JOAAT."""
     return hash_data(text.encode(encoding), seed)
